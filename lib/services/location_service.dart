@@ -182,7 +182,7 @@ Future<void> syncAttendanceData() async {
 
       try {
         final response = await http.post(
-          Uri.parse('http://192.168.10.5:8000/api/attendance/sync'),
+          Uri.parse('http://192.168.10.17:8000/api/attendance/sync'),
           headers: {'Content-Type': 'application/json; charset=UTF-8'},
           body: jsonEncode(payload),
         );

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // For formatting date and time
 import 'package:http/http.dart' as http;
 import 'package:location_checker/screens/history_screen.dart';
+import 'package:location_checker/screens/login_screen.dart';
 import 'dart:convert';
 import 'package:location_checker/services/location_service.dart';
 import 'package:location_checker/services/local_database_servie.dart';
@@ -428,7 +429,7 @@ _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<Co
 
         try {
           final response = await http.post(
-            Uri.parse('http://192.168.10.5:8000/api/attendance/sync'),
+            Uri.parse('http://192.168.10.17:8000/api/attendance/sync'),
             headers: {'Content-Type': 'application/json; charset=UTF-8'},
             body: jsonEncode(payload),
           );
@@ -481,7 +482,7 @@ _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<Co
 
         try {
           final response = await http.post(
-            Uri.parse('http://192.168.10.5:8000/api/regularization/sync'),
+            Uri.parse('http://192.168.10.17:8000/api/regularization/sync'),
             headers: {'Content-Type': 'application/json; charset=UTF-8'},
             body: jsonEncode(payload),
           );
@@ -543,10 +544,29 @@ _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<Co
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: Row(
                             children: [
-                              CircleAvatar(
-                                backgroundColor: Colors.grey[800],
-                                radius: 24,
-                              ),
+                             PopupMenuButton<String>(
+  onSelected: (String value) {
+    if (value == 'logout') {
+      // Navigate to LoginScreen when logout is selected
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LoginScreen(),
+        ),
+      );
+    }
+  },
+  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+    const PopupMenuItem<String>(
+      value: 'logout',
+      child: Text('Logout'),
+    ),
+  ],
+  child: CircleAvatar(
+    backgroundColor: Colors.grey[800],
+    radius: 24,
+  ),
+),
                               SizedBox(width: 16),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,

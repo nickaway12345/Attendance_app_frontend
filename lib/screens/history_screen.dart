@@ -32,9 +32,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
     try {
       // Fetch attendance data
       final attendanceResponse =
-          await http.get(Uri.parse('http://192.168.10.5:8000/attendance?empId=${widget.empId}'));
+          await http.get(Uri.parse('http://192.168.10.17:8000/attendance?empId=${widget.empId}'));
       // Fetch holidays data
-      final holidaysResponse = await http.get(Uri.parse('http://192.168.10.5:8000/holidays'));
+      final holidaysResponse = await http.get(Uri.parse('http://192.168.10.17:8000/holidays'));
 
       if (attendanceResponse.statusCode == 200 && holidaysResponse.statusCode == 200) {
         final attendanceData = json.decode(attendanceResponse.body) as List;
@@ -430,7 +430,7 @@ class _RegularizeScreenState extends State<RegularizeScreen> {
   Future<void> _fetchAttendanceData() async {
   try {
     final response = await http.get(
-      Uri.parse('http://192.168.10.5:8000/attendanceByDate?empId=${widget.empId}&date=${DateFormat('yyyy-MM-dd').format(widget.date)}'),
+      Uri.parse('http://192.168.10.17:8000/attendanceByDate?empId=${widget.empId}&date=${DateFormat('yyyy-MM-dd').format(widget.date)}'),
     );
 
     if (response.statusCode == 200) {
@@ -538,7 +538,7 @@ Future<void> _submitRegularization() async {
 
     // Fetch attendance data for the given empId and date
     final attendanceResponse = await http.get(
-      Uri.parse('http://192.168.10.5:8000/attendanceByDate?empId=${widget.empId}&date=${DateFormat('yyyy-MM-dd').format(widget.date)}'),
+      Uri.parse('http://192.168.10.17:8000/attendanceByDate?empId=${widget.empId}&date=${DateFormat('yyyy-MM-dd').format(widget.date)}'),
     );
 
     String locationIn = 'Outside Office'; // Default value
@@ -567,7 +567,7 @@ Future<void> _submitRegularization() async {
 
     // Submit regularization data
     final response = await http.post(
-      Uri.parse('http://192.168.10.5:8000/api/regularization/sync'),
+      Uri.parse('http://192.168.10.17:8000/api/regularization/sync'),
       headers: {'Content-Type': 'application/json; charset=UTF-8'},
       body: jsonEncode({
         'id': {
@@ -806,180 +806,253 @@ class ApprovalPage extends StatefulWidget {
   _ApprovalPageState createState() => _ApprovalPageState();
 }
 
-class _ApprovalPageState extends State<ApprovalPage> {
+class _ApprovalPageState extends State<ApprovalPage> with SingleTickerProviderStateMixin {
   List<dynamic> pendingEntries = [];
+  List<dynamic> approvedEntries = [];
+  List<dynamic> rejectedEntries = [];
   late String emp_id;
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
     emp_id = widget.empId;
+    _tabController = TabController(length: 3, vsync: this); // 3 tabs for Pending, Approved, Rejected
     fetchPendingEntries();
+    fetchApprovedEntries();
+    fetchRejectedEntries();
   }
 
-Future<void> fetchPendingEntries() async {
-  final response = await http.get(Uri.parse('http://192.168.10.5:8000/approvals/${widget.empId}/pending'));
+  Future<void> fetchPendingEntries() async {
+    final response = await http.get(Uri.parse('http://192.168.10.17:8000/approvals/${widget.empId}/pending'));
 
-  if (response.statusCode == 200) {
-    setState(() {
-      print('Backend Response: ${response.body}');
-      pendingEntries = List<Map<String, dynamic>>.from(jsonDecode(response.body));
-    });
-  } else {
-    // Handle error
-    print('Failed to load pending entries');
+    if (response.statusCode == 200) {
+      setState(() {
+        pendingEntries = List<Map<String, dynamic>>.from(jsonDecode(response.body));
+      });
+    } else {
+      print('Failed to load pending entries');
+    }
   }
-}
 
+  Future<void> fetchApprovedEntries() async {
+    final response = await http.get(Uri.parse('http://192.168.10.17:8000/approvals/${widget.empId}/approved'));
 
- Future<void> updateApproval(String empId, String date, String newStatus) async {
-  final response = await http.post(
-    Uri.parse(
-      'http://192.168.10.5:8000/approvals/update?empId=$empId&date=$date&approval=$newStatus&approvedBy=${widget.empId}'
-    ),
-    headers: {'Content-Type': 'application/json'},
-  );
-
-  if (response.statusCode == 200) {
-    // Update the UI after success
-    setState(() {
-      pendingEntries.removeWhere((entry) => entry['empId'] == empId && entry['date'] == date);
-    });
-  } else {
-    // Handle error
-    print('Failed to update approval');
+    if (response.statusCode == 200) {
+      setState(() {
+        approvedEntries = List<Map<String, dynamic>>.from(jsonDecode(response.body));
+      });
+    } else {
+      print('Failed to load approved entries');
+    }
   }
-}
 
+  Future<void> fetchRejectedEntries() async {
+    final response = await http.get(Uri.parse('http://192.168.10.17:8000/approvals/${widget.empId}/rejected'));
 
+    if (response.statusCode == 200) {
+      setState(() {
+        rejectedEntries = List<Map<String, dynamic>>.from(jsonDecode(response.body));
+      });
+    } else {
+      print('Failed to load rejected entries');
+    }
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Approvals'),
+  Future<void> updateApproval(String empId, String date, String newStatus) async {
+    final response = await http.post(
+      Uri.parse(
+        'http://192.168.10.17:8000/approvals/update?empId=$empId&date=$date&approval=$newStatus&approvedBy=${widget.empId}'
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/background.png'),
-            fit: BoxFit.cover,
-          ),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        pendingEntries.removeWhere((entry) => entry['empId'] == empId && entry['date'] == date);
+        if (newStatus == 'Approved') {
+          approvedEntries.add({'empId': empId, 'date': date});
+        } else if (newStatus == 'Rejected') {
+          rejectedEntries.add({'empId': empId, 'date': date});
+        }
+      });
+    } else {
+      print('Failed to update approval');
+    }
+  }
+
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text('Approvals'),
+      bottom: TabBar(
+        controller: _tabController,
+        tabs: const [
+          Tab(text: 'Pending'),
+          Tab(text: 'Approved'),
+          Tab(text: 'Rejected'),
+        ],
+      ),
+    ),
+    body: Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/images/background.png'), // Add your background image here
+          fit: BoxFit.cover,
         ),
-        child: ListView.builder(
-  itemCount: pendingEntries.length,
-  itemBuilder: (context, index) {
-    var entry = pendingEntries[index];
-    return ListTile(
-      title: Text('${entry['empId']} - ${entry['date']}'),
-      subtitle: Text('${entry['locationIn']} to ${entry['locationOut']} (${entry['totalHours']} hrs)'),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
+      ),
+      child: TabBarView(
+        controller: _tabController,
         children: [
-          IconButton(
-            icon: Icon(Icons.check, color: Colors.green),
-            onPressed: () {
-              updateApproval(entry['empId'], entry['date'], 'Approved');
+          // Pending Tab
+          ListView.builder(
+            itemCount: pendingEntries.length,
+            itemBuilder: (context, index) {
+              var entry = pendingEntries[index];
+              return Container(
+                color: Color(0xFFFDEEEE).withOpacity(0.8), // Light orange background with opacity
+                margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                child: ListTile(
+                  title: Text('${entry['empId']} - ${entry['date']}', style: TextStyle(color: Colors.black)),
+                  subtitle: Text('${entry['locationIn']} to ${entry['locationOut']} (${entry['totalHours']} hrs)', style: TextStyle(color: Colors.black)),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.check, color: Colors.green),
+                        onPressed: () {
+                          updateApproval(entry['empId'], entry['date'], 'Approved');
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close, color: Colors.red),
+                        onPressed: () {
+                          updateApproval(entry['empId'], entry['date'], 'Rejected');
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              );
             },
           ),
-          IconButton(
-            icon: Icon(Icons.close, color: Colors.red),
-            onPressed: () {
-              updateApproval(entry['empId'], entry['date'], 'Rejected');
+          // Approved Tab
+          ListView.builder(
+            itemCount: approvedEntries.length,
+            itemBuilder: (context, index) {
+              var entry = approvedEntries[index];
+              return Container(
+                color: Color(0xFFE8F5E9).withOpacity(0.8), // Light green background with opacity
+                margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                child: ListTile(
+                  title: Text('${entry['empId']} - ${entry['date']}', style: TextStyle(color: Colors.black)),
+                  subtitle: Text('Approved', style: TextStyle(color: Colors.black)),
+                ),
+              );
+            },
+          ),
+          // Rejected Tab
+          ListView.builder(
+            itemCount: rejectedEntries.length,
+            itemBuilder: (context, index) {
+              var entry = rejectedEntries[index];
+              return Container(
+                color: Color(0xFFFFEBEE).withOpacity(0.8), // Light red background with opacity
+                margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                child: ListTile(
+                  title: Text('${entry['empId']} - ${entry['date']}', style: TextStyle(color: Colors.black)),
+                  subtitle: Text('Rejected', style: TextStyle(color: Colors.black)),
+                ),
+              );
             },
           ),
         ],
       ),
-    );
-  },
-),
-
-      ),
-      bottomNavigationBar: Container(
-        color: Colors.black, // Outer container with black margin effect
-        margin: EdgeInsets.only(bottom: 10), // This creates the margin
-        child: Container(
-          height: 60,
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
-          decoration: BoxDecoration(
-            color: Color(0xFFFF7043), // Actual bottom bar color
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 10,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Home Tab
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LocationCheckerScreen(empId:widget.empId),
-                      ),
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.home, color: Colors.white),
-                        SizedBox(width: 8),
-                        Text(
-                          'HOME',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
+    ),
+    bottomNavigationBar: Container(
+      color: Colors.black,
+      margin: EdgeInsets.only(bottom: 10),
+      child: Container(
+        height: 60,
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+        decoration: BoxDecoration(
+          color: Color(0xFFFF7043),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 10,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LocationCheckerScreen(empId: widget.empId),
                     ),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.home, color: Colors.white),
+                      SizedBox(width: 8),
+                      Text(
+                        'HOME',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              // History Tab
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HistoryScreen(empId: widget.empId),
-                      ),
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.history, color: Colors.white),
-                        SizedBox(width: 8),
-                        Text(
-                          'HISTORY',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
+            ),
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HistoryScreen(empId: widget.empId),
                     ),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.history, color: Colors.white),
+                      SizedBox(width: 8),
+                      Text(
+                        'HISTORY',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
