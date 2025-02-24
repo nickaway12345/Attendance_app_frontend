@@ -58,6 +58,7 @@ class _LocationCheckerScreenState extends State<LocationCheckerScreen> {
   void initState() {
     super.initState();
     emp_id = widget.empId;
+    _fetchHolidays();
 
     // Start the timer to update the current time every second
     _timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
@@ -96,6 +97,21 @@ _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<Co
       currentTime = DateTime.now();
     });
   }
+
+    List<DateTime> _holidays = [];
+
+Future<void> _fetchHolidays() async {
+  final response = await http.get(Uri.parse('http://192.168.10.17:8000/holidays'));
+  if (response.statusCode == 200) {
+    final List<dynamic> holidaysData = jsonDecode(response.body);
+    setState(() {
+      _holidays = holidaysData.map((item) => DateTime.parse(item['date'])).toList();
+    });
+  } else {
+    throw Exception('Failed to load holidays');
+  }
+}
+
 
   Future<void> _fetchAttendanceData() async {
     final db = await LocalDatabaseService.database;
@@ -183,11 +199,27 @@ _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<Co
     });
   }
 
+  bool _isSundayOrHoliday(DateTime date) {
+  // Check if the date is a Sunday
+  if (date.weekday == DateTime.sunday) {
+    return true;
+  }
+
+  // Check if the date is a holiday
+  for (var holiday in _holidays) {
+    if (date.year == holiday.year && date.month == holiday.month && date.day == holiday.day) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
   // Mark-in logic
   Future<void> _markIn() async {
     // Check if today is Sunday
-    if (DateTime.now().weekday == DateTime.sunday) {
-      _showSundayAlert();
+    if (_isSundayOrHoliday(DateTime.now())) {
+       _showSundayOrHolidayAlert();
       return;
     }
 
@@ -244,8 +276,8 @@ _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<Co
 
   Future<void> _markOut() async {
   // Check if today is Sunday
-  if (DateTime.now().weekday == DateTime.sunday) {
-    _showSundayAlert();
+  if (_isSundayOrHoliday(DateTime.now())) {
+    _showSundayOrHolidayAlert();
     return;
   }
 
@@ -349,6 +381,22 @@ _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<Co
   _syncRegularizationData();
 }
 
+
+  void _showSundayOrHolidayAlert() {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('Not Allowed'),
+      content: Text('Punching is not allowed on Sundays and holidays.'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('OK'),
+        ),
+      ],
+    ),
+  );
+}
 
   // Show Sunday alert
   void _showSundayAlert() {
@@ -511,6 +559,7 @@ _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<Co
 
   @override
   Widget build(BuildContext context) {
+    bool isSundayOrHoliday = _isSundayOrHoliday(DateTime.now());
     double barHeight = 60; // Height of the bottom bar and sliding box
     double barWidth = MediaQuery.of(context).size.width;
     double tabWidth = barWidth / 2;
@@ -633,35 +682,42 @@ _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<Co
                             ),
                             SizedBox(height: 32),
 
-                            // Punch Button
-                            GestureDetector(
-                              onTap: _isMarkInEnabled ? _markIn : _isMarkOutEnabled ? _markOut : null,
-                              child: Container(
-                                width: 180,
-                                height: 180,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.white.withOpacity(0.2),
-                                      blurRadius: 10,
-                                      spreadRadius: 2,
-                                    ),
-                                  ],
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    _isMarkInEnabled ? 'PUNCH IN' : _isMarkOutEnabled ? 'PUNCH OUT' : 'DISABLED',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
+                    GestureDetector(
+  onTap: _isSundayOrHoliday(DateTime.now()) // Check if today is Sunday or a holiday
+      ? null // Disable onTap if it's Sunday or a holiday
+      : (_isMarkInEnabled ? _markIn : _isMarkOutEnabled ? _markOut : null), // Enable onTap otherwise
+  child: Container(
+    width: 180,
+    height: 180,
+    decoration: BoxDecoration(
+      color: _isSundayOrHoliday(DateTime.now()) // Change color if it's Sunday or a holiday
+          ? Colors.grey // Grey color for disabled state
+          : Colors.white, // White color for enabled state
+      shape: BoxShape.circle,
+      boxShadow: [
+        BoxShadow(
+          color: Colors.white.withOpacity(0.2),
+          blurRadius: 10,
+          spreadRadius: 2,
+        ),
+      ],
+    ),
+    child: Center(
+      child: Text(
+        _isSundayOrHoliday(DateTime.now()) // Check if today is Sunday or a holiday
+            ? 'DISABLED' // Show "DISABLED" if it's Sunday or a holiday
+            : (_isMarkInEnabled ? 'PUNCH IN' : _isMarkOutEnabled ? 'PUNCH OUT' : 'DISABLED'), // Otherwise, show appropriate text
+        style: TextStyle(
+          color: _isSundayOrHoliday(DateTime.now()) // Change text color if it's Sunday or a holiday
+              ? Colors.black54 // Greyish color for disabled state
+              : Colors.black, // Black color for enabled state
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+  ),
+),
                             SizedBox(height: 40), // Reduced space between punch button and icons
 
                             // Punch In, Punch Out, and Total Hours in a Row
