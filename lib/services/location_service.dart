@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:intl/intl.dart'; // For date formatting
@@ -12,12 +13,22 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class LocationService {
-  static final LatLng _hardcodedLocation = LatLng(20.0360637, 73.7945010); // Office location
+  final double longitude = double.tryParse(dotenv.env['STATIC_LONG'] ?? '') ?? 20.0360637;
+  final double latitude = double.tryParse(dotenv.env['STATIC_LAT'] ?? '') ?? 73.7945010;
+  
+  final LatLng hardcodedLocation;
+
+  LocationService() : hardcodedLocation = LatLng(
+    double.tryParse(dotenv.env['STATIC_LAT'] ?? '') ?? 20.0360637,
+    double.tryParse(dotenv.env['STATIC_LONG'] ?? '') ?? 73.7945010,
+  ); // Office location
   static const double _radiusInYards = 150.0;
   static final double _radiusInMeters = _radiusInYards * 0.9144;
 
   static Future<String> checkUserProximity() async {
     try {
+      LocationService locationService = LocationService();
+      LatLng officeLocation = locationService.hardcodedLocation;
       bool serviceEnabled;
       LocationPermission permission;
 
@@ -42,7 +53,7 @@ class LocationService {
       LatLng userLocation = LatLng(position.latitude, position.longitude);
 
       final Distance distance = Distance();
-      double distanceInMeters = distance(_hardcodedLocation, userLocation);
+      double distanceInMeters = distance(officeLocation, userLocation);
 
       if (distanceInMeters <= _radiusInMeters) {
         return 'office';
@@ -181,8 +192,9 @@ Future<void> syncAttendanceData() async {
       };
 
       try {
+        String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
         final response = await http.post(
-          Uri.parse('http://192.168.10.17:8000/api/attendance/sync'),
+          Uri.parse('$baseUrl:8000/api/attendance/sync'),
           headers: {'Content-Type': 'application/json; charset=UTF-8'},
           body: jsonEncode(payload),
         );

@@ -1,6 +1,7 @@
 import 'dart:async'; // For StreamSubscription
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart'; // For formatting date and time
 import 'package:http/http.dart' as http;
 import 'package:location_checker/screens/history_screen.dart';
@@ -101,7 +102,8 @@ _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<Co
     List<DateTime> _holidays = [];
 
 Future<void> _fetchHolidays() async {
-  final response = await http.get(Uri.parse('http://192.168.10.17:8000/holidays'));
+  String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
+  final response = await http.get(Uri.parse('$baseUrl:8000/holidays'));
   if (response.statusCode == 200) {
     final List<dynamic> holidaysData = jsonDecode(response.body);
     setState(() {
@@ -288,6 +290,7 @@ Future<void> _fetchHolidays() async {
   Map<String, dynamic>? punchInData = await LocalDatabaseService.getPunchInDataForDate(emp_id, _currentDate);
   bool entryInAttendance = await LocalDatabaseService.isInAttendance(emp_id, _currentDate);
   String locationIn = 'Unknown';
+  String day ='';
 
   if (punchInData != null) {
     if (entryInAttendance) {
@@ -300,6 +303,8 @@ Future<void> _fetchHolidays() async {
           _inTime = punchInData['in_time']; // Take inTime from attendance entry
           _outTime = DateFormat('HH:mm:ss').format(DateTime.now());
           _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
+          if(_totalHours >= 9) day='F';
+          else day = 'H';
           _isMarkOutEnabled = false; // Disable mark-out after pressing
         });
         await LocalDatabaseService.saveAttendanceLocally({
@@ -310,6 +315,7 @@ Future<void> _fetchHolidays() async {
           'total_hours': _totalHours,
           'location_in': locationIn,
           'location_out': 'Office', // Both locationIn and locationOut are 'Office'
+          'day': day,
         });
       } else {
         // Case 1b: Mark-out outside office
@@ -317,6 +323,8 @@ Future<void> _fetchHolidays() async {
           _inTime = punchInData['in_time']; // Take inTime from attendance entry
           _outTime = DateFormat('HH:mm:ss').format(DateTime.now());
           _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
+           if(_totalHours >= 9) day='F';
+          else day = 'H';
           _isMarkOutEnabled = false; // Disable mark-out after pressing
         });
         await LocalDatabaseService.saveRegularizationLocally({
@@ -326,6 +334,7 @@ Future<void> _fetchHolidays() async {
           'out_time': _outTime,
           'total_hours': _totalHours,
           'location_in': locationIn,
+          'day': day,
           'location_out': 'Outside Office', // Mark-out location is outside office
           'approval': 'Pending',
           'approved_by': null,
@@ -342,6 +351,8 @@ Future<void> _fetchHolidays() async {
           _inTime = ""; // Set inTime to null
           _outTime = DateFormat('HH:mm:ss').format(DateTime.now());
           _totalHours = 0; // Set totalHours to 0
+           if(_totalHours >= 9) day='F';
+          else day = 'H';
           _isMarkOutEnabled = false; // Disable mark-out after pressing
         });
         await LocalDatabaseService.saveAttendanceLocally({
@@ -350,6 +361,7 @@ Future<void> _fetchHolidays() async {
           'in_time': _inTime,
           'out_time': _outTime,
           'total_hours': _totalHours,
+          'day': day,
           'location_in': 'Outside Office', // Found in regularization
           'location_out': 'Office', // Mark-out is inside office
         });
@@ -359,6 +371,8 @@ Future<void> _fetchHolidays() async {
           _inTime = punchInData['in_time']; // Take inTime from regularization entry
           _outTime = DateFormat('HH:mm:ss').format(DateTime.now());
           _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
+           if(_totalHours >= 9) day='F';
+          else day = 'H';
           _isMarkOutEnabled = false; // Disable mark-out after pressing
         });
         await LocalDatabaseService.saveRegularizationLocally({
@@ -367,6 +381,7 @@ Future<void> _fetchHolidays() async {
           'in_time': _inTime,
           'out_time': _outTime,
           'total_hours': _totalHours,
+          'day': day,
           'location_in': 'Outside Office', // Both locationIn and locationOut are 'Outside Office'
           'location_out': 'Outside Office',
           'approval': 'Pending',
@@ -476,8 +491,9 @@ Future<void> _fetchHolidays() async {
         print('Sending payload to backend: ${jsonEncode(payload)}');
 
         try {
+          String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
           final response = await http.post(
-            Uri.parse('http://192.168.10.17:8000/api/attendance/sync'),
+            Uri.parse('$baseUrl:8000/api/attendance/sync'),
             headers: {'Content-Type': 'application/json; charset=UTF-8'},
             body: jsonEncode(payload),
           );
@@ -529,8 +545,9 @@ Future<void> _fetchHolidays() async {
         print('Sending payload to backend: ${jsonEncode(payload)}');
 
         try {
+          String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
           final response = await http.post(
-            Uri.parse('http://192.168.10.17:8000/api/regularization/sync'),
+            Uri.parse('$baseUrl:8000/api/regularization/sync'),
             headers: {'Content-Type': 'application/json; charset=UTF-8'},
             body: jsonEncode(payload),
           );

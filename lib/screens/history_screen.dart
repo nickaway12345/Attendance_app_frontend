@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
 import 'package:location_checker/screens/location_checker_screen.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -30,11 +31,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Future<void> _fetchAttendanceData() async {
     try {
+      String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
       // Fetch attendance data
       final attendanceResponse =
-          await http.get(Uri.parse('http://192.168.10.17:8000/attendance?empId=${widget.empId}'));
+          await http.get(Uri.parse('$baseUrl:8000/attendance?empId=${widget.empId}'));
       // Fetch holidays data
-      final holidaysResponse = await http.get(Uri.parse('http://192.168.10.17:8000/holidays'));
+      final holidaysResponse = await http.get(Uri.parse('$baseUrl:8000/holidays'));
 
       if (attendanceResponse.statusCode == 200 && holidaysResponse.statusCode == 200) {
         final attendanceData = json.decode(attendanceResponse.body) as List;
@@ -429,8 +431,9 @@ class _RegularizeScreenState extends State<RegularizeScreen> {
 
   Future<void> _fetchAttendanceData() async {
   try {
+    String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
     final response = await http.get(
-      Uri.parse('http://192.168.10.17:8000/attendanceByDate?empId=${widget.empId}&date=${DateFormat('yyyy-MM-dd').format(widget.date)}'),
+      Uri.parse('$baseUrl:8000/attendanceByDate?empId=${widget.empId}&date=${DateFormat('yyyy-MM-dd').format(widget.date)}'),
     );
 
     if (response.statusCode == 200) {
@@ -512,6 +515,7 @@ double calculateTotalHours(DateTime inTime, DateTime outTime) {
 
 Future<void> _submitRegularization() async {
   try {
+    String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
     // Validate time inputs
     if (_inTime.isEmpty || _outTime.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -538,7 +542,7 @@ Future<void> _submitRegularization() async {
 
     // Fetch attendance data for the given empId and date
     final attendanceResponse = await http.get(
-      Uri.parse('http://192.168.10.17:8000/attendanceByDate?empId=${widget.empId}&date=${DateFormat('yyyy-MM-dd').format(widget.date)}'),
+      Uri.parse('$baseUrl:8000/attendanceByDate?empId=${widget.empId}&date=${DateFormat('yyyy-MM-dd').format(widget.date)}'),
     );
 
     String locationIn = 'Outside Office'; // Default value
@@ -567,7 +571,7 @@ Future<void> _submitRegularization() async {
 
     // Submit regularization data
     final response = await http.post(
-      Uri.parse('http://192.168.10.17:8000/api/regularization/sync'),
+      Uri.parse('$baseUrl:8000/api/regularization/sync'),
       headers: {'Content-Type': 'application/json; charset=UTF-8'},
       body: jsonEncode({
         'id': {
@@ -824,7 +828,8 @@ class _ApprovalPageState extends State<ApprovalPage> with SingleTickerProviderSt
   }
 
   Future<void> fetchPendingEntries() async {
-    final response = await http.get(Uri.parse('http://192.168.10.17:8000/approvals/${widget.empId}/pending'));
+    String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
+    final response = await http.get(Uri.parse('$baseUrl:8000/approvals/${widget.empId}/pending'));
 
     if (response.statusCode == 200) {
       setState(() {
@@ -836,7 +841,8 @@ class _ApprovalPageState extends State<ApprovalPage> with SingleTickerProviderSt
   }
 
   Future<void> fetchApprovedEntries() async {
-    final response = await http.get(Uri.parse('http://192.168.10.17:8000/approvals/${widget.empId}/approved'));
+    String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
+    final response = await http.get(Uri.parse('$baseUrl:8000/approvals/${widget.empId}/approved'));
 
     if (response.statusCode == 200) {
       setState(() {
@@ -848,7 +854,8 @@ class _ApprovalPageState extends State<ApprovalPage> with SingleTickerProviderSt
   }
 
   Future<void> fetchRejectedEntries() async {
-    final response = await http.get(Uri.parse('http://192.168.10.17:8000/approvals/${widget.empId}/rejected'));
+    String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
+    final response = await http.get(Uri.parse('$baseUrl:8000/approvals/${widget.empId}/rejected'));
 
     if (response.statusCode == 200) {
       setState(() {
@@ -860,9 +867,10 @@ class _ApprovalPageState extends State<ApprovalPage> with SingleTickerProviderSt
   }
 
   Future<void> updateApproval(String empId, String date, String newStatus) async {
+    String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
     final response = await http.post(
       Uri.parse(
-        'http://192.168.10.17:8000/approvals/update?empId=$empId&date=$date&approval=$newStatus&approvedBy=${widget.empId}'
+        '$baseUrl:8000/approvals/update?empId=$empId&date=$date&approval=$newStatus&approvedBy=${widget.empId}'
       ),
       headers: {'Content-Type': 'application/json'},
     );
