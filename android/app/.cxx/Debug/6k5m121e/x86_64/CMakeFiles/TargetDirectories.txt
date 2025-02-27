@@ -1,0 +1,2 @@
+/Users/nikhil/location_checker/android/app/.cxx/Debug/6k5m121e/x86_64/CMakeFiles/edit_cache.dir
+/Users/nikhil/location_checker/android/app/.cxx/Debug/6k5m121e/x86_64/CMakeFiles/rebuild_cache.dir

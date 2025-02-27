@@ -277,7 +277,7 @@ Future<void> _fetchHolidays() async {
   }
 
   Future<void> _markOut() async {
-  // Check if today is Sunday
+  // Check if today is Sunday or a holiday
   if (_isSundayOrHoliday(DateTime.now())) {
     _showSundayOrHolidayAlert();
     return;
@@ -290,7 +290,12 @@ Future<void> _fetchHolidays() async {
   Map<String, dynamic>? punchInData = await LocalDatabaseService.getPunchInDataForDate(emp_id, _currentDate);
   bool entryInAttendance = await LocalDatabaseService.isInAttendance(emp_id, _currentDate);
   String locationIn = 'Unknown';
-  String day ='';
+  String day = '';
+
+  // Get current location coordinates for punch-out
+  Position currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+  double punchOutLat = currentPosition.latitude;
+  double punchOutLong = currentPosition.longitude;
 
   if (punchInData != null) {
     if (entryInAttendance) {
@@ -303,10 +308,11 @@ Future<void> _fetchHolidays() async {
           _inTime = punchInData['in_time']; // Take inTime from attendance entry
           _outTime = DateFormat('HH:mm:ss').format(DateTime.now());
           _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
-          if(_totalHours >= 9) day='F';
+          if (_totalHours >= 9) day = 'F';
           else day = 'H';
           _isMarkOutEnabled = false; // Disable mark-out after pressing
         });
+
         await LocalDatabaseService.saveAttendanceLocally({
           'emp_id': emp_id,
           'date': _currentDate,
@@ -316,6 +322,10 @@ Future<void> _fetchHolidays() async {
           'location_in': locationIn,
           'location_out': 'Office', // Both locationIn and locationOut are 'Office'
           'day': day,
+          'punch_in_lat': punchInData['punch_in_lat'], // Use punch-in lat from previous entry
+          'punch_in_long': punchInData['punch_in_long'], // Use punch-in long from previous entry
+          'punch_out_lat': punchOutLat, // Current lat for punch-out
+          'punch_out_long': punchOutLong, // Current long for punch-out
         });
       } else {
         // Case 1b: Mark-out outside office
@@ -323,10 +333,11 @@ Future<void> _fetchHolidays() async {
           _inTime = punchInData['in_time']; // Take inTime from attendance entry
           _outTime = DateFormat('HH:mm:ss').format(DateTime.now());
           _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
-           if(_totalHours >= 9) day='F';
+          if (_totalHours >= 9) day = 'F';
           else day = 'H';
           _isMarkOutEnabled = false; // Disable mark-out after pressing
         });
+
         await LocalDatabaseService.saveRegularizationLocally({
           'emp_id': emp_id,
           'date': _currentDate,
@@ -336,11 +347,14 @@ Future<void> _fetchHolidays() async {
           'location_in': locationIn,
           'day': day,
           'location_out': 'Outside Office', // Mark-out location is outside office
+          'punch_in_lat': punchInData['punch_in_lat'], // Use punch-in lat from previous entry
+          'punch_in_long': punchInData['punch_in_long'], // Use punch-in long from previous entry
+          'punch_out_lat': punchOutLat, // Current lat for punch-out
+          'punch_out_long': punchOutLong, // Current long for punch-out
           'approval': 'Pending',
           'approved_by': null,
         });
       }
-
     } else {
       // Case 2: Entry found in regularization table
       locationIn = 'Outside Office';
@@ -348,13 +362,14 @@ Future<void> _fetchHolidays() async {
       if (isInsideOffice) {
         // Case 2a: Mark-out inside office
         setState(() {
-          _inTime = ""; // Set inTime to null
+          _inTime = punchInData['in_time'] ?? ''; // Take inTime from regularization entry
           _outTime = DateFormat('HH:mm:ss').format(DateTime.now());
-          _totalHours = 0; // Set totalHours to 0
-           if(_totalHours >= 9) day='F';
+          _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
+          if (_totalHours >= 9) day = 'F';
           else day = 'H';
           _isMarkOutEnabled = false; // Disable mark-out after pressing
         });
+
         await LocalDatabaseService.saveAttendanceLocally({
           'emp_id': emp_id,
           'date': _currentDate,
@@ -364,6 +379,10 @@ Future<void> _fetchHolidays() async {
           'day': day,
           'location_in': 'Outside Office', // Found in regularization
           'location_out': 'Office', // Mark-out is inside office
+          'punch_in_lat': punchInData['punch_in_lat'], // Use punch-in lat from previous entry
+          'punch_in_long': punchInData['punch_in_long'], // Use punch-in long from previous entry
+          'punch_out_lat': punchOutLat, // Current lat for punch-out
+          'punch_out_long': punchOutLong, // Current long for punch-out
         });
       } else {
         // Case 2b: Mark-out outside office
@@ -371,10 +390,11 @@ Future<void> _fetchHolidays() async {
           _inTime = punchInData['in_time']; // Take inTime from regularization entry
           _outTime = DateFormat('HH:mm:ss').format(DateTime.now());
           _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
-           if(_totalHours >= 9) day='F';
+          if (_totalHours >= 9) day = 'F';
           else day = 'H';
           _isMarkOutEnabled = false; // Disable mark-out after pressing
         });
+
         await LocalDatabaseService.saveRegularizationLocally({
           'emp_id': emp_id,
           'date': _currentDate,
@@ -384,6 +404,10 @@ Future<void> _fetchHolidays() async {
           'day': day,
           'location_in': 'Outside Office', // Both locationIn and locationOut are 'Outside Office'
           'location_out': 'Outside Office',
+          'punch_in_lat': punchInData['punch_in_lat'], // Use punch-in lat from previous entry
+          'punch_in_long': punchInData['punch_in_long'], // Use punch-in long from previous entry
+          'punch_out_lat': punchOutLat, // Current lat for punch-out
+          'punch_out_long': punchOutLong, // Current long for punch-out
           'approval': 'Pending',
           'approved_by': null,
         });

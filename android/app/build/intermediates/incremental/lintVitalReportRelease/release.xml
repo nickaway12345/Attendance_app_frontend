@@ -6,7 +6,7 @@
     shrinking="true"
     mergedManifest="build/intermediates/merged_manifest/release/AndroidManifest.xml"
     manifestMergeReport="build/outputs/logs/manifest-merger-release-report.txt"
-    proguardFiles="build/intermediates/default_proguard_files/global/proguard-android-optimize.txt-8.1.0:/Users/nikhil/flutter/packages/flutter_tools/gradle/flutter_proguard_rules.pro:proguard-rules.pro"
+    proguardFiles="build/intermediates/default_proguard_files/global/proguard-android-optimize.txt-8.1.0:/Users/nikhil/flutter/packages/flutter_tools/gradle/flutter_proguard_rules.pro:proguard-rules.pro:build/intermediates/default_proguard_files/global/proguard-android-optimize.txt-8.1.0:proguard-rules.pro"
     partialResultsDir="build/intermediates/lint_vital_partial_results/release/out">
   <buildFeatures
       namespacing="REQUIRED"/>
@@ -31,6 +31,6 @@
       applicationId="com.example.location_checker"
       generatedSourceFolders="build/generated/ap_generated_sources/release/out"
       generatedResourceFolders="build/generated/res/resValues/release"
-      desugaredMethodsFiles="/Users/nikhil/.gradle/caches/transforms-3/dcd1a61b4ecb0b72d7b0688252b7e44c/transformed/D8BackportedDesugaredMethods.txt">
+      desugaredMethodsFiles="/Users/nikhil/.gradle/caches/transforms-3/8880a7aceafd90c16277dbb677153696/transformed/D8BackportedDesugaredMethods.txt">
   </mainArtifact>
 </variant>

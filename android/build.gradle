@@ -3,11 +3,11 @@ buildscript {
         google()
         mavenCentral()
     }
-    dependencies {
-        // Updated Android Gradle Plugin
-        classpath 'com.android.tools.build:gradle:8.1.0'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0" // Update Kotlin if necessary
-    }
+   dependencies {
+    classpath "com.android.tools.build:gradle:8.7.0"  // Update to latest
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.20"    // 1.8.20
+}
+
 }
 
 allprojects {

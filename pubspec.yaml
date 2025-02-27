@@ -12,8 +12,8 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  geolocator: ^9.0.0  # Get user location
-  latlong2: ^0.8.1    # Calculate distance
+  geolocator: ^13.0.2  # Get user location
+  latlong2: ^0.9.1    # Calculate distance
   intl: ^0.20.2
   sqflite: ^2.0.0+4
   path_provider: ^2.0.11
@@ -22,6 +22,8 @@ dependencies:
   connectivity_plus: ^6.1.3
   table_calendar: ^3.0.5
   flutter_dotenv: ^5.2.1
+  permission_handler: ^11.4.0
+  geolocator_android: ^4.6.1
 
 
 dev_dependencies:
@@ -38,3 +40,4 @@ flutter:
     - assets/images/punchin.png
     - assets/images/punchout.png
     - assets/images/totalhours.png
+    - .env

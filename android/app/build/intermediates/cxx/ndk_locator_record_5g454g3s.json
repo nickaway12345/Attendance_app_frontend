@@ -1,0 +1,11 @@
+{
+  "ndk": "/Users/nikhil/Library/Android/sdk/ndk/27.0.11394342",
+  "revision": {
+    "mMajor": 27,
+    "mMinor": 2,
+    "mMicro": 12479018,
+    "mPreview": 0,
+    "mPrecision": "MICRO",
+    "mPreviewSeparator": " "
+  }
+}

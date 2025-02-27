@@ -19,8 +19,8 @@ class LocationService {
   final LatLng hardcodedLocation;
 
   LocationService() : hardcodedLocation = LatLng(
-    double.tryParse(dotenv.env['STATIC_LAT'] ?? '') ?? 20.0360637,
     double.tryParse(dotenv.env['STATIC_LONG'] ?? '') ?? 73.7945010,
+    double.tryParse(dotenv.env['STATIC_LAT'] ?? '') ?? 20.0360637
   ); // Office location
   static const double _radiusInYards = 150.0;
   static final double _radiusInMeters = _radiusInYards * 0.9144;
