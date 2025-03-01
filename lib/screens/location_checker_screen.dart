@@ -10,7 +10,8 @@ import 'dart:convert';
 import 'package:location_checker/services/location_service.dart';
 import 'package:location_checker/services/local_database_servie.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:connectivity_plus/connectivity_plus.dart'; // To track internet connectivity
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // To track internet connectivity
 
 class LocationCheckerScreen extends StatefulWidget {
   final String empId;
@@ -21,6 +22,7 @@ class LocationCheckerScreen extends StatefulWidget {
 }
 
 class _LocationCheckerScreenState extends State<LocationCheckerScreen> {
+  Map<String, String> _userDetails = {'firstName': 'Unknown', 'email': 'Unknown'};
   int _selectedIndex = 0;
   DateTime currentTime = DateTime.now();
   String _statusMessage = 'Check your location';
@@ -60,6 +62,7 @@ class _LocationCheckerScreenState extends State<LocationCheckerScreen> {
     super.initState();
     emp_id = widget.empId;
     _fetchHolidays();
+    _fetchUserDetails();
 
     // Start the timer to update the current time every second
     _timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
@@ -99,11 +102,29 @@ _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<Co
     });
   }
 
+  Future<void> _fetchUserDetails() async {
+    final userDetails = await getUserDetails();
+    setState(() {
+      _userDetails = userDetails;
+    });
+  }
+
+  Future<Map<String, String>> getUserDetails() async {
+    final prefs = await SharedPreferences.getInstance();
+    final firstName = prefs.getString('firstName') ?? "Unknown";
+    final email = prefs.getString('email') ?? "Unknown";
+
+    return {
+      'firstName': firstName,
+      'email': email,
+    };
+  }
+
     List<DateTime> _holidays = [];
 
 Future<void> _fetchHolidays() async {
   String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
-  final response = await http.get(Uri.parse('$baseUrl:8000/holidays'));
+  final response = await http.get(Uri.parse('$baseUrl/holidays'));
   if (response.statusCode == 200) {
     final List<dynamic> holidaysData = jsonDecode(response.body);
     setState(() {
@@ -517,7 +538,7 @@ Future<void> _fetchHolidays() async {
         try {
           String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
           final response = await http.post(
-            Uri.parse('$baseUrl:8000/api/attendance/sync'),
+            Uri.parse('$baseUrl/api/attendance/sync'),
             headers: {'Content-Type': 'application/json; charset=UTF-8'},
             body: jsonEncode(payload),
           );
@@ -571,7 +592,7 @@ Future<void> _fetchHolidays() async {
         try {
           String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
           final response = await http.post(
-            Uri.parse('$baseUrl:8000/api/regularization/sync'),
+            Uri.parse('$baseUrl/api/regularization/sync'),
             headers: {'Content-Type': 'application/json; charset=UTF-8'},
             body: jsonEncode(payload),
           );
@@ -635,8 +656,13 @@ Future<void> _fetchHolidays() async {
                           child: Row(
                             children: [
                              PopupMenuButton<String>(
-  onSelected: (String value) {
+  onSelected: (String value) async {
     if (value == 'logout') {
+      // Clear the session data
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', false);
+      await prefs.remove('empId');
+
       // Navigate to LoginScreen when logout is selected
       Navigator.pushReplacement(
         context,
@@ -655,29 +681,33 @@ Future<void> _fetchHolidays() async {
   child: CircleAvatar(
     backgroundColor: Colors.grey[800],
     radius: 24,
+    child: Icon(
+      Icons.person, // You can change this icon to something else if needed
+      color: Colors.white,
+    ),
   ),
 ),
-                              SizedBox(width: 16),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'HEY NIKHIL', // Replace with dynamic name if available
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFFB84542),
-                                    ),
+                                  SizedBox(width: 16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'HEY ${_userDetails['firstName']}', // Display the fetched first name
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFFB84542),
                                   ),
-                                  Text(
-                                    emp_id,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Color(0xFFB84542),
-                                    ),
+                                ),
+                                Text(
+                                  _userDetails['email']!, // Display the fetched email
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Color(0xFFB84542),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
+                            ),
                               Spacer(),
                               IconButton(
                                 icon: Icon(Icons.refresh, size: 24, color: Color(0xFFB84542)),

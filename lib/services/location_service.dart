@@ -194,7 +194,7 @@ Future<void> syncAttendanceData() async {
       try {
         String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
         final response = await http.post(
-          Uri.parse('$baseUrl:8000/api/attendance/sync'),
+          Uri.parse('$baseUrl/api/attendance/sync'),
           headers: {'Content-Type': 'application/json; charset=UTF-8'},
           body: jsonEncode(payload),
         );

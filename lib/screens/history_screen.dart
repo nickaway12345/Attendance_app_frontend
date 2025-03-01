@@ -34,9 +34,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
       String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
       // Fetch attendance data
       final attendanceResponse =
-          await http.get(Uri.parse('$baseUrl:8000/attendance?empId=${widget.empId}'));
+          await http.get(Uri.parse('$baseUrl/attendance?empId=${widget.empId}'));
       // Fetch holidays data
-      final holidaysResponse = await http.get(Uri.parse('$baseUrl:8000/holidays'));
+      final holidaysResponse = await http.get(Uri.parse('$baseUrl/holidays'));
 
       if (attendanceResponse.statusCode == 200 && holidaysResponse.statusCode == 200) {
         final attendanceData = json.decode(attendanceResponse.body) as List;
@@ -433,7 +433,7 @@ class _RegularizeScreenState extends State<RegularizeScreen> {
   try {
     String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
     final response = await http.get(
-      Uri.parse('$baseUrl:8000/attendanceByDate?empId=${widget.empId}&date=${DateFormat('yyyy-MM-dd').format(widget.date)}'),
+      Uri.parse('$baseUrl/attendanceByDate?empId=${widget.empId}&date=${DateFormat('yyyy-MM-dd').format(widget.date)}'),
     );
 
     if (response.statusCode == 200) {
@@ -542,7 +542,7 @@ Future<void> _submitRegularization() async {
 
     // Fetch attendance data for the given empId and date
     final attendanceResponse = await http.get(
-      Uri.parse('$baseUrl:8000/attendanceByDate?empId=${widget.empId}&date=${DateFormat('yyyy-MM-dd').format(widget.date)}'),
+      Uri.parse('$baseUrl/attendanceByDate?empId=${widget.empId}&date=${DateFormat('yyyy-MM-dd').format(widget.date)}'),
     );
 
     String locationIn = 'Outside Office'; // Default value
@@ -571,7 +571,7 @@ Future<void> _submitRegularization() async {
 
     // Submit regularization data
     final response = await http.post(
-      Uri.parse('$baseUrl:8000/api/regularization/sync'),
+      Uri.parse('$baseUrl/api/regularization/sync'),
       headers: {'Content-Type': 'application/json; charset=UTF-8'},
       body: jsonEncode({
         'id': {
@@ -829,7 +829,7 @@ class _ApprovalPageState extends State<ApprovalPage> with SingleTickerProviderSt
 
   Future<void> fetchPendingEntries() async {
     String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
-    final response = await http.get(Uri.parse('$baseUrl:8000/approvals/${widget.empId}/pending'));
+    final response = await http.get(Uri.parse('$baseUrl/approvals/${widget.empId}/pending'));
 
     if (response.statusCode == 200) {
       setState(() {
@@ -842,7 +842,7 @@ class _ApprovalPageState extends State<ApprovalPage> with SingleTickerProviderSt
 
   Future<void> fetchApprovedEntries() async {
     String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
-    final response = await http.get(Uri.parse('$baseUrl:8000/approvals/${widget.empId}/approved'));
+    final response = await http.get(Uri.parse('$baseUrl/approvals/${widget.empId}/approved'));
 
     if (response.statusCode == 200) {
       setState(() {
@@ -855,7 +855,7 @@ class _ApprovalPageState extends State<ApprovalPage> with SingleTickerProviderSt
 
   Future<void> fetchRejectedEntries() async {
     String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
-    final response = await http.get(Uri.parse('$baseUrl:8000/approvals/${widget.empId}/rejected'));
+    final response = await http.get(Uri.parse('$baseUrl/approvals/${widget.empId}/rejected'));
 
     if (response.statusCode == 200) {
       setState(() {
@@ -870,7 +870,7 @@ class _ApprovalPageState extends State<ApprovalPage> with SingleTickerProviderSt
     String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
     final response = await http.post(
       Uri.parse(
-        '$baseUrl:8000/approvals/update?empId=$empId&date=$date&approval=$newStatus&approvedBy=${widget.empId}'
+        '$baseUrl/approvals/update?empId=$empId&date=$date&approval=$newStatus&approvedBy=${widget.empId}'
       ),
       headers: {'Content-Type': 'application/json'},
     );

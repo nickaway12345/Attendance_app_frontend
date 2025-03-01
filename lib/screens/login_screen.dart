@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'location_checker_screen.dart';
 import 'package:location_checker/services/login_service.dart';
 
@@ -13,22 +13,66 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final _loginService = LoginService();
 
-  void _login() async {
-    final username = _usernameController.text;
-    final password = _passwordController.text;
+void _login() async {
+  final username = _usernameController.text;
+  final password = _passwordController.text;
 
-    // Fetch emp_id after successful login
-    final empId = await _loginService.validateCredentials(username, password);
-    if (empId != null) {
+  try {
+    final userDetails = await _loginService.validateCredentials(username, password);
+
+    if (userDetails != null) {
+      // Debugging: Print the userDetails to verify its contents
+      print('User Details: $userDetails');
+
+      // Check if required fields are present and not null
+      if (userDetails['username'] == null || userDetails['first_name'] == null || userDetails['email'] == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Invalid user details received from the server')),
+        );
+        return;
+      }
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', true);
+      await prefs.setString('empId', userDetails['username']!); // Store username as empId
+      await prefs.setString('firstName', userDetails['first_name']!); // Use 'first_name'
+      await prefs.setString('email', userDetails['email']!);
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => LocationCheckerScreen(empId: empId),
+          builder: (context) => LocationCheckerScreen(empId: userDetails['username']!), // Pass empId
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Invalid username or password')),
+      );
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('An error occurred: $e')),
+    );
+  }
+}
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  void _checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    final empId = prefs.getString('empId');
+
+    if (isLoggedIn && empId != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LocationCheckerScreen(empId: empId), // Pass empId
+        ),
       );
     }
   }
