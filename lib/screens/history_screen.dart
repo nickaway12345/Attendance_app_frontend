@@ -21,6 +21,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Map<DateTime, String> _attendanceData = {};
   late String empId;
   Set<DateTime> _holidays = {};
+  Map<DateTime, String> _leaves = {};
 
   @override
   void initState() {
@@ -30,42 +31,54 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Future<void> _fetchAttendanceData() async {
-    try {
-      String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
-      // Fetch attendance data
-      final attendanceResponse =
-          await http.get(Uri.parse('$baseUrl/attendance?empId=${widget.empId}'));
-      // Fetch holidays data
-      final holidaysResponse = await http.get(Uri.parse('$baseUrl/holidays'));
+  try {
+    String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
+    
+    // Fetch attendance data
+    final attendanceResponse = await http.get(Uri.parse('$baseUrl/attendance?empId=${widget.empId}'));
+    
+    // Fetch holidays data
+    final holidaysResponse = await http.get(Uri.parse('$baseUrl/holidays'));
+    
+    // Fetch leaves data
+    final leavesResponse = await http.get(Uri.parse('$baseUrl/leaves?empId=${widget.empId}'));
 
-      if (attendanceResponse.statusCode == 200 && holidaysResponse.statusCode == 200) {
-        final attendanceData = json.decode(attendanceResponse.body) as List;
-        final holidaysData = json.decode(holidaysResponse.body) as List;
+    if (attendanceResponse.statusCode == 200 && holidaysResponse.statusCode == 200 && leavesResponse.statusCode == 200) {
+      final attendanceData = json.decode(attendanceResponse.body) as List;
+      final holidaysData = json.decode(holidaysResponse.body) as List;
+      final leavesData = json.decode(leavesResponse.body) as List;
 
-        // Debugging logs
-        print('Attendance Data: $attendanceData');
-        print('Holidays Data: $holidaysData');
+      // Debugging logs
+      print('Attendance Data: $attendanceData');
+      print('Holidays Data: $holidaysData');
+      print('Leaves Data: $leavesData');
 
-        setState(() {
-          // Correctly mapping attendance data
-          _attendanceData = {
-            for (var item in attendanceData)
-              DateTime.parse(item['id']['date']): item['day'] ?? 'H' // Accessing the date and day correctly
-          };
+      setState(() {
+        // Correctly mapping attendance data
+        _attendanceData = {
+          for (var item in attendanceData)
+            DateTime.parse(item['id']['date']): item['day'] ?? 'H' // Accessing the date and day correctly
+        };
 
-          // Parse holidays data
-          _holidays = {
-            for (var item in holidaysData)
-              if (item.containsKey('date')) DateTime.parse(item['date']) // Only parse if 'date' exists
-          };
-        });
-      } else {
-        print('Failed to fetch attendance or holidays data.');
-      }
-    } catch (e) {
-      print('Error fetching attendance data: $e');
+        // Parse holidays data
+        _holidays = {
+          for (var item in holidaysData)
+            if (item.containsKey('date')) DateTime.parse(item['date']) // Only parse if 'date' exists
+        };
+
+        // Parse leaves data
+        _leaves = {
+          for (var item in leavesData)
+            DateTime.parse(item['date']): item['status'] // Assuming 'date' and 'status' are fields in the leaves data
+        };
+      });
+    } else {
+      print('Failed to fetch attendance, holidays, or leaves data.');
     }
+  } catch (e) {
+    print('Error fetching data: $e');
   }
+}
 
   void _onItemTapped(int index) {
     setState(() {
@@ -185,7 +198,7 @@ Widget build(BuildContext context) {
                   final DateTime date = DateTime(day.year, day.month, day.day);
 
                   // Check if the date is a holiday
-                  if (_holidays.contains(date)) {
+                  if (_holidays.contains(date) || _leaves.containsKey(date)) {
                     return Container(
                       decoration: BoxDecoration(
                         color: Colors.blue,
