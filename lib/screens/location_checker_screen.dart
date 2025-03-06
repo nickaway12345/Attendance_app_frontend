@@ -664,6 +664,7 @@ Future<void> _fetchHolidays() async {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', false);
       await prefs.remove('empId');
+      await prefs.remove('role');
 
       // Navigate to LoginScreen when logout is selected
       Navigator.pushReplacement(
