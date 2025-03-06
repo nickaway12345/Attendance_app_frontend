@@ -70,8 +70,8 @@
 44        android:extractNativeLibs="true"
 45        android:icon="@mipmap/ic_launcher"
 45-->/Users/nikhil/location_checker/android/app/src/main/AndroidManifest.xml:15:9-43
-46        android:label="location_checker" >
-46-->/Users/nikhil/location_checker/android/app/src/main/AndroidManifest.xml:13:9-41
+46        android:label="HashX" >
+46-->/Users/nikhil/location_checker/android/app/src/main/AndroidManifest.xml:13:9-30
 47        <activity
 47-->/Users/nikhil/location_checker/android/app/src/main/AndroidManifest.xml:16:9-37:20
 48            android:name="com.example.location_checker.MainActivity"

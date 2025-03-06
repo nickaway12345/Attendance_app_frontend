@@ -102,7 +102,7 @@ void _login() async {
                       Align(
                         alignment: Alignment.centerLeft,
                         child: Image.asset(
-                          'assets/images/logo.jpeg',
+                          'assets/images/upscalemedia-transformed.png',
                           height: 100, // Further increased logo size
                         ),
                       ),

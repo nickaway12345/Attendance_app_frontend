@@ -31,6 +31,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
@@ -41,4 +42,9 @@ flutter:
     - assets/images/punchin.png
     - assets/images/punchout.png
     - assets/images/totalhours.png
+    - assets/images/upscalemedia-transformed.png
     - .env
+flutter_icons:
+    android: true
+    ios: true
+    image_path: "assets/images/upscalemedia-transformed.png"

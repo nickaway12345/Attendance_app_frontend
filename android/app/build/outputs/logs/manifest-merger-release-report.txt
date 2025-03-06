@@ -29,7 +29,7 @@ MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/nikh
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.13.1] /Users/nikhil/.gradle/caches/transforms-3/59e616f09c8f1e501b487b889c2419b4/transformed/core-1.13.1/AndroidManifest.xml:28:18-86
 	android:label
-		ADDED from /Users/nikhil/location_checker/android/app/src/main/AndroidManifest.xml:13:9-41
+		ADDED from /Users/nikhil/location_checker/android/app/src/main/AndroidManifest.xml:13:9-30
 	android:icon
 		ADDED from /Users/nikhil/location_checker/android/app/src/main/AndroidManifest.xml:15:9-43
 	android:name

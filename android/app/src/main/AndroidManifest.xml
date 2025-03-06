@@ -10,7 +10,7 @@
 
 
     <application
-        android:label="location_checker"
+        android:label="HashX"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
