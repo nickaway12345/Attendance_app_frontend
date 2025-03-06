@@ -240,6 +240,7 @@ Future<void> _fetchHolidays() async {
 
   // Mark-in logic
   Future<void> _markIn() async {
+    _checkUserLocation();
     // Check if today is Sunday
     if (_isSundayOrHoliday(DateTime.now())) {
        _showSundayOrHolidayAlert();
@@ -298,6 +299,7 @@ Future<void> _fetchHolidays() async {
   }
 
   Future<void> _markOut() async {
+    _checkUserLocation();
   // Check if today is Sunday or a holiday
   if (_isSundayOrHoliday(DateTime.now())) {
     _showSundayOrHolidayAlert();

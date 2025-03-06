@@ -74,7 +74,7 @@
 49        android:debuggable="true"
 50        android:extractNativeLibs="true"
 51        android:icon="@mipmap/ic_launcher"
-52        android:label="location_checker" >
+52        android:label="HashX" >
 53        <activity
 54            android:name="com.example.location_checker.MainActivity"
 55            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
