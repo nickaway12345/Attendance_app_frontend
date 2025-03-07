@@ -1,46 +1,26 @@
 [
     {
-        "merged": "com.example.location_checker.app-merged_res-47:/mipmap-mdpi_ic_launcher.png.flat",
-        "source": "com.example.location_checker.app-main-49:/mipmap-mdpi/ic_launcher.png"
+        "merged": "com.example.location_checker.app-merged_res-49:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "com.example.location_checker.app-main-51:/mipmap-mdpi/ic_launcher.png"
     },
     {
-        "merged": "/Users/nikhil/.gradle/daemon/8.2/com.example.location_checker.app-merged_res-47:/mipmap-mdpi_ic_launcher.png.flat",
-        "source": "/Users/nikhil/.gradle/daemon/8.2/com.example.location_checker.app-main-49:/mipmap-mdpi/ic_launcher.png"
+        "merged": "com.example.location_checker.app-merged_res-49:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "com.example.location_checker.app-main-51:/mipmap-xhdpi/ic_launcher.png"
     },
     {
-        "merged": "com.example.location_checker.app-merged_res-47:/mipmap-xhdpi_ic_launcher.png.flat",
-        "source": "com.example.location_checker.app-main-49:/mipmap-xhdpi/ic_launcher.png"
+        "merged": "com.example.location_checker.app-merged_res-49:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "com.example.location_checker.app-main-51:/mipmap-xxhdpi/ic_launcher.png"
     },
     {
-        "merged": "/Users/nikhil/.gradle/daemon/8.2/com.example.location_checker.app-merged_res-47:/mipmap-xhdpi_ic_launcher.png.flat",
-        "source": "/Users/nikhil/.gradle/daemon/8.2/com.example.location_checker.app-main-49:/mipmap-xhdpi/ic_launcher.png"
+        "merged": "com.example.location_checker.app-merged_res-49:/drawable-v21_launch_background.xml.flat",
+        "source": "com.example.location_checker.app-main-51:/drawable-v21/launch_background.xml"
     },
     {
-        "merged": "/Users/nikhil/.gradle/daemon/8.2/com.example.location_checker.app-merged_res-47:/mipmap-xxhdpi_ic_launcher.png.flat",
-        "source": "/Users/nikhil/.gradle/daemon/8.2/com.example.location_checker.app-main-49:/mipmap-xxhdpi/ic_launcher.png"
+        "merged": "com.example.location_checker.app-merged_res-49:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "com.example.location_checker.app-main-51:/mipmap-xxxhdpi/ic_launcher.png"
     },
     {
-        "merged": "/Users/nikhil/.gradle/daemon/8.2/com.example.location_checker.app-merged_res-47:/drawable-v21_launch_background.xml.flat",
-        "source": "/Users/nikhil/.gradle/daemon/8.2/com.example.location_checker.app-main-49:/drawable-v21/launch_background.xml"
-    },
-    {
-        "merged": "/Users/nikhil/.gradle/daemon/8.2/com.example.location_checker.app-merged_res-47:/mipmap-hdpi_ic_launcher.png.flat",
-        "source": "/Users/nikhil/.gradle/daemon/8.2/com.example.location_checker.app-main-49:/mipmap-hdpi/ic_launcher.png"
-    },
-    {
-        "merged": "com.example.location_checker.app-merged_res-47:/mipmap-hdpi_ic_launcher.png.flat",
-        "source": "com.example.location_checker.app-main-49:/mipmap-hdpi/ic_launcher.png"
-    },
-    {
-        "merged": "/Users/nikhil/.gradle/daemon/8.2/com.example.location_checker.app-merged_res-47:/mipmap-xxxhdpi_ic_launcher.png.flat",
-        "source": "/Users/nikhil/.gradle/daemon/8.2/com.example.location_checker.app-main-49:/mipmap-xxxhdpi/ic_launcher.png"
-    },
-    {
-        "merged": "com.example.location_checker.app-merged_res-47:/mipmap-xxhdpi_ic_launcher.png.flat",
-        "source": "com.example.location_checker.app-main-49:/mipmap-xxhdpi/ic_launcher.png"
-    },
-    {
-        "merged": "com.example.location_checker.app-merged_res-47:/mipmap-xxxhdpi_ic_launcher.png.flat",
-        "source": "com.example.location_checker.app-main-49:/mipmap-xxxhdpi/ic_launcher.png"
+        "merged": "com.example.location_checker.app-merged_res-49:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "com.example.location_checker.app-main-51:/mipmap-hdpi/ic_launcher.png"
     }
 ]

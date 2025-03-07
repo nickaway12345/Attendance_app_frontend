@@ -77,6 +77,24 @@ class LocalDatabaseService {
     );
   }
 
+  static Future<void> deleteEntriesForDate(String empId, String date) async {
+  final db = await database;
+
+  // Delete entries from the attendance table
+  await db.delete(
+    'attendance',
+    where: 'emp_id = ? AND date = ?',
+    whereArgs: [empId, date],
+  );
+
+  // Delete entries from the regularization table
+  await db.delete(
+    'regularization',
+    where: 'emp_id = ? AND date = ?',
+    whereArgs: [empId, date],
+  );
+}
+
   // Save attendance to SQLite
   static Future<void> saveAttendanceLocally(Map<String, dynamic> attendance) async {
     final db = await database;

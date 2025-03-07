@@ -35,6 +35,7 @@ class _LocationCheckerScreenState extends State<LocationCheckerScreen> {
   late String emp_id;
   String _currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
   double _totalHours = 0.0;
+  bool _isLoading = false; // Track loading state
 
   // Subscription for connectivity changes
   late StreamSubscription<ConnectivityResult> _connectivitySubscription;
@@ -57,12 +58,19 @@ class _LocationCheckerScreenState extends State<LocationCheckerScreen> {
     }
   }
 
+  // Function to delete entries for the current date
+Future<void> _deleteEntriesForCurrentDate() async {
+  await LocalDatabaseService.deleteEntriesForDate('HRCPL116', '2025-03-07');
+}
+
   @override
   void initState() {
     super.initState();
     emp_id = widget.empId;
     _fetchHolidays();
     _fetchUserDetails();
+
+   //_deleteEntriesForCurrentDate();
 
     // Start the timer to update the current time every second
     _timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
@@ -75,19 +83,19 @@ class _LocationCheckerScreenState extends State<LocationCheckerScreen> {
     _fetchAttendanceData();
 
     // Declare _connectivitySubscription as StreamSubscription<List<ConnectivityResult>>
-late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
+    late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
 
-// Monitor internet connectivity changes
-_connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
-  for (var result in results) {
-    if (result == ConnectivityResult.mobile || result == ConnectivityResult.wifi) {
-      // Trigger sync when connectivity is regained
-      _syncAttendanceData();
-      _syncRegularizationData();
-      break;  // Exit loop once connectivity is regained
-    }
-  }
-});
+    // Monitor internet connectivity changes
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
+      for (var result in results) {
+        if (result == ConnectivityResult.mobile || result == ConnectivityResult.wifi) {
+          // Trigger sync when connectivity is regained
+          _syncAttendanceData();
+          _syncRegularizationData();
+          break;  // Exit loop once connectivity is regained
+        }
+      }
+    });
   }
 
   @override
@@ -120,21 +128,20 @@ _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<Co
     };
   }
 
-    List<DateTime> _holidays = [];
+  List<DateTime> _holidays = [];
 
-Future<void> _fetchHolidays() async {
-  String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
-  final response = await http.get(Uri.parse('$baseUrl/holidays'));
-  if (response.statusCode == 200) {
-    final List<dynamic> holidaysData = jsonDecode(response.body);
-    setState(() {
-      _holidays = holidaysData.map((item) => DateTime.parse(item['date'])).toList();
-    });
-  } else {
-    throw Exception('Failed to load holidays');
+  Future<void> _fetchHolidays() async {
+    String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
+    final response = await http.get(Uri.parse('$baseUrl/holidays'));
+    if (response.statusCode == 200) {
+      final List<dynamic> holidaysData = jsonDecode(response.body);
+      setState(() {
+        _holidays = holidaysData.map((item) => DateTime.parse(item['date'])).toList();
+      });
+    } else {
+      throw Exception('Failed to load holidays');
+    }
   }
-}
-
 
   Future<void> _fetchAttendanceData() async {
     final db = await LocalDatabaseService.database;
@@ -223,27 +230,32 @@ Future<void> _fetchHolidays() async {
   }
 
   bool _isSundayOrHoliday(DateTime date) {
-  // Check if the date is a Sunday
-  if (date.weekday == DateTime.sunday) {
-    return true;
-  }
-
-  // Check if the date is a holiday
-  for (var holiday in _holidays) {
-    if (date.year == holiday.year && date.month == holiday.month && date.day == holiday.day) {
+    // Check if the date is a Sunday
+    if (date.weekday == DateTime.sunday) {
       return true;
     }
+
+    // Check if the date is a holiday
+    for (var holiday in _holidays) {
+      if (date.year == holiday.year && date.month == holiday.month && date.day == holiday.day) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
-  return false;
-}
-
   // Mark-in logic
-  Future<void> _markIn() async {
+Future<void> _markIn() async {
+  try {
+    // Show confirmation dialog
+    bool confirm = await _showConfirmationDialog('Punch In');
+    if (!confirm) return; // User canceled the action
+
     _checkUserLocation();
     // Check if today is Sunday
     if (_isSundayOrHoliday(DateTime.now())) {
-       _showSundayOrHolidayAlert();
+      _showSundayOrHolidayAlert();
       return;
     }
 
@@ -252,7 +264,9 @@ Future<void> _fetchHolidays() async {
     if (!isInsideOffice) {
       // Show alert for regularization
       bool confirm = await _showRegularizationAlert('mark-in');
-      if (!confirm) return; // User canceled the action
+      if (!confirm) {
+        return; // User canceled the action
+      }
     }
 
     setState(() {
@@ -281,192 +295,221 @@ Future<void> _fetchHolidays() async {
       'punch_out_long': null,
     };
 
-    if (isInsideOffice) {
-      // Save to attendance table
-      await LocalDatabaseService.saveAttendanceLocally(attendanceData);
-    } else {
-      // Save to regularize table
-      await LocalDatabaseService.saveRegularizationLocally({
-        ...attendanceData,
-        'approval': 'Pending',
-        'approved_by': null,
-      });
-    }
+    final db = await LocalDatabaseService.database;
+    await db.transaction((txn) async {
+      if (isInsideOffice) {
+        // Save to attendance table
+        await txn.insert('attendance', attendanceData);
+      } else {
+        // Save to regularize table
+        await txn.insert('regularization', {
+          ...attendanceData,
+          'approval': 'Pending',
+          'approved_by': null,
+        });
+      }
+    });
 
     // Try syncing if connected to internet
-    _syncAttendanceData();
-    _syncRegularizationData();
+    await _syncAttendanceData();
+    await _syncRegularizationData();
+  } catch (e) {
+    print('Error in _markIn: $e');
+    // Handle error, show a message to the user, etc.
   }
+}
 
   Future<void> _markOut() async {
+  try {
+    // Show confirmation dialog
+    bool confirm = await _showConfirmationDialog('Punch Out');
+    if (!confirm) return; // User canceled the action
+
     _checkUserLocation();
-  // Check if today is Sunday or a holiday
-  if (_isSundayOrHoliday(DateTime.now())) {
-    _showSundayOrHolidayAlert();
-    return;
-  }
+    // Check if today is Sunday or a holiday
+    if (_isSundayOrHoliday(DateTime.now())) {
+      _showSundayOrHolidayAlert();
+      return;
+    }
 
-  // Check if current location is inside the office
-  bool isInsideOffice = _location == 'Office';
+    bool isInsideOffice = _location == 'Office';
 
-  // Fetch punch-in data (check if in attendance or regularization)
-  Map<String, dynamic>? punchInData = await LocalDatabaseService.getPunchInDataForDate(emp_id, _currentDate);
-  bool entryInAttendance = await LocalDatabaseService.isInAttendance(emp_id, _currentDate);
-  String locationIn = 'Unknown';
-  String day = '';
+    // Fetch punch-in data (check if in attendance or regularization)
+    Map<String, dynamic>? punchInData = await LocalDatabaseService.getPunchInDataForDate(emp_id, _currentDate);
+    bool entryInAttendance = await LocalDatabaseService.isInAttendance(emp_id, _currentDate);
+    String locationIn = 'Unknown';
+    String day = '';
 
-  // Get current location coordinates for punch-out
-  Position currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-  double punchOutLat = currentPosition.latitude;
-  double punchOutLong = currentPosition.longitude;
+    // Get current location coordinates for punch-out
+    Position currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    double punchOutLat = currentPosition.latitude;
+    double punchOutLong = currentPosition.longitude;
 
-  if (punchInData != null) {
-    if (entryInAttendance) {
-      // Case 1: Entry found in attendance table
-      locationIn = 'Office';
+    if (punchInData != null) {
+      if (entryInAttendance) {
+        // Case 1: Entry found in attendance table
+        locationIn = 'Office';
 
-      if (isInsideOffice) {
-        // Case 1a: Mark-out inside office
-        setState(() {
-          _inTime = punchInData['in_time']; // Take inTime from attendance entry
-          _outTime = DateFormat('HH:mm:ss').format(DateTime.now());
-          _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
-          if (_totalHours >= 9) day = 'F';
-          else day = 'H';
-          _isMarkOutEnabled = false; // Disable mark-out after pressing
-        });
+        if (isInsideOffice) {
+          // Case 1a: Mark-out inside office
+          setState(() {
+            _inTime = punchInData['in_time']; // Take inTime from attendance entry
+            _outTime = DateFormat('HH:mm:ss').format(DateTime.now());
+            _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
+            if (_totalHours >= 8) day = 'F';
+            else day = 'H';
+            _isMarkOutEnabled = false; // Disable mark-out after pressing
+          });
 
-        await LocalDatabaseService.saveAttendanceLocally({
-          'emp_id': emp_id,
-          'date': _currentDate,
-          'in_time': _inTime,
-          'out_time': _outTime,
-          'total_hours': _totalHours,
-          'location_in': locationIn,
-          'location_out': 'Office', // Both locationIn and locationOut are 'Office'
-          'day': day,
-          'punch_in_lat': punchInData['punch_in_lat'], // Use punch-in lat from previous entry
-          'punch_in_long': punchInData['punch_in_long'], // Use punch-in long from previous entry
-          'punch_out_lat': punchOutLat, // Current lat for punch-out
-          'punch_out_long': punchOutLong, // Current long for punch-out
-        });
+          final db = await LocalDatabaseService.database;
+          await db.transaction((txn) async {
+            await txn.update(
+              'attendance',
+              {
+                'out_time': _outTime,
+                'total_hours': _totalHours,
+                'location_out': 'Office',
+                'day': day,
+                'punch_out_lat': punchOutLat,
+                'punch_out_long': punchOutLong,
+              },
+              where: 'emp_id = ? AND date = ?',
+              whereArgs: [emp_id, _currentDate],
+            );
+          });
+        } else {
+          // Case 1b: Mark-out outside office
+          setState(() {
+            _inTime = punchInData['in_time']; // Take inTime from attendance entry
+            _outTime = DateFormat('HH:mm:ss').format(DateTime.now());
+            _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
+            if (_totalHours >= 8) day = 'F';
+            else day = 'H';
+            _isMarkOutEnabled = false; // Disable mark-out after pressing
+          });
+
+          final db = await LocalDatabaseService.database;
+          await db.transaction((txn) async {
+            await txn.insert('regularization', {
+              'emp_id': emp_id,
+              'date': _currentDate,
+              'in_time': _inTime,
+              'out_time': _outTime,
+              'total_hours': _totalHours,
+              'location_in': locationIn,
+              'day': day,
+              'location_out': 'Outside Office',
+              'punch_in_lat': punchInData['punch_in_lat'],
+              'punch_in_long': punchInData['punch_in_long'],
+              'punch_out_lat': punchOutLat,
+              'punch_out_long': punchOutLong,
+              'approval': 'Pending',
+              'approved_by': null,
+            });
+          });
+        }
       } else {
-        // Case 1b: Mark-out outside office
-        setState(() {
-          _inTime = punchInData['in_time']; // Take inTime from attendance entry
-          _outTime = DateFormat('HH:mm:ss').format(DateTime.now());
-          _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
-          if (_totalHours >= 9) day = 'F';
-          else day = 'H';
-          _isMarkOutEnabled = false; // Disable mark-out after pressing
-        });
+        // Case 2: Entry found in regularization table
+        locationIn = 'Outside Office';
 
-        await LocalDatabaseService.saveRegularizationLocally({
-          'emp_id': emp_id,
-          'date': _currentDate,
-          'in_time': _inTime,
-          'out_time': _outTime,
-          'total_hours': _totalHours,
-          'location_in': locationIn,
-          'day': day,
-          'location_out': 'Outside Office', // Mark-out location is outside office
-          'punch_in_lat': punchInData['punch_in_lat'], // Use punch-in lat from previous entry
-          'punch_in_long': punchInData['punch_in_long'], // Use punch-in long from previous entry
-          'punch_out_lat': punchOutLat, // Current lat for punch-out
-          'punch_out_long': punchOutLong, // Current long for punch-out
-          'approval': 'Pending',
-          'approved_by': null,
-        });
-      }
-    } else {
-      // Case 2: Entry found in regularization table
-      locationIn = 'Outside Office';
+        if (isInsideOffice) {
+          // Case 2a: Mark-out inside office
+          setState(() {
+            _inTime = punchInData['in_time'] ?? ''; // Take inTime from regularization entry
+            _outTime = DateFormat('HH:mm:ss').format(DateTime.now());
+            _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
+            if (_totalHours >= 8) day = 'F';
+            else day = 'H';
+            _isMarkOutEnabled = false; // Disable mark-out after pressing
+          });
 
-      if (isInsideOffice) {
-        // Case 2a: Mark-out inside office
-        setState(() {
-          _inTime = punchInData['in_time'] ?? ''; // Take inTime from regularization entry
-          _outTime = DateFormat('HH:mm:ss').format(DateTime.now());
-          _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
-          if (_totalHours >= 9) day = 'F';
-          else day = 'H';
-          _isMarkOutEnabled = false; // Disable mark-out after pressing
-        });
+          final db = await LocalDatabaseService.database;
+          await db.transaction((txn) async {
+            await txn.insert('attendance', {
+              'emp_id': emp_id,
+              'date': _currentDate,
+              'in_time': _inTime,
+              'out_time': _outTime,
+              'total_hours': _totalHours,
+              'day': day,
+              'location_in': 'Outside Office',
+              'location_out': 'Office',
+              'punch_in_lat': punchInData['punch_in_lat'],
+              'punch_in_long': punchInData['punch_in_long'],
+              'punch_out_lat': punchOutLat,
+              'punch_out_long': punchOutLong,
+            });
+          });
+        } else {
+          // Case 2b: Mark-out outside office
+          setState(() {
+            _inTime = punchInData['in_time']; // Take inTime from regularization entry
+            _outTime = DateFormat('HH:mm:ss').format(DateTime.now());
+            _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
+            if (_totalHours >= 8) day = 'F';
+            else day = 'H';
+            _isMarkOutEnabled = false; // Disable mark-out after pressing
+          });
 
-        await LocalDatabaseService.saveAttendanceLocally({
-          'emp_id': emp_id,
-          'date': _currentDate,
-          'in_time': _inTime,
-          'out_time': _outTime,
-          'total_hours': _totalHours,
-          'day': day,
-          'location_in': 'Outside Office', // Found in regularization
-          'location_out': 'Office', // Mark-out is inside office
-          'punch_in_lat': punchInData['punch_in_lat'], // Use punch-in lat from previous entry
-          'punch_in_long': punchInData['punch_in_long'], // Use punch-in long from previous entry
-          'punch_out_lat': punchOutLat, // Current lat for punch-out
-          'punch_out_long': punchOutLong, // Current long for punch-out
-        });
-      } else {
-        // Case 2b: Mark-out outside office
-        setState(() {
-          _inTime = punchInData['in_time']; // Take inTime from regularization entry
-          _outTime = DateFormat('HH:mm:ss').format(DateTime.now());
-          _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
-          if (_totalHours >= 9) day = 'F';
-          else day = 'H';
-          _isMarkOutEnabled = false; // Disable mark-out after pressing
-        });
-
-        await LocalDatabaseService.saveRegularizationLocally({
-          'emp_id': emp_id,
-          'date': _currentDate,
-          'in_time': _inTime,
-          'out_time': _outTime,
-          'total_hours': _totalHours,
-          'day': day,
-          'location_in': 'Outside Office', // Both locationIn and locationOut are 'Outside Office'
-          'location_out': 'Outside Office',
-          'punch_in_lat': punchInData['punch_in_lat'], // Use punch-in lat from previous entry
-          'punch_in_long': punchInData['punch_in_long'], // Use punch-in long from previous entry
-          'punch_out_lat': punchOutLat, // Current lat for punch-out
-          'punch_out_long': punchOutLong, // Current long for punch-out
-          'approval': 'Pending',
-          'approved_by': null,
-        });
+          final db = await LocalDatabaseService.database;
+          await db.transaction((txn) async {
+            await txn.insert('regularization', {
+              'emp_id': emp_id,
+              'date': _currentDate,
+              'in_time': _inTime,
+              'out_time': _outTime,
+              'total_hours': _totalHours,
+              'day': day,
+              'location_in': 'Outside Office',
+              'location_out': 'Outside Office',
+              'punch_in_lat': punchInData['punch_in_lat'],
+              'punch_in_long': punchInData['punch_in_long'],
+              'punch_out_lat': punchOutLat,
+              'punch_out_long': punchOutLong,
+              'approval': 'Pending',
+              'approved_by': null,
+            });
+          });
+        }
       }
     }
+
+    // Try syncing if connected to the internet
+    await _syncAttendanceData();
+    await _syncRegularizationData();
+  } catch (e) {
+    print('Error in _markOut: $e');
+    // Handle error, show a message to the user, etc.
+  }
+}
+
+  // Show confirmation dialog
+  Future<bool> _showConfirmationDialog(String action) async {
+    return await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Confirm $action'),
+        content: Text('Do you want to mark attendance?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text('Proceed'),
+          ),
+        ],
+      ),
+    ) ?? false;
   }
 
-  // Try syncing if connected to the internet
-  _syncAttendanceData();
-  _syncRegularizationData();
-}
-
-
   void _showSundayOrHolidayAlert() {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text('Not Allowed'),
-      content: Text('Punching is not allowed on Sundays and holidays.'),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('OK'),
-        ),
-      ],
-    ),
-  );
-}
-
-  // Show Sunday alert
-  void _showSundayAlert() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Sunday Alert'),
-        content: Text('Punching is not allowed on Sundays.'),
+        title: Text('Not Allowed'),
+        content: Text('Punching is not allowed on Sundays and holidays.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -622,75 +665,75 @@ Future<void> _fetchHolidays() async {
   }
 
   @override
-  Widget build(BuildContext context) {
-    bool isSundayOrHoliday = _isSundayOrHoliday(DateTime.now());
-    double barHeight = 60; // Height of the bottom bar and sliding box
-    double barWidth = MediaQuery.of(context).size.width;
-    double tabWidth = barWidth / 2;
+Widget build(BuildContext context) {
+  bool isSundayOrHoliday = _isSundayOrHoliday(DateTime.now());
+  double barHeight = 60; // Height of the bottom bar and sliding box
+  double barWidth = MediaQuery.of(context).size.width;
+  double tabWidth = barWidth / 2;
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Stack(
-        children: [
-          // Background Image covering entire screen
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/background.png'),
-                  fit: BoxFit.cover,
-                ),
+  return Scaffold(
+    resizeToAvoidBottomInset: false,
+    body: Stack(
+      children: [
+        // Background Image covering entire screen
+        Positioned.fill(
+          child: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/background.png'),
+                fit: BoxFit.cover,
               ),
             ),
           ),
-
-          Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 45.0),
-                    child: Column(
-                      children: [
-                        // Header (Lowered a bit)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Row(
-                            children: [
-                             PopupMenuButton<String>(
-  onSelected: (String value) async {
-    if (value == 'logout') {
-      // Clear the session data
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('isLoggedIn', false);
-      await prefs.remove('empId');
-      await prefs.remove('role');
-
-      // Navigate to LoginScreen when logout is selected
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => LoginScreen(),
         ),
-      );
-    }
-  },
-  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-    const PopupMenuItem<String>(
-      value: 'logout',
-      child: Text('Logout'),
-    ),
-  ],
-  child: CircleAvatar(
-    backgroundColor: Colors.grey[800],
-    radius: 24,
-    child: Icon(
-      Icons.person, // You can change this icon to something else if needed
-      color: Colors.white,
-    ),
-  ),
-),
-                                  SizedBox(width: 16),
+
+        Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 45.0),
+                  child: Column(
+                    children: [
+                      // Header (Lowered a bit)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Row(
+                          children: [
+                            PopupMenuButton<String>(
+                              onSelected: (String value) async {
+                                if (value == 'logout') {
+                                  // Clear the session data
+                                  final prefs = await SharedPreferences.getInstance();
+                                  await prefs.setBool('isLoggedIn', false);
+                                  await prefs.remove('empId');
+                                  await prefs.remove('role');
+
+                                  // Navigate to LoginScreen when logout is selected
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => LoginScreen(),
+                                    ),
+                                  );
+                                }
+                              },
+                              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                                const PopupMenuItem<String>(
+                                  value: 'logout',
+                                  child: Text('Logout'),
+                                ),
+                              ],
+                              child: CircleAvatar(
+                                backgroundColor: Colors.grey[800],
+                                radius: 24,
+                                child: Icon(
+                                  Icons.person, // You can change this icon to something else if needed
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 16),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -711,247 +754,288 @@ Future<void> _fetchHolidays() async {
                                 ),
                               ],
                             ),
-                              Spacer(),
-                              IconButton(
-                                icon: Icon(Icons.refresh, size: 24, color: Color(0xFFB84542)),
-                                onPressed: _refreshLocation,
-                              ),
-                            ],
-                          ),
+                            Spacer(),
+                            IconButton(
+                              icon: Icon(Icons.refresh, size: 24, color: Color(0xFFB84542)),
+                              onPressed: _refreshLocation,
+                            ),
+                          ],
                         ),
-                        SizedBox(height: 40),
+                      ),
+                      SizedBox(height: 40),
 
-                        // Main Content
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // Current Time
-                            Text(
-                              DateFormat('hh:mm a').format(currentTime),
-                              style: TextStyle(
-                                fontSize: 48,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFFB84542),
-                              ),
+                      // Main Content
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Current Time
+                          Text(
+                            DateFormat('hh:mm a').format(currentTime),
+                            style: TextStyle(
+                              fontSize: 48,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFFB84542),
                             ),
-                            SizedBox(height: 16),
+                          ),
+                          SizedBox(height: 16),
 
-                            // Date
-                            Text(
-                              _currentDate,
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Color(0xFFB84542),
-                              ),
+                          // Date
+                          Text(
+                            _currentDate,
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Color(0xFFB84542),
                             ),
-                            SizedBox(height: 16),
+                          ),
+                          SizedBox(height: 16),
 
-                            // Location
-                            Text(
-                              'LOCATION - $_location',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Color(0xFFB84542),
-                              ),
+                          // Location
+                          Text(
+                            'LOCATION - $_location',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Color(0xFFB84542),
                             ),
-                            SizedBox(height: 32),
+                          ),
+                          SizedBox(height: 32),
 
-                    GestureDetector(
-  onTap: _isSundayOrHoliday(DateTime.now()) // Check if today is Sunday or a holiday
-      ? null // Disable onTap if it's Sunday or a holiday
-      : (_isMarkInEnabled ? _markIn : _isMarkOutEnabled ? _markOut : null), // Enable onTap otherwise
-  child: Container(
-    width: 180,
-    height: 180,
-    decoration: BoxDecoration(
-      color: _isSundayOrHoliday(DateTime.now()) // Change color if it's Sunday or a holiday
-          ? Colors.grey // Grey color for disabled state
-          : Colors.white, // White color for enabled state
-      shape: BoxShape.circle,
-      boxShadow: [
-        BoxShadow(
-          color: Colors.white.withOpacity(0.2),
-          blurRadius: 10,
-          spreadRadius: 2,
-        ),
-      ],
-    ),
-    child: Center(
-      child: Text(
-        _isSundayOrHoliday(DateTime.now()) // Check if today is Sunday or a holiday
-            ? 'DISABLED' // Show "DISABLED" if it's Sunday or a holiday
-            : (_isMarkInEnabled ? 'PUNCH IN' : _isMarkOutEnabled ? 'PUNCH OUT' : 'DISABLED'), // Otherwise, show appropriate text
-        style: TextStyle(
-          color: _isSundayOrHoliday(DateTime.now()) // Change text color if it's Sunday or a holiday
-              ? Colors.black54 // Greyish color for disabled state
-              : Colors.black, // Black color for enabled state
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    ),
-  ),
-),
-                            SizedBox(height: 40), // Reduced space between punch button and icons
-
-                            // Punch In, Punch Out, and Total Hours in a Row
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                children: [
-                                  // Punch In with image above
-                                  Column(
-                                    children: [
-                                      Image.asset(
-                                        'assets/images/punchin.png', // Update with correct asset path
-                                        width: 40,
-                                        height: 40,
-                                      ),
-                                      SizedBox(height: 8), // Reduced space between image and text
-                                      TimeDisplay(
-                                        label: 'Punch In',
-                                        time: _inTime.isNotEmpty ? _inTime : '--:--',
-                                      ),
-                                    ],
-                                  ),
-
-                                  // Punch Out with image above
-                                  Column(
-                                    children: [
-                                      Image.asset(
-                                        'assets/images/punchout.png', // Update with correct asset path
-                                        width: 40,
-                                        height: 40,
-                                      ),
-                                      SizedBox(height: 8), // Reduced space between image and text
-                                      TimeDisplay(
-                                        label: 'Punch Out',
-                                        time: _outTime.isNotEmpty ? _outTime : '--:--',
-                                      ),
-                                    ],
-                                  ),
-
-                                  // Total Hours with image above
-                                  Column(
-                                    children: [
-                                      Image.asset(
-                                        'assets/images/totalhours.png', // Update with correct asset path
-                                        width: 40,
-                                        height: 40,
-                                      ),
-                                      SizedBox(height: 8), // Reduced space between image and text
-                                      TimeDisplay(
-                                        label: 'Total Hours',
-                                        time: _totalHours.toStringAsFixed(2),
-                                      ),
-                                    ],
+                          // Punch In/Out Button with PNG Images
+                          GestureDetector(
+                            onTap: _isSundayOrHoliday(DateTime.now()) // Check if today is Sunday or a holiday
+                                ? null // Disable onTap if it's Sunday or a holiday
+                                : (_isMarkInEnabled ? _markIn : _isMarkOutEnabled ? _markOut : null), // Enable onTap otherwise
+                            child: Container(
+                              width: 180,
+                              height: 180,
+                              decoration: BoxDecoration(
+                                color: _isSundayOrHoliday(DateTime.now()) // Change color if it's Sunday or a holiday
+                                    ? Colors.grey // Grey color for disabled state
+                                    : Colors.white, // White color for enabled state
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.white.withOpacity(0.2),
+                                    blurRadius: 10,
+                                    spreadRadius: 2,
                                   ),
                                 ],
                               ),
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    // Display PNG image based on Punch In/Out state
+                                    Image.asset(
+                                      _isMarkInEnabled
+                                          ? 'assets/images/presson.png' // Punch In image
+                                          : 'assets/images/pressout.png', // Punch Out image
+                                      width: 60,
+                                      height: 60,
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      _isSundayOrHoliday(DateTime.now()) // Check if today is Sunday or a holiday
+                                          ? 'DISABLED' // Show "DISABLED" if it's Sunday or a holiday
+                                          : (_isMarkInEnabled ? 'PUNCH IN' : _isMarkOutEnabled ? 'PUNCH OUT' : 'DISABLED'), // Otherwise, show appropriate text
+                                      style: TextStyle(
+                                        color: _isSundayOrHoliday(DateTime.now()) // Change text color if it's Sunday or a holiday
+                                            ? Colors.black54 // Greyish color for disabled state
+                                            : Colors.black, // Black color for enabled state
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                          SizedBox(height: 40), // Reduced space between punch button and icons
+
+                          // Punch In, Punch Out, and Total Hours in a Row
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                // Punch In with image above
+                                Column(
+                                  children: [
+                                    Image.asset(
+                                      'assets/images/punchin.png', // Update with correct asset path
+                                      width: 40,
+                                      height: 40,
+                                    ),
+                                    SizedBox(height: 8), // Reduced space between image and text
+                                    TimeDisplay(
+                                      label: 'Punch In',
+                                      time: _inTime.isNotEmpty ? _inTime : '--:--',
+                                    ),
+                                  ],
+                                ),
+
+                                // Punch Out with image above
+                                Column(
+                                  children: [
+                                    Image.asset(
+                                      'assets/images/punchout.png', // Update with correct asset path
+                                      width: 40,
+                                      height: 40,
+                                    ),
+                                    SizedBox(height: 8), // Reduced space between image and text
+                                    TimeDisplay(
+                                      label: 'Punch Out',
+                                      time: _outTime.isNotEmpty ? _outTime : '--:--',
+                                    ),
+                                  ],
+                                ),
+
+                                // Total Hours with image above
+                                Column(
+                                  children: [
+                                    Image.asset(
+                                      'assets/images/totalhours.png', // Update with correct asset path
+                                      width: 40,
+                                      height: 40,
+                                    ),
+                                    SizedBox(height: 8), // Reduced space between image and text
+                                    TimeDisplay(
+                                      label: 'Total Hours',
+                                      time: _totalHours.toStringAsFixed(2),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ],
-          ),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        color: Colors.black, // Outer container with black margin effect
-        margin: EdgeInsets.only(bottom: 10), // This creates the margin
-        child: Container(
-          height: barHeight,
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
-          decoration: BoxDecoration(
-            color: Color(0xFFFF7043), // Actual bottom bar color
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 10,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: Stack(
-            children: [
-              // Sliding box (darker shade)
-              AnimatedPositioned(
-                duration: Duration(milliseconds: 300),
-                left: _selectedIndex == 0 ? 0 : tabWidth,
-                top: 0,
-                bottom: 0,
-                child: Container(
-                  width: tabWidth,
-                  height: barHeight,
-                  decoration: BoxDecoration(
-                    color: Color(0xFFB84542).withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-              ),
-              // Tab items (Home and History)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            ),
+          ],
+        ),
+
+        // Loading Overlay
+        if (_isLoading)
+          Container(
+            color: Colors.black.withOpacity(0.7), // Semi-transparent background
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Home Tab
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => _onItemTapped(0),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.home, color: Colors.white),
-                            SizedBox(width: 8),
-                            Text(
-                              'HOME',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                  Image.asset(
+                    'assets/images/loading.gif', // Path to your GIF file
+                    width: 100,
+                    height: 100,
                   ),
-                  // History Tab
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => _onItemTapped(1),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.history, color: Colors.white),
-                            SizedBox(width: 8),
-                            Text(
-                              'HISTORY',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Loading...',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
                     ),
                   ),
                 ],
               ),
-            ],
+            ),
           ),
+      ],
+    ),
+    bottomNavigationBar: Container(
+      color: Colors.black, // Outer container with black margin effect
+      margin: EdgeInsets.only(bottom: 10), // This creates the margin
+      child: Container(
+        height: barHeight,
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+        decoration: BoxDecoration(
+          color: Color(0xFFFF7043), // Actual bottom bar color
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 10,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: Stack(
+          children: [
+            // Sliding box (darker shade)
+            AnimatedPositioned(
+              duration: Duration(milliseconds: 300),
+              left: _selectedIndex == 0 ? 0 : tabWidth,
+              top: 0,
+              bottom: 0,
+              child: Container(
+                width: tabWidth,
+                height: barHeight,
+                decoration: BoxDecoration(
+                  color: Color(0xFFB84542).withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ),
+            // Tab items (Home and History)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Home Tab
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => _onItemTapped(0),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.home, color: Colors.white),
+                          SizedBox(width: 8),
+                          Text(
+                            'HOME',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                // History Tab
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => _onItemTapped(1),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.history, color: Colors.white),
+                          SizedBox(width: 8),
+                          Text(
+                            'HISTORY',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class TimeDisplay extends StatelessWidget {

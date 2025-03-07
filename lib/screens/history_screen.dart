@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
 import 'package:location_checker/screens/location_checker_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -194,113 +195,113 @@ Widget build(BuildContext context) {
                 cellMargin: EdgeInsets.all(5), // Increase cell margin for more space
               ),
               calendarBuilders: CalendarBuilders(
-                defaultBuilder: (context, day, focusedDay) {
-                  final DateTime date = DateTime(day.year, day.month, day.day);
+  defaultBuilder: (context, day, focusedDay) {
+    final DateTime date = DateTime(day.year, day.month, day.day);
 
-                  // Check if the date is a holiday
-                  if (_holidays.contains(date) || _leaves.containsKey(date)) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Text(
-                          '${day.day}',
-                          style: const TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                      ),
-                    );
-                  }
+    // Check if the date is a holiday
+    if (_holidays.contains(date) || _leaves.containsKey(date)) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.blue,
+          shape: BoxShape.circle,
+        ),
+        child: Center(
+          child: Text(
+            '${day.day}',
+            style: const TextStyle(color: Colors.white, fontSize: 18),
+          ),
+        ),
+      );
+    }
 
-                  // Check if the date is a Sunday
-                  if (day.weekday == DateTime.sunday) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Text(
-                          '${day.day}',
-                          style: const TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                      ),
-                    );
-                  }
+    // Check if the date is a Sunday
+    if (day.weekday == DateTime.sunday) {
+      return Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+        ),
+        child: Center(
+          child: Text(
+            '${day.day}',
+            style: const TextStyle(color: Colors.white, fontSize: 18),
+          ),
+        ),
+      );
+    }
 
-                  // Check if the date is in the future
-                  if (day.isAfter(DateTime.now())) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Text(
-                          '${day.day}',
-                          style: const TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                      ),
-                    );
-                  }
+    // Check if the date is in the future
+    if (day.isAfter(DateTime.now())) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.grey,
+          shape: BoxShape.circle,
+        ),
+        child: Center(
+          child: Text(
+            '${day.day}',
+            style: const TextStyle(color: Colors.white, fontSize: 18),
+          ),
+        ),
+      );
+    }
 
-                  // Check if the date has attendance data
-                  if (_attendanceData.containsKey(date)) {
-                    switch (_attendanceData[date]) {
-                      case 'F':
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Text(
-                              '${day.day}',
-                              style: const TextStyle(color: Colors.white, fontSize: 18),
-                            ),
-                          ),
-                        );
-                      case 'H':
-                        return GestureDetector(
-                          onTap: () => _navigateToRegularizeScreen(date),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: Text(
-                                '${day.day}',
-                                style: const TextStyle(color: Colors.white, fontSize: 18),
-                              ),
-                            ),
-                          ),
-                        );
-                    }
-                  }
-
-                  // If no attendance data is found for the date, mark it as red only after the first attendance date
-                  if (firstAttendanceDate != null && date.isAfter(firstAttendanceDate)) {
-                    return GestureDetector(
-                          onTap: () => _navigateToRegularizeScreen(date),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: Text(
-                                '${day.day}',
-                                style: const TextStyle(color: Colors.white, fontSize: 18),
-                              ),
-                            ),
-                          ),
-                        );
-                  }
-
-                  return null;
-                },
+    // Check if the date has attendance data
+    if (_attendanceData.containsKey(date)) {
+      switch (_attendanceData[date]) {
+        case 'F':
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.green,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                '${day.day}',
+                style: const TextStyle(color: Colors.white, fontSize: 18),
               ),
+            ),
+          );
+        case 'H':
+          return GestureDetector(
+            onTap: () => _navigateToRegularizeScreen(date),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Text(
+                  '${day.day}',
+                  style: const TextStyle(color: Colors.white, fontSize: 18),
+                ),
+              ),
+            ),
+          );
+      }
+    }
+
+    // If no attendance data is found for the date, mark it as red only after the first attendance date
+    if (firstAttendanceDate != null && date.isAfter(firstAttendanceDate)) {
+      return GestureDetector(
+        onTap: () => _navigateToRegularizeScreen(date),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.red,
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Text(
+              '${day.day}',
+              style: const TextStyle(color: Colors.white, fontSize: 18),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return null;
+  },
+),
             ),
           ),
         ],
@@ -577,7 +578,7 @@ Future<void> _submitRegularization() async {
 
 
     // Determine the day status based on total hours
-    final dayStatus = totalHours >= 9 ? 'F' : 'H';
+    final dayStatus = totalHours >= 8 ? 'F' : 'H';
 
     // Add a timestamp to force update
     final timestamp = DateTime.now().toIso8601String();
@@ -829,15 +830,35 @@ class _ApprovalPageState extends State<ApprovalPage> with SingleTickerProviderSt
   List<dynamic> rejectedEntries = [];
   late String emp_id;
   late TabController _tabController;
+  late String firstName = "Unknown"; // Default value for firstName
 
   @override
   void initState() {
     super.initState();
     emp_id = widget.empId;
     _tabController = TabController(length: 3, vsync: this); // 3 tabs for Pending, Approved, Rejected
+    fetchUserDetails(); // Fetch user details including firstName
     fetchPendingEntries();
     fetchApprovedEntries();
     fetchRejectedEntries();
+  }
+
+  Future<void> fetchUserDetails() async {
+    final userDetails = await getUserDetails();
+    setState(() {
+      firstName = userDetails['firstName'] ?? "Unknown";
+    });
+  }
+
+  Future<Map<String, String>> getUserDetails() async {
+    final prefs = await SharedPreferences.getInstance();
+    final firstName = prefs.getString('firstName') ?? "Unknown";
+    final email = prefs.getString('email') ?? "Unknown";
+
+    return {
+      'firstName': firstName,
+      'email': email,
+    };
   }
 
   Future<void> fetchPendingEntries() async {
@@ -902,178 +923,185 @@ class _ApprovalPageState extends State<ApprovalPage> with SingleTickerProviderSt
     }
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text('Approvals'),
-      bottom: TabBar(
-        controller: _tabController,
-        tabs: const [
-          Tab(text: 'Pending'),
-          Tab(text: 'Approved'),
-          Tab(text: 'Rejected'),
-        ],
-      ),
-    ),
-    body: Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/images/background.png'), // Add your background image here
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: TabBarView(
-        controller: _tabController,
-        children: [
-          // Pending Tab
-          ListView.builder(
-            itemCount: pendingEntries.length,
-            itemBuilder: (context, index) {
-              var entry = pendingEntries[index];
-              return Container(
-                color: Color(0xFFFDEEEE).withOpacity(0.8), // Light orange background with opacity
-                margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-                child: ListTile(
-                  title: Text('${entry['empId']} - ${entry['date']}', style: TextStyle(color: Colors.black)),
-                  subtitle: Text('${entry['locationIn']} to ${entry['locationOut']} (${entry['totalHours']} hrs)', style: TextStyle(color: Colors.black)),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.check, color: Colors.green),
-                        onPressed: () {
-                          updateApproval(entry['empId'], entry['date'], 'Approved');
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.close, color: Colors.red),
-                        onPressed: () {
-                          updateApproval(entry['empId'], entry['date'], 'Rejected');
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-          // Approved Tab
-          ListView.builder(
-            itemCount: approvedEntries.length,
-            itemBuilder: (context, index) {
-              var entry = approvedEntries[index];
-              return Container(
-                color: Color(0xFFE8F5E9).withOpacity(0.8), // Light green background with opacity
-                margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-                child: ListTile(
-                  title: Text('${entry['empId']} - ${entry['date']}', style: TextStyle(color: Colors.black)),
-                  subtitle: Text('Approved', style: TextStyle(color: Colors.black)),
-                ),
-              );
-            },
-          ),
-          // Rejected Tab
-          ListView.builder(
-            itemCount: rejectedEntries.length,
-            itemBuilder: (context, index) {
-              var entry = rejectedEntries[index];
-              return Container(
-                color: Color(0xFFFFEBEE).withOpacity(0.8), // Light red background with opacity
-                margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-                child: ListTile(
-                  title: Text('${entry['empId']} - ${entry['date']}', style: TextStyle(color: Colors.black)),
-                  subtitle: Text('Rejected', style: TextStyle(color: Colors.black)),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    ),
-    bottomNavigationBar: Container(
-      color: Colors.black,
-      margin: EdgeInsets.only(bottom: 10),
-      child: Container(
-        height: 60,
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
-        decoration: BoxDecoration(
-          color: Color(0xFFFF7043),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 10,
-              spreadRadius: 2,
-            ),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Approvals'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'Pending'),
+            Tab(text: 'Approved'),
+            Tab(text: 'Rejected'),
           ],
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      ),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background.png'), // Add your background image here
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: TabBarView(
+          controller: _tabController,
           children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LocationCheckerScreen(empId: widget.empId),
+            // Pending Tab
+            ListView.builder(
+              itemCount: pendingEntries.length,
+              itemBuilder: (context, index) {
+                var entry = pendingEntries[index];
+                return Container(
+                  color: Color(0xFFFDEEEE).withOpacity(0.8), // Light orange background with opacity
+                  margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                  child: ListTile(
+                    title: Text('${entry['empId']} - $firstName - ${entry['date']}', style: TextStyle(color: Colors.black)),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('${entry['locationIn']} to ${entry['locationOut']} (${entry['totalHours']} hrs)', style: TextStyle(color: Colors.black)),
+                        if (entry['reason'] != null) // Display reason if it exists
+                          Text('Reason: ${entry['reason']}', style: TextStyle(color: Colors.black)),
+                      ],
                     ),
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.home, color: Colors.white),
-                      SizedBox(width: 8),
-                      Text(
-                        'HOME',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.check, color: Colors.green),
+                          onPressed: () {
+                            updateApproval(entry['empId'], entry['date'], 'Approved');
+                          },
                         ),
-                      ),
-                    ],
+                        IconButton(
+                          icon: Icon(Icons.close, color: Colors.red),
+                          onPressed: () {
+                            updateApproval(entry['empId'], entry['date'], 'Rejected');
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
-            Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => HistoryScreen(empId: widget.empId),
-                    ),
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.history, color: Colors.white),
-                      SizedBox(width: 8),
-                      Text(
-                        'HISTORY',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
+            // Approved Tab
+            ListView.builder(
+              itemCount: approvedEntries.length,
+              itemBuilder: (context, index) {
+                var entry = approvedEntries[index];
+                return Container(
+                  color: Color(0xFFE8F5E9).withOpacity(0.8), // Light green background with opacity
+                  margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                  child: ListTile(
+                    title: Text('${entry['empId']} - $firstName - ${entry['date']}', style: TextStyle(color: Colors.black)),
+                    subtitle: Text('Approved', style: TextStyle(color: Colors.black)),
                   ),
-                ),
-              ),
+                );
+              },
+            ),
+            // Rejected Tab
+            ListView.builder(
+              itemCount: rejectedEntries.length,
+              itemBuilder: (context, index) {
+                var entry = rejectedEntries[index];
+                return Container(
+                  color: Color(0xFFFFEBEE).withOpacity(0.8), // Light red background with opacity
+                  margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                  child: ListTile(
+                    title: Text('${entry['empId']} - $firstName - ${entry['date']}', style: TextStyle(color: Colors.black)),
+                    subtitle: Text('Rejected', style: TextStyle(color: Colors.black)),
+                  ),
+                );
+              },
             ),
           ],
         ),
       ),
-    ),
-  );
-}
+      bottomNavigationBar: Container(
+        color: Colors.black,
+        margin: EdgeInsets.only(bottom: 10),
+        child: Container(
+          height: 60,
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+          decoration: BoxDecoration(
+            color: Color(0xFFFF7043),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 10,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LocationCheckerScreen(empId: widget.empId),
+                      ),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.home, color: Colors.white),
+                        SizedBox(width: 8),
+                        Text(
+                          'HOME',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HistoryScreen(empId: widget.empId),
+                      ),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.history, color: Colors.white),
+                        SizedBox(width: 8),
+                        Text(
+                          'HISTORY',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

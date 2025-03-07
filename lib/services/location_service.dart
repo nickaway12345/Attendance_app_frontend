@@ -228,7 +228,7 @@ Future<bool> hasNetworkConnection() async {
       DateTime inDateTime = DateFormat('HH:mm:ss').parse(inTime!);
       DateTime outDateTime = DateFormat('HH:mm:ss').parse(outTime!);
       totalTime = outDateTime.difference(inDateTime).inHours.toDouble();
-      workDay = totalTime! >= 9 ? 'F' : 'H';
+      workDay = totalTime! >= 8 ? 'F' : 'H';
     }
   }
 

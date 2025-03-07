@@ -25,6 +25,7 @@ dependencies:
   permission_handler: ^11.4.0
   geolocator_android: ^4.6.1
   shared_preferences: ^2.0.6
+  video_player: ^2.9.3
 
 
 dev_dependencies:
@@ -40,9 +41,13 @@ flutter:
     - assets/images/logo.jpeg
     - assets/data/credentials.json
     - assets/images/punchin.png
+    - assets/images/presson.png
     - assets/images/punchout.png
+    - assets/images/pressout.png
     - assets/images/totalhours.png
     - assets/images/upscalemedia-transformed.png
+    - assets/videos/buffer.mp4
+    - assets/images/loading.gif
     - .env
 flutter_icons:
     android: true

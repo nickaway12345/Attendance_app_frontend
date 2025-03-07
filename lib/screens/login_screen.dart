@@ -14,8 +14,22 @@ class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _loginService = LoginService();
+  bool _isLoading = false; // Track loading state
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
 
   void _login() async {
+    setState(() {
+      _isLoading = true; // Start loading
+    });
+
+    // Wait for 4 seconds
+    await Future.delayed(Duration(seconds: 2));
+
     final username = _usernameController.text;
     final password = _passwordController.text;
 
@@ -31,6 +45,9 @@ class _LoginScreenState extends State<LoginScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Invalid user details received from the server')),
           );
+          setState(() {
+            _isLoading = false; // Stop loading
+          });
           return;
         }
 
@@ -69,18 +86,18 @@ class _LoginScreenState extends State<LoginScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Invalid username or password')),
         );
+        setState(() {
+          _isLoading = false; // Stop loading
+        });
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('An error occurred: $e')),
       );
+      setState(() {
+        _isLoading = false; // Stop loading
+      });
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _checkLoginStatus();
   }
 
   void _checkLoginStatus() async {
@@ -228,16 +245,16 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(height: 50), // Increased space between fields and button
                         Center(
                           child: ElevatedButton(
-                            onPressed: _login,
+                            onPressed: _isLoading ? null : _login, // Disable button when loading
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFFB84542),
+                              backgroundColor: _isLoading ? Colors.grey : Color(0xFFB84542), // Change button color when loading
                               padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
                             child: Text(
-                              'LOGIN',
+                              _isLoading ? 'LOGGING IN...' : 'LOGIN', // Change button text when loading
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -252,6 +269,32 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ),
+          // Buffer Screen (Overlay)
+          if (_isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.7), // Semi-transparent background
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Display GIF
+                    Image.asset(
+                      'assets/images/loading.gif', // Path to your GIF file
+                      width: 100,
+                      height: 100,
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      'Loading...',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     );
