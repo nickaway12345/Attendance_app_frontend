@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:location_checker/screens/choose_role_screen.dart';
+import 'package:location_checker/services/local_database_servie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'location_checker_screen.dart';
 import 'service_home_screen.dart';
@@ -20,6 +21,12 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     _checkLoginStatus();
+    _checkDatabase();
+  }
+
+  Future<void> _checkDatabase() async {
+    final db = await LocalDatabaseService.database;
+    print("Database is ready: $db");
   }
 
   void _login() async {

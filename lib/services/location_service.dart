@@ -49,7 +49,11 @@ class LocationService {
         return 'Location permissions are permanently denied.';
       }
 
-      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+       Position position = await Geolocator.getCurrentPosition(
+      locationSettings: LocationSettings(
+        accuracy: LocationAccuracy.high,
+      ),
+    );
       LatLng userLocation = LatLng(position.latitude, position.longitude);
 
       final Distance distance = Distance();

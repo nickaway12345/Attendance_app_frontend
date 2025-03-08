@@ -2,8 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-     <key>NSLocationWhenInUseUsageDescription</key>
-	 <string>Your location is required to check proximity.</string>
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>We need your location to mark your attendance.</string>
+
+<key>NSLocationAlwaysUsageDescription</key>
+<string>We need your location to mark your attendance even when the app is in the background.</string>
+
+<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+<string>We need your location to mark your attendance even when the app is in the background.</string>
 
     <key>NSAppTransportSecurity</key>
 <dict>

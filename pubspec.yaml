@@ -26,6 +26,9 @@ dependencies:
   geolocator_android: ^4.6.1
   shared_preferences: ^2.0.6
   video_player: ^2.9.3
+  worldtime: ^1.4.2
+  flutter_local_notifications: ^15.1.0
+  timezone: ^0.9.4
 
 
 dev_dependencies:

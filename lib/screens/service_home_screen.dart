@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login_screen.dart'; // Import the LoginScreen for navigation
 import 'package:intl/intl.dart'; // For date and time formatting
+import 'package:location_checker/services/fetchAndSetTime.dart';
 
 class ServiceHomePage extends StatefulWidget {
   final String empId;
@@ -17,7 +18,7 @@ class ServiceHomePage extends StatefulWidget {
 
 class _ServiceHomePageState extends State<ServiceHomePage> {
   Map<String, String> _userDetails = {}; // Store user details
-  DateTime currentTime = DateTime.now(); // Current time
+  DateTime currentTime = TimeService.appTime; // Current time
   String _currentDate = ''; // Current date
   String _location = 'Unknown'; // Location placeholder
 
@@ -42,7 +43,7 @@ class _ServiceHomePageState extends State<ServiceHomePage> {
   // Update time and date periodically
   void _updateTimeAndDate() {
     setState(() {
-      currentTime = DateTime.now();
+      currentTime = TimeService.appTime;
       _currentDate = DateFormat('MMMM dd, yyyy').format(currentTime);
     });
 

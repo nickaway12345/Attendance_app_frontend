@@ -95,18 +95,17 @@ class LocalDatabaseService {
   );
 }
 
-  // Save attendance to SQLite
-  static Future<void> saveAttendanceLocally(Map<String, dynamic> attendance) async {
-    final db = await database;
-    await db.insert('attendance', attendance);
-  }
+static Future<void> saveAttendanceLocally(Map<String, dynamic> attendance) async {
+  final db = await database;
+  attendance['synced'] = 0; // Mark as unsynced by default
+  await db.insert('attendance', attendance);
+}
 
-  // Save regularization to SQLite
-  static Future<void> saveRegularizationLocally(Map<String, dynamic> regularization) async {
-    final db = await database;
-    regularization['synced'] = 0; // Mark as unsynced by default
-    await db.insert('regularization', regularization);
-  }
+static Future<void> saveRegularizationLocally(Map<String, dynamic> regularization) async {
+  final db = await database;
+  regularization['synced'] = 0; // Mark as unsynced by default
+  await db.insert('regularization', regularization);
+}
 
   // Fetch punch-in data for a specific employee and date from both attendance and regularization tables
 static Future<Map<String, dynamic>?> getPunchInDataForDate(String empId, String date) async {
@@ -166,27 +165,25 @@ static Future<bool> isInAttendance(String empId, String date) async {
     return await db.query('regularization', where: 'synced = ?', whereArgs: [0]);
   }
 
-  // Mark attendance as synced
-  static Future<void> markAttendanceAsSynced(String empId, String date) async {
-    final db = await database;
-    await db.update(
-      'attendance',
-      {'synced': 1},
-      where: 'emp_id = ? AND date = ?',
-      whereArgs: [empId, date],
-    );
-  }
+static Future<void> markAttendanceAsSynced(String empId, String date) async {
+  final db = await database;
+  await db.update(
+    'attendance',
+    {'synced': 1},
+    where: 'emp_id = ? AND date = ?',
+    whereArgs: [empId, date],
+  );
+}
 
-  // Mark regularization as synced
-  static Future<void> markRegularizationAsSynced(String empId, String date) async {
-    final db = await database;
-    await db.update(
-      'regularization',
-      {'synced': 1},
-      where: 'emp_id = ? AND date = ?',
-      whereArgs: [empId, date],
-    );
-  }
+static Future<void> markRegularizationAsSynced(String empId, String date) async {
+  final db = await database;
+  await db.update(
+    'regularization',
+    {'synced': 1},
+    where: 'emp_id = ? AND date = ?',
+    whereArgs: [empId, date],
+  );
+}
 
   // Check if a mark-in entry exists for the given date in both attendance and regularization
   static Future<bool> hasMarkInForDate(String empId, String date) async {

@@ -6,12 +6,15 @@ import 'package:intl/intl.dart'; // For formatting date and time
 import 'package:http/http.dart' as http;
 import 'package:location_checker/screens/history_screen.dart';
 import 'package:location_checker/screens/login_screen.dart';
+import 'package:location_checker/services/fetchAndSetTime.dart';
 import 'dart:convert';
 import 'package:location_checker/services/location_service.dart';
 import 'package:location_checker/services/local_database_servie.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:location_checker/services/notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // To track internet connectivity
+import 'package:permission_handler/permission_handler.dart';
 
 class LocationCheckerScreen extends StatefulWidget {
   final String empId;
@@ -24,7 +27,7 @@ class LocationCheckerScreen extends StatefulWidget {
 class _LocationCheckerScreenState extends State<LocationCheckerScreen> {
   Map<String, String> _userDetails = {'firstName': 'Unknown', 'email': 'Unknown'};
   int _selectedIndex = 0;
-  DateTime currentTime = DateTime.now();
+  DateTime currentTime = TimeService.appTime;
   String _statusMessage = 'Check your location';
   bool _isMarkInEnabled = false;
   bool _isMarkOutEnabled = false;
@@ -33,7 +36,7 @@ class _LocationCheckerScreenState extends State<LocationCheckerScreen> {
   String _location = 'Outside Office';
   String _day = 'H'; // Default to 'H' for half-day
   late String emp_id;
-  String _currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+  String _currentDate = DateFormat('yyyy-MM-dd').format(TimeService.appTime);
   double _totalHours = 0.0;
   bool _isLoading = false; // Track loading state
 
@@ -60,7 +63,7 @@ class _LocationCheckerScreenState extends State<LocationCheckerScreen> {
 
   // Function to delete entries for the current date
 Future<void> _deleteEntriesForCurrentDate() async {
-  await LocalDatabaseService.deleteEntriesForDate('HRCPL116', '2025-03-07');
+  await LocalDatabaseService.deleteEntriesForDate('HRCPL116', '2025-03-08');
 }
 
   @override
@@ -70,7 +73,7 @@ Future<void> _deleteEntriesForCurrentDate() async {
     _fetchHolidays();
     _fetchUserDetails();
 
-   //_deleteEntriesForCurrentDate();
+  // _deleteEntriesForCurrentDate();
 
     // Start the timer to update the current time every second
     _timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
@@ -106,7 +109,7 @@ Future<void> _deleteEntriesForCurrentDate() async {
 
   void _getCurrentTime() {
     setState(() {
-      currentTime = DateTime.now();
+      currentTime = TimeService.appTime;
     });
   }
 
@@ -116,6 +119,52 @@ Future<void> _deleteEntriesForCurrentDate() async {
       _userDetails = userDetails;
     });
   }
+
+  Future<void> _checkAndRequestLocationPermissions() async {
+  // Check if location services are enabled
+  bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    print('Location services are disabled.');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Location services are disabled. Please enable them.')),
+    );
+    return;
+  }
+
+  // Check location permissions
+  PermissionStatus status = await Permission.location.status;
+  if (status.isDenied) {
+    // Request location permissions
+    status = await Permission.location.request();
+    if (status.isDenied) {
+      print('Location permissions are denied.');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Location permissions are denied.')),
+      );
+      return;
+    }
+  }
+
+  if (status.isPermanentlyDenied) {
+    print('Location permissions are permanently denied.');
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text('Location permissions are permanently denied. Please enable them in settings.'),
+      action: SnackBarAction(
+        label: 'Open Settings',
+        onPressed: _openAppSettings,
+      ),
+    ),
+  );
+  return;
+  }
+
+  print('Location permissions are granted.');
+}
+
+Future<void> _openAppSettings() async {
+  await openAppSettings();
+}
 
   Future<Map<String, String>> getUserDetails() async {
     final prefs = await SharedPreferences.getInstance();
@@ -214,12 +263,21 @@ Future<void> _deleteEntriesForCurrentDate() async {
 
   // Call the function from LocationService to check proximity
   Future<void> _checkUserLocation() async {
+  try {
+    print('Checking user location...');
     String result = await LocationService.checkUserProximity();
     setState(() {
       _statusMessage = result;
       _location = result == 'office' ? 'Office' : 'Outside Office';
     });
+    print('User location: $_location');
+  } catch (e) {
+    print('Error checking user location: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to check location. Please try again.')),
+    );
   }
+}
 
   // Refresh Button Functionality
   void _refreshLocation() {
@@ -248,74 +306,171 @@ Future<void> _deleteEntriesForCurrentDate() async {
   // Mark-in logic
 Future<void> _markIn() async {
   try {
+    print('Starting mark-in process...');
+
     // Show confirmation dialog
     bool confirm = await _showConfirmationDialog('Punch In');
-    if (!confirm) return; // User canceled the action
+    if (!confirm) {
+      print('User canceled mark-in.');
+      return; // User canceled the action
+    }
+    print('User confirmed mark-in.');
 
+    // Check and request location permissions
+    await _checkAndRequestLocationPermissions();
+
+    // Check user location
+    print('Checking user location...');
     _checkUserLocation();
-    // Check if today is Sunday
-    if (_isSundayOrHoliday(DateTime.now())) {
+
+    // Check if today is Sunday or a holiday
+    if (_isSundayOrHoliday(TimeService.appTime)) {
+      print('Today is a Sunday or holiday. Mark-in not allowed.');
       _showSundayOrHolidayAlert();
       return;
     }
 
+    // Determine if the user is inside the office
     bool isInsideOffice = _location == 'Office';
+    print('User is inside office: $isInsideOffice');
 
+    // If outside the office, show regularization alert
     if (!isInsideOffice) {
-      // Show alert for regularization
+      print('User is outside the office. Showing regularization alert...');
       bool confirm = await _showRegularizationAlert('mark-in');
       if (!confirm) {
+        print('User canceled regularization.');
         return; // User canceled the action
       }
+      print('User confirmed regularization.');
     }
 
-    setState(() {
-      _inTime = DateFormat('HH:mm:ss').format(DateTime.now());
-      _isMarkInEnabled = false; // Disable mark-in after pressing
-      _isMarkOutEnabled = true; // Enable mark-out button
-    });
+    // Fetch current location coordinates
+    print('Fetching current location...');
+    Position? position;
+    try {
+      // Try to get the last known position first
+      position = await Geolocator.getLastKnownPosition();
+      if (position == null) {
+        print('No last known position. Fetching new location...');
+        position = await Geolocator.getCurrentPosition(
+          locationSettings: LocationSettings(
+            accuracy: LocationAccuracy.high,
+          ),
+        ).timeout(Duration(seconds: 10)); // Add a 10-second timeout
+      }
+      print('Location fetched: ${position.latitude}, ${position.longitude}');
+    } on TimeoutException catch (e) {
+      print('Location fetch timed out: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to fetch location. Please check your GPS signal.')),
+      );
+      return;
+    } catch (e) {
+      print('Error fetching location: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to fetch location. Please try again.')),
+      );
+      return;
+    }
 
-    // Get current location coordinates
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    double latitude = position.latitude;
-    double longitude = position.longitude;
-
+    // Prepare attendance data
     Map<String, dynamic> attendanceData = {
       'emp_id': emp_id,
       'date': _currentDate,
-      'in_time': _inTime,
+      'in_time': DateFormat('HH:mm:ss').format(TimeService.appTime),
       'out_time': null,
       'total_hours': 0,
       'location_in': _location,
       'location_out': null,
       'day': 'H',
-      'punch_in_lat': latitude,
-      'punch_in_long': longitude,
+      'punch_in_lat': position.latitude,
+      'punch_in_long': position.longitude,
       'punch_out_lat': null,
       'punch_out_long': null,
+      'synced': 0, // Mark as unsynced
     };
 
+    // Save attendance data to the database
+    print('Saving attendance data to local DB...');
     final db = await LocalDatabaseService.database;
-    await db.transaction((txn) async {
-      if (isInsideOffice) {
-        // Save to attendance table
-        await txn.insert('attendance', attendanceData);
-      } else {
-        // Save to regularize table
-        await txn.insert('regularization', {
-          ...attendanceData,
-          'approval': 'Pending',
-          'approved_by': null,
-        });
+    try {
+      await db.transaction((txn) async {
+        if (isInsideOffice) {
+          // Save to attendance table
+          await txn.insert('attendance', attendanceData);
+          print('Attendance data saved to attendance table.');
+        } else {
+          // Save to regularization table
+          await txn.insert('regularization', {
+            ...attendanceData,
+            'approval': 'Pending',
+            'approved_by': null,
+          });
+          print('Attendance data saved to regularization table.');
+        }
+      });
+      await schedulePunchOutReminder();
+    } catch (e) {
+      print('Error saving data to database: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save data. Please try again.')),
+      );
+      return;
+    }
+
+    // Verify that the data was saved
+    print('Verifying saved data...');
+    List<Map<String, dynamic>> savedData;
+    try {
+      savedData = await db.query(
+        'attendance',
+        where: 'emp_id = ? AND date = ?',
+        whereArgs: [emp_id, _currentDate],
+      );
+      if (savedData.isEmpty) {
+        print('Error: Data was not saved to the database.');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save data. Please try again.')),
+        );
+        return;
       }
+      print('Saved data: $savedData');
+    } catch (e) {
+      print('Error verifying saved data: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to verify data. Please try again.')),
+      );
+      return;
+    }
+
+    // Update UI state
+    print('Updating UI state...');
+    setState(() {
+      _inTime = attendanceData['in_time'];
+      _isMarkInEnabled = false;
+      _isMarkOutEnabled = true;
     });
 
-    // Try syncing if connected to internet
-    await _syncAttendanceData();
-    await _syncRegularizationData();
+    // Try syncing if connected to the internet
+    print('Syncing data with backend...');
+    try {
+      await _syncAttendanceData();
+      await _syncRegularizationData();
+      print('Data synced successfully.');
+    } catch (e) {
+      print('Error syncing data: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to sync data. Please check your internet connection.')),
+      );
+    }
+
+    print('Mark-in process completed successfully.');
   } catch (e) {
-    print('Error in _markIn: $e');
-    // Handle error, show a message to the user, etc.
+    print('Unexpected error in _markIn: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('An unexpected error occurred. Please try again.')),
+    );
   }
 }
 
@@ -327,7 +482,7 @@ Future<void> _markIn() async {
 
     _checkUserLocation();
     // Check if today is Sunday or a holiday
-    if (_isSundayOrHoliday(DateTime.now())) {
+    if (_isSundayOrHoliday(TimeService.appTime)) {
       _showSundayOrHolidayAlert();
       return;
     }
@@ -354,7 +509,7 @@ Future<void> _markIn() async {
           // Case 1a: Mark-out inside office
           setState(() {
             _inTime = punchInData['in_time']; // Take inTime from attendance entry
-            _outTime = DateFormat('HH:mm:ss').format(DateTime.now());
+            _outTime = DateFormat('HH:mm:ss').format(TimeService.appTime);
             _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
             if (_totalHours >= 8) day = 'F';
             else day = 'H';
@@ -372,6 +527,7 @@ Future<void> _markIn() async {
                 'day': day,
                 'punch_out_lat': punchOutLat,
                 'punch_out_long': punchOutLong,
+                'synced': 0, // Mark as unsynced
               },
               where: 'emp_id = ? AND date = ?',
               whereArgs: [emp_id, _currentDate],
@@ -381,7 +537,7 @@ Future<void> _markIn() async {
           // Case 1b: Mark-out outside office
           setState(() {
             _inTime = punchInData['in_time']; // Take inTime from attendance entry
-            _outTime = DateFormat('HH:mm:ss').format(DateTime.now());
+            _outTime = DateFormat('HH:mm:ss').format(TimeService.appTime);
             _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
             if (_totalHours >= 8) day = 'F';
             else day = 'H';
@@ -405,6 +561,7 @@ Future<void> _markIn() async {
               'punch_out_long': punchOutLong,
               'approval': 'Pending',
               'approved_by': null,
+              'synced': 0, // Mark as unsynced
             });
           });
         }
@@ -416,7 +573,7 @@ Future<void> _markIn() async {
           // Case 2a: Mark-out inside office
           setState(() {
             _inTime = punchInData['in_time'] ?? ''; // Take inTime from regularization entry
-            _outTime = DateFormat('HH:mm:ss').format(DateTime.now());
+            _outTime = DateFormat('HH:mm:ss').format(TimeService.appTime);
             _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
             if (_totalHours >= 8) day = 'F';
             else day = 'H';
@@ -438,13 +595,14 @@ Future<void> _markIn() async {
               'punch_in_long': punchInData['punch_in_long'],
               'punch_out_lat': punchOutLat,
               'punch_out_long': punchOutLong,
+              'synced': 0, // Mark as unsynced
             });
           });
         } else {
           // Case 2b: Mark-out outside office
           setState(() {
             _inTime = punchInData['in_time']; // Take inTime from regularization entry
-            _outTime = DateFormat('HH:mm:ss').format(DateTime.now());
+            _outTime = DateFormat('HH:mm:ss').format(TimeService.appTime);
             _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
             if (_totalHours >= 8) day = 'F';
             else day = 'H';
@@ -468,11 +626,13 @@ Future<void> _markIn() async {
               'punch_out_long': punchOutLong,
               'approval': 'Pending',
               'approved_by': null,
+              'synced': 0, // Mark as unsynced
             });
           });
         }
       }
     }
+    await cancelPunchOutReminder();
 
     // Try syncing if connected to the internet
     await _syncAttendanceData();
@@ -485,24 +645,24 @@ Future<void> _markIn() async {
 
   // Show confirmation dialog
   Future<bool> _showConfirmationDialog(String action) async {
-    return await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Confirm $action'),
-        content: Text('Do you want to mark attendance?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text('Proceed'),
-          ),
-        ],
-      ),
-    ) ?? false;
-  }
+  return await showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('Confirm $action'),
+      content: Text('Do you want to mark attendance?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: Text('Proceed'),
+        ),
+      ],
+    ),
+  ) ?? false;
+}
 
   void _showSundayOrHolidayAlert() {
     showDialog(
@@ -666,7 +826,7 @@ Future<void> _markIn() async {
 
   @override
 Widget build(BuildContext context) {
-  bool isSundayOrHoliday = _isSundayOrHoliday(DateTime.now());
+  bool isSundayOrHoliday = _isSundayOrHoliday(TimeService.appTime);
   double barHeight = 60; // Height of the bottom bar and sliding box
   double barWidth = MediaQuery.of(context).size.width;
   double tabWidth = barWidth / 2;
@@ -801,14 +961,14 @@ Widget build(BuildContext context) {
 
                           // Punch In/Out Button with PNG Images
                           GestureDetector(
-                            onTap: _isSundayOrHoliday(DateTime.now()) // Check if today is Sunday or a holiday
+                            onTap: _isSundayOrHoliday(TimeService.appTime) // Check if today is Sunday or a holiday
                                 ? null // Disable onTap if it's Sunday or a holiday
                                 : (_isMarkInEnabled ? _markIn : _isMarkOutEnabled ? _markOut : null), // Enable onTap otherwise
                             child: Container(
                               width: 180,
                               height: 180,
                               decoration: BoxDecoration(
-                                color: _isSundayOrHoliday(DateTime.now()) // Change color if it's Sunday or a holiday
+                                color: _isSundayOrHoliday(TimeService.appTime) // Change color if it's Sunday or a holiday
                                     ? Colors.grey // Grey color for disabled state
                                     : Colors.white, // White color for enabled state
                                 shape: BoxShape.circle,
@@ -834,11 +994,11 @@ Widget build(BuildContext context) {
                                     ),
                                     SizedBox(height: 8),
                                     Text(
-                                      _isSundayOrHoliday(DateTime.now()) // Check if today is Sunday or a holiday
+                                      _isSundayOrHoliday(TimeService.appTime) // Check if today is Sunday or a holiday
                                           ? 'DISABLED' // Show "DISABLED" if it's Sunday or a holiday
                                           : (_isMarkInEnabled ? 'PUNCH IN' : _isMarkOutEnabled ? 'PUNCH OUT' : 'DISABLED'), // Otherwise, show appropriate text
                                       style: TextStyle(
-                                        color: _isSundayOrHoliday(DateTime.now()) // Change text color if it's Sunday or a holiday
+                                        color: _isSundayOrHoliday(TimeService.appTime) // Change text color if it's Sunday or a holiday
                                             ? Colors.black54 // Greyish color for disabled state
                                             : Colors.black, // Black color for enabled state
                                         fontSize: 20,

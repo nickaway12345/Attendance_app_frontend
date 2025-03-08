@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:location_checker/services/fetchAndSetTime.dart';
 
 class HistoryScreen extends StatefulWidget {
   final String empId;
@@ -173,7 +174,7 @@ Widget build(BuildContext context) {
             child: TableCalendar(
               firstDay: DateTime.utc(2020, 1, 1),
               lastDay: DateTime.utc(2030, 12, 31),
-              focusedDay: DateTime.now(),
+              focusedDay: TimeService.appTime,
               // Customize the header style
               headerStyle: const HeaderStyle(
                 titleTextStyle: TextStyle(color: Color(0xFFB84542)), // Month and year text color
@@ -230,7 +231,7 @@ Widget build(BuildContext context) {
     }
 
     // Check if the date is in the future
-    if (day.isAfter(DateTime.now())) {
+    if (day.isAfter(TimeService.appTime)) {
       return Container(
         decoration: BoxDecoration(
           color: Colors.grey,
@@ -581,7 +582,7 @@ Future<void> _submitRegularization() async {
     final dayStatus = totalHours >= 8 ? 'F' : 'H';
 
     // Add a timestamp to force update
-    final timestamp = DateTime.now().toIso8601String();
+    final timestamp = TimeService.appTime.toIso8601String();
 
     // Submit regularization data
     final response = await http.post(
