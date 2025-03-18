@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.location_checker.app-mergeDebugResources-47:/values-vi/values-vi.xml",
+            "outputFile": "com.example.location_checker.app-mergeDebugResources-50:/values-vi/values-vi.xml",
             "map": [
                 {
                     "source": "/Users/nikhil/.gradle/caches/transforms-3/767c248775b9d73a0ef39bd17a8ac9c9/transformed/jetified-media3-exoplayer-1.4.1/res/values-vi/values-vi.xml",

@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.location_checker.app-mergeReleaseResources-47:/values-uk/values-uk.xml",
+            "outputFile": "com.example.location_checker.app-mergeReleaseResources-50:/values-uk/values-uk.xml",
             "map": [
                 {
                     "source": "/Users/nikhil/.gradle/caches/transforms-3/1ac7c1979f46983e7ecb3f41a16bbaf0/transformed/jetified-play-services-basement-18.3.0/res/values-uk/values.xml",

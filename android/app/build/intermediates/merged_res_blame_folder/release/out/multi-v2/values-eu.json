@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.location_checker.app-mergeReleaseResources-47:/values-eu/values-eu.xml",
+            "outputFile": "com.example.location_checker.app-mergeReleaseResources-50:/values-eu/values-eu.xml",
             "map": [
                 {
                     "source": "/Users/nikhil/.gradle/caches/transforms-3/59e616f09c8f1e501b487b889c2419b4/transformed/core-1.13.1/res/values-eu/values-eu.xml",

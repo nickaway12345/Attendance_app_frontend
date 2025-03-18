@@ -63,7 +63,7 @@ class _LocationCheckerScreenState extends State<LocationCheckerScreen> {
 
   // Function to delete entries for the current date
 Future<void> _deleteEntriesForCurrentDate() async {
-  await LocalDatabaseService.deleteEntriesForDate('HRCPL116', '2025-03-08');
+  await LocalDatabaseService.deleteEntriesForDate('HRCPL116', '2025-03-11');
 }
 
   @override
@@ -73,7 +73,7 @@ Future<void> _deleteEntriesForCurrentDate() async {
     _fetchHolidays();
     _fetchUserDetails();
 
-  // _deleteEntriesForCurrentDate();
+   //_deleteEntriesForCurrentDate();
 
     // Start the timer to update the current time every second
     _timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
@@ -413,10 +413,6 @@ Future<void> _markIn() async {
       await schedulePunchOutReminder();
     } catch (e) {
       print('Error saving data to database: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save data. Please try again.')),
-      );
-      return;
     }
 
     // Verify that the data was saved
@@ -430,18 +426,10 @@ Future<void> _markIn() async {
       );
       if (savedData.isEmpty) {
         print('Error: Data was not saved to the database.');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save data. Please try again.')),
-        );
-        return;
       }
       print('Saved data: $savedData');
     } catch (e) {
       print('Error verifying saved data: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to verify data. Please try again.')),
-      );
-      return;
     }
 
     // Update UI state
@@ -480,6 +468,7 @@ Future<void> _markIn() async {
     bool confirm = await _showConfirmationDialog('Punch Out');
     if (!confirm) return; // User canceled the action
 
+    await _checkAndRequestLocationPermissions();
     _checkUserLocation();
     // Check if today is Sunday or a holiday
     if (_isSundayOrHoliday(TimeService.appTime)) {
@@ -496,7 +485,34 @@ Future<void> _markIn() async {
     String day = '';
 
     // Get current location coordinates for punch-out
-    Position currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    // Fetch current location coordinates
+    print('Fetching current location...');
+    Position? currentPosition;
+    try {
+      // Try to get the last known position first
+      currentPosition = await Geolocator.getLastKnownPosition();
+      if (currentPosition == null) {
+        print('No last known position. Fetching new location...');
+       currentPosition = await Geolocator.getCurrentPosition(
+          locationSettings: LocationSettings(
+            accuracy: LocationAccuracy.high,
+          ),
+        ).timeout(Duration(seconds: 10)); // Add a 10-second timeout
+      }
+      print('Location fetched: ${currentPosition.latitude}, ${currentPosition.longitude}');
+    } on TimeoutException catch (e) {
+      print('Location fetch timed out: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to fetch location. Please check your GPS signal.')),
+      );
+      return;
+    } catch (e) {
+      print('Error fetching location: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to fetch location. Please try again.')),
+      );
+      return;
+    }
     double punchOutLat = currentPosition.latitude;
     double punchOutLong = currentPosition.longitude;
 

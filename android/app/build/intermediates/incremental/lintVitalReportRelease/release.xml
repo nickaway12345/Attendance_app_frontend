@@ -2,7 +2,7 @@
     name="release"
     package="com.example.location_checker"
     minSdkVersion="21"
-    targetSdkVersion="34"
+    targetSdkVersion="35"
     shrinking="true"
     mergedManifest="build/intermediates/merged_manifest/release/AndroidManifest.xml"
     manifestMergeReport="build/outputs/logs/manifest-merger-release-report.txt"

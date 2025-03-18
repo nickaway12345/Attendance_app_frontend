@@ -16,67 +16,179 @@ class LocalDatabaseService {
 
   // Initialize the database and handle version upgrades
   static Future<Database> _initDatabase() async {
-    Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, 'attendance_new.db');
+  Directory documentsDirectory = await getApplicationDocumentsDirectory();
+  String path = join(documentsDirectory.path, 'attendance_new.db');
 
-    return openDatabase(
-      path,
-      version: 5, // Incremented version to 5 for new changes
-      onCreate: (db, version) async {
-        // Create the attendance table
+  return openDatabase(
+    path,
+    version: 6, // Incremented version to 7 for new changes
+    onCreate: (db, version) async {
+      // Create the attendance table
+      await db.execute('''
+        CREATE TABLE attendance (
+          emp_id TEXT,
+          date TEXT,
+          in_time TEXT,
+          out_time TEXT,
+          total_hours REAL,
+          location_in TEXT,
+          location_out TEXT,
+          day TEXT,
+          punch_in_lat REAL,
+          punch_in_long REAL,
+          punch_out_lat REAL,
+          punch_out_long REAL,
+          synced INTEGER DEFAULT 0
+        )
+      ''');
+
+      // Create the regularization table
+      await db.execute('''
+        CREATE TABLE regularization (
+          emp_id TEXT,
+          date TEXT,
+          in_time TEXT,
+          out_time TEXT,
+          total_hours REAL,
+          location_in TEXT,
+          location_out TEXT,
+          day TEXT,
+          punch_in_lat REAL,
+          punch_in_long REAL,
+          punch_out_lat REAL,
+          punch_out_long REAL,
+          approval TEXT,
+          approved_by TEXT,
+          synced INTEGER DEFAULT 0
+        )
+      ''');
+
+      // Create the attendance_service table with shift_number
+      await db.execute('''
+        CREATE TABLE attendance_service (
+          emp_id TEXT,
+          date TEXT,
+          in_time TEXT,
+          out_time TEXT,
+          total_hours REAL,
+          location_in TEXT,
+          location_out TEXT,
+          punch_in_lat REAL,
+          punch_in_long REAL,
+          punch_out_lat REAL,
+          punch_out_long REAL,
+          shift_number INTEGER, -- Add shift_number column
+          synced INTEGER DEFAULT 0
+        )
+      ''');
+    },
+    onUpgrade: (db, oldVersion, newVersion) async {
+      if (oldVersion < 6) {
         await db.execute('''
-          CREATE TABLE attendance (
-            emp_id TEXT,
-            date TEXT,
-            in_time TEXT,
-            out_time TEXT,
-            total_hours REAL,
-            location_in TEXT, -- Changed from location to location_in
-            location_out TEXT, -- Added location_out
-            day TEXT,
-            punch_in_lat REAL,
-            punch_in_long REAL,
-            punch_out_lat REAL,
-            punch_out_long REAL,
-            synced INTEGER DEFAULT 0
-          )
-        ''');
+            CREATE TABLE attendance_service (
+              emp_id TEXT,
+              date TEXT,
+              in_time TEXT,
+              out_time TEXT,
+              total_hours REAL,
+              location_in TEXT,
+              location_out TEXT,
+              punch_in_lat REAL,
+              punch_in_long REAL,
+              punch_out_lat REAL,
+              punch_out_long REAL,
+              shift_number INTEGER,
+              synced INTEGER DEFAULT 0
+            )
+          ''');
+      }
+    },
+  );
+}
 
-        // Create the regularization table
-        await db.execute('''
-          CREATE TABLE regularization (
-            emp_id TEXT,
-            date TEXT,
-            in_time TEXT,
-            out_time TEXT,
-            total_hours REAL,
-            location_in TEXT, -- Changed from location to location_in
-            location_out TEXT, -- Added location_out
-            day TEXT,
-            punch_in_lat REAL,
-            punch_in_long REAL,
-            punch_out_lat REAL,
-            punch_out_long REAL,
-            approval TEXT,
-            approved_by TEXT,
-            synced INTEGER DEFAULT 0
-          )
-        ''');
-      },
-      onUpgrade: (db, oldVersion, newVersion) async {
-        if (oldVersion < 5) {
-          // Rename location to location_in and add location_out in the attendance table
-          await db.execute('ALTER TABLE attendance RENAME COLUMN location TO location_in');
-          await db.execute('ALTER TABLE attendance ADD COLUMN location_out TEXT');
+  // Save attendance_service data locally
+  static Future<void> saveAttendanceServiceLocally(Map<String, dynamic> attendanceData) async {
+  final db = await database;
+  await db.insert(
+    'attendance_service',
+    attendanceData,
+    conflictAlgorithm: ConflictAlgorithm.replace, // Update existing record if conflict occurs
+  );
+}
 
-          // Rename location to location_in and add location_out in the regularization table
-          await db.execute('ALTER TABLE regularization RENAME COLUMN location TO location_in');
-          await db.execute('ALTER TABLE regularization ADD COLUMN location_out TEXT');
-        }
-      },
+  // Get unsynced attendance_service records
+  static Future<List<Map<String, dynamic>>> getUnsyncedAttendanceService() async {
+    final db = await database;
+    return await db.query('attendance_service', where: 'synced = ?', whereArgs: [0]);
+  }
+
+  // Mark attendance_service record as synced
+ static Future<void> markAttendanceServiceAsSynced(String empId, String date, int shiftNumber) async {
+  final db = await database;
+  await db.update(
+    'attendance_service',
+    {'synced': 1},
+    where: 'emp_id = ? AND date = ? AND shift_number = ?',
+    whereArgs: [empId, date, shiftNumber],
+  );
+}
+
+  // Check if a mark-in entry exists for the given date in attendance_service
+static Future<bool> hasMarkInForDateInService(String empId, String date, int shiftNumber) async {
+  final db = await database;
+  final result = await db.query(
+    'attendance_service',
+    where: 'emp_id = ? AND date = ? AND shift_number = ? AND in_time IS NOT NULL',
+    whereArgs: [empId, date, shiftNumber],
+  );
+  return result.isNotEmpty;
+}
+
+  // Check if a mark-out entry exists for the given date in attendance_service
+static Future<bool> hasMarkOutForDateInService(String empId, String date, int shiftNumber) async {
+  final db = await database;
+  final result = await db.query(
+    'attendance_service',
+    where: 'emp_id = ? AND date = ? AND shift_number = ? AND out_time IS NOT NULL',
+    whereArgs: [empId, date, shiftNumber],
+  );
+  return result.isNotEmpty;
+}
+
+  // Delete attendance_service records for a specific date
+  static Future<void> deleteAttendanceServiceByDate(String empId, String date) async {
+    final db = await database;
+    await db.delete(
+      'attendance_service',
+      where: 'emp_id = ? AND date = ?',
+      whereArgs: [empId, date],
     );
   }
 
+  // Fetch punch-in data for a specific employee and date from attendance_service
+  static Future<Map<String, dynamic>?> getPunchInDataForDateInService(String empId, String date) async {
+    final db = await database;
+    final result = await db.query(
+      'attendance_service',
+      columns: ['in_time', 'punch_in_lat', 'punch_in_long'],
+      where: 'emp_id = ? AND date = ? AND in_time IS NOT NULL',
+      whereArgs: [empId, date],
+      limit: 1,
+    );
+    return result.isNotEmpty ? result.first : null;
+  }
+
+  // Check if a record exists in attendance_service for the given date
+  static Future<bool> isInAttendanceService(String empId, String date) async {
+    final db = await database;
+    final result = await db.query(
+      'attendance_service',
+      where: 'emp_id = ? AND date = ?',
+      whereArgs: [empId, date],
+      limit: 1,
+    );
+    return result.isNotEmpty;
+  }
   static Future<void> deleteEntriesForDate(String empId, String date) async {
   final db = await database;
 

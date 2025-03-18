@@ -959,7 +959,7 @@ class _ApprovalPageState extends State<ApprovalPage> with SingleTickerProviderSt
                   color: Color(0xFFFDEEEE).withOpacity(0.8), // Light orange background with opacity
                   margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
                   child: ListTile(
-                    title: Text('${entry['empId']} - $firstName - ${entry['date']}', style: TextStyle(color: Colors.black)),
+                    title: Text('${entry['empId']} - ${entry['firstName']} - ${entry['date']}', style: TextStyle(color: Colors.black)),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -998,7 +998,7 @@ class _ApprovalPageState extends State<ApprovalPage> with SingleTickerProviderSt
                   color: Color(0xFFE8F5E9).withOpacity(0.8), // Light green background with opacity
                   margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
                   child: ListTile(
-                    title: Text('${entry['empId']} - $firstName - ${entry['date']}', style: TextStyle(color: Colors.black)),
+                    title: Text('${entry['empId']} - ${entry['firstName']} - ${entry['date']}', style: TextStyle(color: Colors.black)),
                     subtitle: Text('Approved', style: TextStyle(color: Colors.black)),
                   ),
                 );
@@ -1013,7 +1013,7 @@ class _ApprovalPageState extends State<ApprovalPage> with SingleTickerProviderSt
                   color: Color(0xFFFFEBEE).withOpacity(0.8), // Light red background with opacity
                   margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
                   child: ListTile(
-                    title: Text('${entry['empId']} - $firstName - ${entry['date']}', style: TextStyle(color: Colors.black)),
+                    title: Text('${entry['empId']} - ${entry['firstName']} - ${entry['date']}', style: TextStyle(color: Colors.black)),
                     subtitle: Text('Rejected', style: TextStyle(color: Colors.black)),
                   ),
                 );

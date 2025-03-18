@@ -29,7 +29,7 @@ apply plugin: 'kotlin-android'
 
 android {
     namespace = "com.example.location_checker"
-    compileSdkVersion 34
+    compileSdkVersion 35
 
     lint {
         baseline = file("lint-baseline.xml")
@@ -38,7 +38,7 @@ android {
     defaultConfig {
         applicationId "com.example.location_checker"
         minSdkVersion 21
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
