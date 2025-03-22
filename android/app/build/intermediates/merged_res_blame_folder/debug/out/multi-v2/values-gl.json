@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.location_checker.app-mergeDebugResources-50:/values-gl/values-gl.xml",
+            "outputFile": "com.example.location_checker.app-mergeDebugResources-52:/values-gl/values-gl.xml",
             "map": [
                 {
                     "source": "/Users/nikhil/.gradle/caches/transforms-3/59e616f09c8f1e501b487b889c2419b4/transformed/core-1.13.1/res/values-gl/values-gl.xml",

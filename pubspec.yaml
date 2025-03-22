@@ -29,6 +29,7 @@ dependencies:
   worldtime: ^1.4.2
   flutter_local_notifications: ^15.1.0
   timezone: ^0.9.4
+  vibration: ^1.7.5
 
 
 dev_dependencies:

@@ -12,7 +12,8 @@ import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
 import 'package:connectivity_plus/connectivity_plus.dart'; // Import connectivity_plus
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:location_checker/services/local_database_servie.dart'; // Import LocalDatabaseService
+import 'package:location_checker/services/local_database_servie.dart';
+import 'package:vibration/vibration.dart'; // Import LocalDatabaseService
 
 class ServiceHomePage extends StatefulWidget {
   final String empId;
@@ -41,6 +42,9 @@ class _ServiceHomePageState extends State<ServiceHomePage> {
   String _punchInDate = ''; // Store the date of the punch-in
   int _currentShiftNumber = 1; // Default to shift 1
   int _selectedIndex = 0; 
+  String _inTime = '';
+  String _outTime = '';
+  double _totalHours = 0.0;
 
   // Declare _connectivitySubscription as StreamSubscription<List<ConnectivityResult>>
   late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
@@ -54,7 +58,8 @@ class _ServiceHomePageState extends State<ServiceHomePage> {
     _startTimer(); // Start the timer for periodic updates
     _checkUserLocation(); // Check user location on init
     _startSyncTimer();
-    _syncAttendanceData(); // Start the sync timer
+    _syncAttendanceData();
+    _fetchAttendanceData(); // Start the sync timer
 
     // Monitor internet connectivity changes
     _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
@@ -87,6 +92,56 @@ class _ServiceHomePageState extends State<ServiceHomePage> {
     });
   }
 
+  Future<void> _fetchAttendanceData() async {
+  final db = await LocalDatabaseService.database;
+  final currentDate = DateFormat('yyyy-MM-dd').format(TimeService.appTime);
+  _currentShiftNumber = _getCurrentShiftNumber();
+
+  try {
+    // Fetch the most recent entry with both in_time and out_time
+    final result = await db.query(
+      'attendance_service',
+      where: 'emp_id = ? AND date = ? AND shift_number = ? AND out_time IS NOT NULL',
+      whereArgs: [widget.empId, currentDate, _currentShiftNumber],
+      orderBy: 'in_time DESC', // Order by in_time to get the latest entry
+      limit: 1, // Limit to 1 result
+    );
+
+    if (result.isNotEmpty) {
+      setState(() {
+        _inTime = result.first['in_time'] as String? ?? ''; // Cast to String? and provide a fallback
+        _outTime = result.first['out_time'] as String? ?? ''; // Cast to String? and provide a fallback
+        _totalHours = (result.first['total_hours'] as num?)?.toDouble() ?? 0.0; // Cast to num? and convert to double
+      });
+    } else {
+      // If no entry with out_time exists, fetch the latest entry with only in_time
+      final fallbackResult = await db.query(
+        'attendance_service',
+        where: 'emp_id = ? AND date = ? AND shift_number = ?',
+        whereArgs: [widget.empId, currentDate, _currentShiftNumber],
+        orderBy: 'in_time DESC', // Order by in_time to get the latest entry
+        limit: 1, // Limit to 1 result
+      );
+
+      if (fallbackResult.isNotEmpty) {
+        setState(() {
+          _inTime = fallbackResult.first['in_time'] as String? ?? ''; // Cast to String? and provide a fallback
+          _outTime = fallbackResult.first['out_time'] as String? ?? ''; // Cast to String? and provide a fallback
+          _totalHours = (fallbackResult.first['total_hours'] as num?)?.toDouble() ?? 0.0; // Cast to num? and convert to double
+        });
+      } else {
+        // If no entries exist, reset the values
+        setState(() {
+          _inTime = '';
+          _outTime = '';
+          _totalHours = 0.0;
+        });
+      }
+    }
+  } catch (e) {
+    print('Error fetching stored attendance data: $e');
+  }
+}
   void _refreshLocation() async {
     print("Refresh pressed");
     await _fetchUserSite(); // Fetch the user site first
@@ -197,6 +252,8 @@ class _ServiceHomePageState extends State<ServiceHomePage> {
   // Determine the current shift number dynamically
   _currentShiftNumber = _getCurrentShiftNumber();
   print('Current shift number: $_currentShiftNumber'); // Debug log
+
+  await _fetchAttendanceData();
 
   // Check if shifts are continuous
   bool areShiftsContinuous = _areShiftsContinuous(_shiftTimings);
@@ -368,6 +425,10 @@ int _getCurrentShiftNumber() {
       return;
     }
 
+    if (await Vibration.hasVibrator() ?? false) {
+      Vibration.vibrate(duration: 100); // Vibrate for 100ms
+    }
+
     // Fetch current location coordinates
     Position? position;
     try {
@@ -429,6 +490,7 @@ int _getCurrentShiftNumber() {
 
     // Add your punch-in logic here
     print('Punch-in clicked');
+    await _fetchAttendanceData(); // Fetch updated data after punching in/out
   } catch (e) {
     print('Error in _markIn: $e');
   }
@@ -446,6 +508,9 @@ int _getCurrentShiftNumber() {
       return;
     }
 
+    if (await Vibration.hasVibrator() ?? false) {
+      Vibration.vibrate(duration: 100); // Vibrate for 100ms
+    }
     // Fetch current location coordinates
     Position? position;
     try {
@@ -525,6 +590,7 @@ int _getCurrentShiftNumber() {
 
     // Add your punch-out logic here
     print('Punch-out clicked');
+    await _fetchAttendanceData(); // Fetch updated data after punching in/out
   } catch (e) {
     print('Error in _markOut: $e');
   }
@@ -796,6 +862,97 @@ int _getCurrentShiftNumber() {
                                 ),
                               ),
                             ),
+SizedBox(height: 40), // Space between punch button and the row
+
+// Punch In, Punch Out, and Total Hours in a Row
+Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceAround,
+    children: [
+      // Punch In with image above
+      Column(
+        children: [
+          Image.asset(
+            'assets/images/punchin.png', // Path to punch-in icon
+            width: 40,
+            height: 40,
+          ),
+          SizedBox(height: 8), // Space between image and text
+          Text(
+            _inTime.isNotEmpty ? DateFormat('HH:mm').format(DateFormat('HH:mm:ss').parse(_inTime)) : '--:--',
+            style: TextStyle(
+              fontSize: 18,
+              color: Color(0xFFB84542),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            'Punch In',
+            style: TextStyle(
+              fontSize: 14,
+              color: Color(0xFFB84542),
+            ),
+          ),
+        ],
+      ),
+
+      // Punch Out with image above
+      Column(
+        children: [
+          Image.asset(
+            'assets/images/punchout.png', // Path to punch-out icon
+            width: 40,
+            height: 40,
+          ),
+          SizedBox(height: 8), // Space between image and text
+          Text(
+            _outTime.isNotEmpty ? DateFormat('HH:mm').format(DateFormat('HH:mm:ss').parse(_outTime)) : '--:--',
+            style: TextStyle(
+              fontSize: 18,
+              color: Color(0xFFB84542),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            'Punch Out',
+            style: TextStyle(
+              fontSize: 14,
+              color: Color(0xFFB84542),
+            ),
+          ),
+        ],
+      ),
+
+      // Total Hours with image above
+      Column(
+        children: [
+          Image.asset(
+            'assets/images/totalhours.png', // Path to total hours icon
+            width: 40,
+            height: 40,
+          ),
+          SizedBox(height: 8), // Space between image and text
+          Text(
+            _totalHours.toStringAsFixed(2),
+            style: TextStyle(
+              fontSize: 18,
+              color: Color(0xFFB84542),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            'Total Hours',
+            style: TextStyle(
+              fontSize: 14,
+              color: Color(0xFFB84542),
+            ),
+          ),
+        ],
+      ),
+    ],
+  ),
+),
                           ],
                         ),
                       ],

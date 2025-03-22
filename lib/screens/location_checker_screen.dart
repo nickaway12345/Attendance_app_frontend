@@ -15,6 +15,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:location_checker/services/notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // To track internet connectivity
 import 'package:permission_handler/permission_handler.dart';
+import 'package:vibration/vibration.dart';
 
 class LocationCheckerScreen extends StatefulWidget {
   final String empId;
@@ -345,6 +346,11 @@ Future<void> _markIn() async {
       print('User confirmed regularization.');
     }
 
+    // Trigger vibration feedback
+    if (await Vibration.hasVibrator() ?? false) {
+      Vibration.vibrate(duration: 100); // Vibrate for 100ms
+    }
+
     // Fetch current location coordinates
     print('Fetching current location...');
     Position? position;
@@ -484,6 +490,11 @@ Future<void> _markIn() async {
     String locationIn = 'Unknown';
     String day = '';
 
+    // Trigger vibration feedback
+    if (await Vibration.hasVibrator() ?? false) {
+      Vibration.vibrate(duration: 100); // Vibrate for 100ms
+    }
+     
     // Get current location coordinates for punch-out
     // Fetch current location coordinates
     print('Fetching current location...');

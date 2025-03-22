@@ -18122,6 +18122,9 @@ com.baseflow.permissionhandler.PermissionUtils:
     static final java.lang.String SHARED_PREFERENCES_PERMISSION_WAS_DENIED_BEFORE_KEY
     public void <init>()
 com.baseflow.permissionhandler.R
+com.benjaminabel.vibration.R
+com.benjaminabel.vibration.VibrationPlugin:
+    private static final java.lang.String CHANNEL
 com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver:
     public static final java.lang.String ACTION_TAPPED
     private static final java.lang.String TAG
@@ -23577,6 +23580,7 @@ dev.fluttercommunity.plus.connectivity.Connectivity:
 dev.fluttercommunity.plus.connectivity.ConnectivityBroadcastReceiver:
     public static final java.lang.String CONNECTIVITY_ACTION
 dev.fluttercommunity.plus.connectivity.R
+dev.fluttercommunity.plus.device_info.R
 io.flutter.Build$API_LEVELS
 io.flutter.Build
 io.flutter.BuildConfig
@@ -32445,10 +32449,10 @@ androidx.appcompat.view.menu.CascadingMenuPopup$3:
     private static void $r8$constructor$androidx$media3$exoplayer$smoothstreaming$manifest$SsManifestParser()
     private static void $r8$constructor$androidx$media3$exoplayer$text$SubtitleDecoderFactory$1()
     private static void $r8$constructor$androidx$transition$ViewOverlayApi18()
-    public void <init>()
+    private static void $r8$constructor$io$flutter$embedding$engine$dart$DartMessenger$DefaultTaskQueueFactory()
     public void <init>(android.view.Window,android.view.View)
-    public void <init>(java.util.ArrayList)
     public final void add()
+    public static void addWindowLayoutInfoListener()
     public static void binaryElement()
     public static java.lang.Object buildConsumer()
     public static byte byteAt()
@@ -32456,24 +32460,26 @@ androidx.appcompat.view.menu.CascadingMenuPopup$3:
     public final androidx.media3.extractor.text.SubtitleDecoder createDecoder()
     public static androidx.media3.exoplayer.image.BitmapFactoryImageDecoder createImageDecoder()
     public final androidx.media3.exoplayer.image.ImageDecoder createImageDecoder()
-    public static java.util.Map encodeKeyEvent()
     public static void endMasterElement()
     public static void floatElement()
     public final boolean get()
+    public final android.content.pm.ApplicationInfo getApplicationInfo(java.lang.String,int)
+    public static java.lang.CharSequence getApplicationLabel()
+    public final java.util.ArrayList getCapabilitiesFromNetwork(android.net.Network)
+    public static android.net.ConnectivityManager getConnectivityManager()
     public static int getElementType()
     public static kotlinx.coroutines.flow.Flow getFlow()
-    public static int getOffsetAfter()
-    public static int getOffsetBefore()
+    public static java.util.List getNetworkTypesLegacy()
+    public static android.content.pm.PackageInfo getPackageInfo()
     public static float getScaledScrollFactor()
+    public static android.os.Vibrator getVibrator()
     public static int getWeight()
     public static void integerElement()
-    public final boolean isEmojiModifier(int)
-    public static boolean isEmojiModifierBase()
     public static boolean isItalic()
     public static boolean isLevel1Element()
-    public final boolean isRegionalIndicatorSymbol(int)
-    public static boolean isTagSpecChar()
-    public final void onAccessibilityChanged(boolean,boolean)
+    public static com.google.common.base.Splitter$SplittingIterator iterator()
+    public static java.util.Iterator iterator()
+    public static io.flutter.embedding.engine.dart.DartMessenger$DartMessengerTaskQueue makeBackgroundTaskQueue()
     public static void onContinueLoadingRequested()
     public final void onFailure(java.lang.Throwable)
     public final void onPlaylistRefreshRequired(android.net.Uri)
@@ -32484,7 +32490,7 @@ androidx.appcompat.view.menu.CascadingMenuPopup$3:
     public final void onTypefaceRetrieved()
     public static androidx.media3.exoplayer.smoothstreaming.manifest.SsManifest parse()
     public final void remove()
-    public static void sendFlutterKeyEvent()
+    public static void removeWindowLayoutInfoListener()
     public final void set()
     public final void setAppearanceLightNavigationBars(boolean)
     public final void setAppearanceLightStatusBars(boolean)
@@ -32494,7 +32500,9 @@ androidx.appcompat.view.menu.CascadingMenuPopup$3:
     public final void stopDifferentialMotionFling()
     public static void stringElement()
     public final boolean supportsFormat()
-    public static java.lang.String[] toArray()
+    public static void vibrate()
+    public static void vibrate$1()
+    public static void vibrate$2()
 androidx.appcompat.view.menu.CascadingMenuPopup$CascadingMenuInfo:
     public static android.widget.ListView getListView()
 androidx.appcompat.view.menu.CascadingMenuPopup:
@@ -32556,6 +32564,7 @@ androidx.appcompat.view.menu.MenuBuilder:
     public static androidx.appcompat.view.menu.MenuBuilder setHeaderTitleInt$1()
     public static androidx.appcompat.view.menu.MenuBuilder setHeaderViewInt()
     public static void setShortcutsVisibleInner()
+androidx.appcompat.view.menu.MenuItemImpl$1$$InternalSynthetic$IA$341$d1bb58e8bd7f1967d316729e88dee71b15d94cd9d96da998119b4e12bf5a2dbc$0
 androidx.appcompat.view.menu.MenuItemImpl$1$$InternalSynthetic$IA$341$f9b67872531b7425e0b164848d1db00178586c03822607d6f66d854d8cfb83cf$0
 androidx.appcompat.view.menu.MenuItemImpl$1:
     private static void $r8$constructor$androidx$core$graphics$TypefaceCompatBaseImpl()
@@ -32565,16 +32574,17 @@ androidx.appcompat.view.menu.MenuItemImpl$1:
     private static void $r8$constructor$androidx$media3$exoplayer$hls$TimestampAdjusterProvider()
     private static void $r8$constructor$androidx$media3$exoplayer$text$ReplacingCuesResolver()
     private static void $r8$constructor$androidx$media3$exoplayer$upstream$BandwidthMeter$EventListener$EventDispatcher()
-    private static void $r8$constructor$io$flutter$embedding$engine$dart$DartMessenger$DefaultTaskQueueFactory()
+    public void <init>(androidx.appcompat.view.menu.MenuItemImpl$1$$InternalSynthetic$IA$341$d1bb58e8bd7f1967d316729e88dee71b15d94cd9d96da998119b4e12bf5a2dbc$0)
     public void <init>(androidx.appcompat.view.menu.MenuItemImpl$1$$InternalSynthetic$IA$341$f9b67872531b7425e0b164848d1db00178586c03822607d6f66d854d8cfb83cf$0)
+    public void <init>(java.util.ArrayList)
     public final void add()
     public final void add$1()
     public static void addFontFamily()
     public static void addListener()
-    public static void addWindowLayoutInfoListener()
     public static void bandwidthSample()
     public static androidx.core.view.WindowInsetsCompat build()
     public static int decrementAndGet()
+    public static java.util.Map encodeKeyEvent()
     public static int fieldOrder()
     public static androidx.core.content.res.FontResourcesParserCompat$FontFileResourceEntry findBestEntry()
     public final int get()
@@ -32582,22 +32592,23 @@ androidx.appcompat.view.menu.MenuItemImpl$1:
     public final byte[] get(android.net.Uri)
     public static androidx.media3.common.util.TimestampAdjuster getAdjuster()
     public static int getAndIncrement()
-    public final java.util.ArrayList getCapabilitiesFromNetwork(android.net.Network)
-    public static android.net.ConnectivityManager getConnectivityManager()
     public static androidx.core.content.res.FontResourcesParserCompat$FontFamilyFilesResourceEntry getFontFamily()
-    public static java.util.List getNetworkTypesLegacy()
+    public static int getOffsetAfter()
+    public static int getOffsetBefore()
     public static java.lang.Object getProvider()
     public static long getUniqueKey(android.graphics.Typeface)
     public static int getWeight$1()
     public final java.lang.Class getWindowExtensionsClass$window_release()
     public static java.lang.Class getWindowExtensionsProviderClass()
     public static int incrementAndGet()
+    public final boolean isEmojiModifier(int)
+    public static boolean isEmojiModifierBase()
     public static boolean isItalic$1()
+    public final boolean isRegionalIndicatorSymbol(int)
+    public static boolean isTagSpecChar()
     public static boolean isWindowExtensionsPresent()
     public static boolean isWindowExtensionsValid$window_release()
-    public static com.google.common.base.Splitter$SplittingIterator iterator()
-    public static java.util.Iterator iterator()
-    public static io.flutter.embedding.engine.dart.DartMessenger$DartMessengerTaskQueue makeBackgroundTaskQueue()
+    public final void onAccessibilityChanged(boolean,boolean)
     public static void onAudioCapabilitiesChanged()
     public final void onAudioTrackInitialized()
     public final void onAudioTrackReleased()
@@ -32618,12 +32629,12 @@ androidx.appcompat.view.menu.MenuItemImpl$1:
     public final void remove()
     public static byte[] remove()
     public final void remove$1()
-    public static void removeWindowLayoutInfoListener()
     public final void reset()
-    public static void sendMemoryPressureWarning()
+    public static void sendFlutterKeyEvent()
     public final void set()
     public static androidx.appcompat.view.menu.MenuItemImpl$1 setStableInsets()
     public static androidx.appcompat.view.menu.MenuItemImpl$1 setSystemWindowInsets()
+    public static java.lang.String[] toArray()
     public static void writeBoolList()
     public static void writeBytesList()
     public static void writeDeterministicBooleanMapEntry()
@@ -33500,9 +33511,9 @@ androidx.appcompat.widget.TintTypedArray:
     public synthetic void <init>(androidx.lifecycle.ViewModelStore,androidx.lifecycle.ViewModelProvider$Factory,int)
     public synthetic void <init>(com.google.android.gms.common.api.internal.zack,androidx.appcompat.widget.AppCompatTextClassifierHelper,java.lang.Runnable)
     public static synthetic androidx.appcompat.widget.TintTypedArray access$000()
+    public static synthetic io.flutter.embedding.engine.systemchannels.AccessibilityChannel$1 access$000()
     public static synthetic io.flutter.plugin.editing.SpellCheckPlugin access$000()
-    public static synthetic io.flutter.plugin.editing.TextInputPlugin$1 access$000()
-    public static synthetic io.flutter.plugin.editing.TextInputPlugin$1 access$000$1()
+    public static synthetic io.flutter.embedding.engine.systemchannels.AccessibilityChannel$1 access$000$1()
     public static synthetic io.flutter.plugin.localization.LocalizationPlugin$1 access$000$1()
     public static synthetic io.flutter.plugin.localization.LocalizationPlugin$1 access$000$1$1()
     public static synthetic io.flutter.plugin.localization.LocalizationPlugin$1 access$000$2()
@@ -36963,9 +36974,11 @@ androidx.lifecycle.LiveData$ObserverWrapper
 androidx.lifecycle.LiveData
 androidx.lifecycle.MethodCallsLogger:
     private static void $r8$constructor$androidx$lifecycle$MethodCallsLogger()
-    private static void $r8$constructor$io$flutter$plugin$platform$PlatformViewRegistryImpl()
-    public static io.flutter.plugins.videoplayer.platformview.PlatformVideoViewFactory getFactory()
-    public static boolean registerViewFactory()
+    private static void $r8$constructor$io$flutter$embedding$engine$FlutterEngineCache()
+    public static io.flutter.embedding.engine.FlutterEngine get()
+    public static androidx.lifecycle.MethodCallsLogger getInstance()
+    public static void put()
+    public static void remove()
 androidx.lifecycle.MutableLiveData:
     public int mActiveCount
     public boolean mChangingActiveState
@@ -44577,6 +44590,13 @@ com.baseflow.permissionhandler.PermissionManager:
 com.baseflow.permissionhandler.PermissionUtils
 com.baseflow.permissionhandler.ServiceManager$SuccessCallback
 com.baseflow.permissionhandler.ServiceManager
+com.benjaminabel.vibration.Vibration
+com.benjaminabel.vibration.VibrationMethodChannelHandler:
+    public static final synthetic boolean $assertionsDisabled
+    public static void <clinit>()
+com.benjaminabel.vibration.VibrationPlugin:
+    public final void setupChannels()
+    public final void teardownChannels()
 com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver$1
 com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver$ActionEventSink
 com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver:
@@ -44678,8 +44698,8 @@ com.example.location_checker.MainActivity:
     public static java.lang.String getDartEntrypointLibraryUri$io$flutter$embedding$android$FlutterActivity()
     public static io.flutter.embedding.engine.FlutterEngine getFlutterEngine()
     public static io.flutter.embedding.engine.FlutterEngine getFlutterEngine$io$flutter$embedding$android$FlutterActivity()
-    public final androidx.appcompat.view.menu.CascadingMenuPopup$3 getFlutterShellArgs()
-    public static androidx.appcompat.view.menu.CascadingMenuPopup$3 getFlutterShellArgs$io$flutter$embedding$android$FlutterActivity()
+    public final androidx.appcompat.view.menu.MenuItemImpl$1 getFlutterShellArgs()
+    public static androidx.appcompat.view.menu.MenuItemImpl$1 getFlutterShellArgs$io$flutter$embedding$android$FlutterActivity()
     public static java.lang.String getInitialRoute$io$flutter$embedding$android$FlutterActivity()
     public static androidx.lifecycle.Lifecycle getLifecycle$io$flutter$embedding$android$FlutterActivity()
     public static android.os.Bundle getMetaData$io$flutter$embedding$android$FlutterActivity()
@@ -44817,12 +44837,12 @@ com.google.android.gms.common.GooglePlayServicesUtilLight:
     public static final boolean zza
     public static final boolean zzb
 com.google.android.gms.common.GoogleSignatureVerifier:
+    public final android.content.Context zzc
+    private static void $r8$constructor$androidx$appcompat$view$ActionBarPolicy()
+    private static void $r8$constructor$com$google$android$gms$common$GoogleSignatureVerifier()
     public static com.google.android.gms.common.GoogleSignatureVerifier get(android.content.Context)
-    public final android.content.pm.ApplicationInfo getApplicationInfo(java.lang.String,int)
-    public static java.lang.CharSequence getApplicationLabel()
     public static int getEmbeddedMenuWidthLimit()
     public final int getMaxActionButtons()
-    public static android.content.pm.PackageInfo getPackageInfo()
     public static boolean showsOverflowMenuButton()
 com.google.android.gms.common.R$string
 com.google.android.gms.common.SupportErrorDialogFragment:
@@ -45474,7 +45494,7 @@ com.google.android.gms.common.wrappers.InstantApps:
     public abstract void unregister()
 com.google.android.gms.common.wrappers.PackageManagerWrapper
 com.google.android.gms.common.wrappers.Wrappers:
-    public final synchronized com.google.android.gms.common.GoogleSignatureVerifier zza()
+    public final synchronized androidx.appcompat.view.menu.CascadingMenuPopup$3 zza()
 com.google.android.gms.common.zzb
 com.google.android.gms.common.zzc
 com.google.android.gms.common.zzf:
@@ -46611,7 +46631,7 @@ com.google.gson.internal.bind.TreeTypeAdapter$SingleTypeFactory$$InternalSynthet
 com.google.gson.internal.bind.TreeTypeAdapter$SingleTypeFactory:
     public final com.google.gson.JsonSerializer serializer
 com.google.gson.internal.bind.TreeTypeAdapter:
-    public final androidx.appcompat.view.menu.CascadingMenuPopup$3 context
+    public final androidx.appcompat.view.menu.MenuItemImpl$1 context
     public final com.google.gson.JsonSerializer serializer
     public final com.google.gson.TypeAdapter delegate()
 com.google.gson.internal.bind.TypeAdapterRuntimeTypeWrapper
@@ -46834,15 +46854,20 @@ dev.fluttercommunity.plus.connectivity.Connectivity
 dev.fluttercommunity.plus.connectivity.ConnectivityBroadcastReceiver$$InternalSyntheticLambda$3$c6a8023c16415755e6809a8ba5f39726ebc753e1e6cd3d1a6a80c5d344a95cb3$0
 dev.fluttercommunity.plus.connectivity.ConnectivityBroadcastReceiver$$InternalSyntheticLambda$4$079fc2b798153a286b693fdf89dd4dffcf4cbe1bdd1e70564ca78efb8a4dc9d6$0
 dev.fluttercommunity.plus.connectivity.ConnectivityBroadcastReceiver:
-    public static synthetic bridge androidx.appcompat.view.menu.MenuItemImpl$1 -$$Nest$fgetconnectivity()
+    public static synthetic bridge androidx.appcompat.view.menu.CascadingMenuPopup$3 -$$Nest$fgetconnectivity()
     public static synthetic bridge void -$$Nest$msendEvent()
     public static void sendCurrentStatusWithDelay()
 dev.fluttercommunity.plus.connectivity.ConnectivityMethodChannelHandler:
     public static final synthetic boolean $assertionsDisabled
     public static void <clinit>()
 dev.fluttercommunity.plus.connectivity.ConnectivityPlugin:
-    public static void setupChannels()
-    public static void teardownChannels()
+    public final void setupChannels()
+    public final void teardownChannels()
+dev.fluttercommunity.plus.device_info.DeviceInfoPlusPlugin:
+    public static void setupMethodChannel()
+dev.fluttercommunity.plus.device_info.MethodCallHandlerImpl:
+    public static java.util.List getSystemFeatures()
+    public static boolean isEmulator()
 io.flutter.FlutterInjector$1
 io.flutter.FlutterInjector$Builder$NamedThreadFactory
 io.flutter.FlutterInjector$Builder:
@@ -46883,7 +46908,7 @@ io.flutter.embedding.android.FlutterActivityAndFragmentDelegate$Host:
     public abstract java.util.List getDartEntrypointArgs()
     public abstract java.lang.String getDartEntrypointFunctionName()
     public abstract java.lang.String getDartEntrypointLibraryUri()
-    public abstract androidx.appcompat.view.menu.CascadingMenuPopup$3 getFlutterShellArgs()
+    public abstract androidx.appcompat.view.menu.MenuItemImpl$1 getFlutterShellArgs()
     public abstract java.lang.String getInitialRoute()
     public abstract androidx.lifecycle.LifecycleRegistry getLifecycle()
     public abstract int getRenderMode$enumunboxing$()
@@ -46994,7 +47019,7 @@ io.flutter.embedding.android.FlutterView:
     public static int calculateShouldZeroSides()
     public static void convertToImageView()
     public static io.flutter.embedding.android.FlutterImageView createImageView()
-    public static androidx.appcompat.view.menu.MenuItemImpl$1 createWindowInfoRepo()
+    public static androidx.appcompat.view.menu.CascadingMenuPopup$3 createWindowInfoRepo()
     public final android.view.PointerIcon getSystemPointerIcon()
     public final boolean onTextInputKeyEvent()
     public final void redispatch()
@@ -47075,7 +47100,7 @@ io.flutter.embedding.engine.FlutterEngine:
     public static androidx.appcompat.widget.TintTypedArray getScribeChannel()
     public static io.flutter.embedding.engine.systemchannels.SettingsChannel getSettingsChannel()
     public static androidx.appcompat.widget.TintTypedArray getSpellCheckChannel()
-    public static androidx.appcompat.view.menu.MenuItemImpl$1 getSystemChannel()
+    public static io.flutter.embedding.engine.systemchannels.AccessibilityChannel$1 getSystemChannel()
     public static androidx.appcompat.widget.TintTypedArray getTextInputChannel()
     public final boolean isAttachedToJni()
     public static io.flutter.embedding.engine.FlutterEngine spawn()
@@ -47143,13 +47168,11 @@ io.flutter.embedding.engine.FlutterEngineGroup$Options:
 io.flutter.embedding.engine.FlutterEngineGroup:
     public static io.flutter.embedding.engine.FlutterEngine createEngine()
 io.flutter.embedding.engine.FlutterEngineGroupCache:
-    private static void $r8$constructor$io$flutter$embedding$engine$FlutterEngineCache()
     private static void $r8$constructor$io$flutter$embedding$engine$FlutterEngineGroupCache()
-    public static io.flutter.embedding.engine.FlutterEngine get()
+    private static void $r8$constructor$io$flutter$plugin$platform$PlatformViewRegistryImpl()
     public static io.flutter.embedding.engine.FlutterEngineGroup get()
-    public static io.flutter.embedding.engine.FlutterEngineGroupCache getInstance$1()
-    public static void put()
-    public static void remove()
+    public static io.flutter.plugins.videoplayer.platformview.PlatformVideoViewFactory getFactory()
+    public static boolean registerViewFactory()
 io.flutter.embedding.engine.FlutterJNI$AccessibilityDelegate:
     public abstract void updateCustomAccessibilityActions()
     public abstract void updateSemantics()
@@ -47164,7 +47187,7 @@ io.flutter.embedding.engine.dart.DartExecutor$DartCallback
 io.flutter.embedding.engine.dart.DartExecutor$DefaultBinaryMessenger
 io.flutter.embedding.engine.dart.DartExecutor$IsolateServiceIdListener
 io.flutter.embedding.engine.dart.DartExecutor:
-    public final androidx.appcompat.view.menu.MenuItemImpl$1 isolateChannelMessageHandler
+    public final androidx.appcompat.view.menu.CascadingMenuPopup$3 isolateChannelMessageHandler
     public java.lang.String isolateServiceId
     public final io.flutter.embedding.engine.dart.DartExecutor$IsolateServiceIdListener isolateServiceIdListener
     public static synthetic void access$100()
@@ -47232,12 +47255,12 @@ io.flutter.embedding.engine.mutatorsstack.FlutterMutatorsStack$FlutterMutatorTyp
     public static final enum io.flutter.embedding.engine.mutatorsstack.FlutterMutatorsStack$FlutterMutatorType OPACITY
 io.flutter.embedding.engine.plugins.FlutterPlugin$FlutterAssets
 io.flutter.embedding.engine.plugins.FlutterPlugin$FlutterPluginBinding:
-    public final androidx.appcompat.view.menu.MenuItemImpl$1 flutterAssets
+    public final androidx.appcompat.view.menu.CascadingMenuPopup$3 flutterAssets
     public final io.flutter.embedding.engine.FlutterEngine flutterEngine
     public final io.flutter.embedding.engine.FlutterEngineGroup group
     public static android.content.Context getApplicationContext()
     public static io.flutter.plugin.common.BinaryMessenger getBinaryMessenger()
-    public static androidx.lifecycle.MethodCallsLogger getPlatformViewRegistry()
+    public static io.flutter.embedding.engine.FlutterEngineGroupCache getPlatformViewRegistry()
     public static io.flutter.view.TextureRegistry getTextureRegistry()
 io.flutter.embedding.engine.plugins.PluginRegistry
 io.flutter.embedding.engine.plugins.activity.ActivityControlSurface
@@ -47314,7 +47337,22 @@ io.flutter.embedding.engine.renderer.FlutterRenderer:
     public final void swapSurface(android.view.Surface)
     public static void translateFeatureBounds(int[],int,android.graphics.Rect)
     public static void unregisterTexture()
-io.flutter.embedding.engine.systemchannels.AccessibilityChannel$1
+io.flutter.embedding.engine.systemchannels.AccessibilityChannel$1:
+    public final void asyncWaitForVsync()
+    public static io.flutter.embedding.engine.systemchannels.AccessibilityChannel$1 bindTo(androidx.appcompat.widget.AppCompatImageHelper)
+    public static void clearClient()
+    public static void finishAutofillContext()
+    public static void hide()
+    public static android.view.Choreographer$FrameCallback obtainFrameCallback()
+    public static void onBufferingEnd()
+    public static void onBufferingStart()
+    public static void onCompleted()
+    public static void onError()
+    public static void onIsPlayingStateUpdate()
+    public static void requestAutofill()
+    public static void sendAppPrivateCommand()
+    public static void sendMemoryPressureWarning()
+    public static void show()
 io.flutter.embedding.engine.systemchannels.AccessibilityChannel$AccessibilityMessageHandler
 io.flutter.embedding.engine.systemchannels.AccessibilityChannel
 io.flutter.embedding.engine.systemchannels.BackGestureChannel$1:
@@ -47592,21 +47630,7 @@ io.flutter.plugin.editing.TextInputPlugin$$InternalSyntheticApiModelOutline$1$01
 io.flutter.plugin.editing.TextInputPlugin$$InternalSyntheticApiModelOutline$1$0183889cb4ba90cda743c7f55b11a07b8e0796a0d48383d5abd70a422a49412b$6
 io.flutter.plugin.editing.TextInputPlugin$$InternalSyntheticApiModelOutline$1$0183889cb4ba90cda743c7f55b11a07b8e0796a0d48383d5abd70a422a49412b$7
 io.flutter.plugin.editing.TextInputPlugin$$InternalSyntheticApiModelOutline$1$0183889cb4ba90cda743c7f55b11a07b8e0796a0d48383d5abd70a422a49412b$9
-io.flutter.plugin.editing.TextInputPlugin$1:
-    public final void asyncWaitForVsync()
-    public static io.flutter.plugin.editing.TextInputPlugin$1 bindTo(androidx.appcompat.widget.AppCompatImageHelper)
-    public static void clearClient()
-    public static void finishAutofillContext()
-    public static void hide()
-    public static android.view.Choreographer$FrameCallback obtainFrameCallback()
-    public static void onBufferingEnd()
-    public static void onBufferingStart()
-    public static void onCompleted()
-    public static void onError()
-    public static void onIsPlayingStateUpdate()
-    public static void requestAutofill()
-    public static void sendAppPrivateCommand()
-    public static void show()
+io.flutter.plugin.editing.TextInputPlugin$1
 io.flutter.plugin.editing.TextInputPlugin$2
 io.flutter.plugin.editing.TextInputPlugin$InputTarget
 io.flutter.plugin.editing.TextInputPlugin$MinMax
@@ -47747,7 +47771,7 @@ io.flutter.plugin.platform.PlatformViewsController:
     public static void detachTextInputPlugin()
     public final void diposeAllViews()
     public static void ensureValidRequest()
-    public static androidx.lifecycle.MethodCallsLogger getRegistry()
+    public static io.flutter.embedding.engine.FlutterEngineGroupCache getRegistry()
     public static boolean initializePlatformViewIfNeeded()
     public static void lockInputConnection()
     public final void maybeInvokeOnFlutterViewAttached(io.flutter.plugins.videoplayer.platformview.PlatformVideoView)
@@ -48268,7 +48292,7 @@ io.flutter.view.AccessibilityBridge:
     public static synthetic io.flutter.view.AccessibilityBridge$SemanticsNode access$7000()
     public static synthetic int access$7400()
     public static synthetic int access$7500()
-    public static synthetic androidx.appcompat.view.menu.CascadingMenuPopup$3 access$800()
+    public static synthetic androidx.appcompat.view.menu.MenuItemImpl$1 access$800()
     public static android.view.accessibility.AccessibilityEvent createTextChangedEvent()
     public static boolean doesLayoutInDisplayCutoutModeRequireLeftInset()
     public static android.graphics.Rect getBoundsInScreen()

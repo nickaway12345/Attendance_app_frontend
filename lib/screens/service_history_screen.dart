@@ -19,6 +19,7 @@ class ServiceHistoryScreen extends StatefulWidget {
 class _ServiceHistoryScreenState extends State<ServiceHistoryScreen> {
   Map<int, Map<DateTime, double>> _shiftAttendanceData = {}; // Shift-wise attendance data
   Map<int, List<DateTime>> _shiftDays = {}; // Shift-wise days with shifts
+  List<Map<String, dynamic>> _shiftTimings = []; // Shift timings data
   bool _isLoading = true;
   int _selectedIndex = 1; // Default to History tab
 
@@ -29,78 +30,86 @@ class _ServiceHistoryScreenState extends State<ServiceHistoryScreen> {
   }
 
   Future<void> _fetchData() async {
-  try {
-    String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
+    try {
+      String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
 
-    // Fetch attendance_service data
-    final attendanceResponse = await http.get(
-      Uri.parse('$baseUrl/api/attendance/service/attendancedata?empId=${widget.empId}'),
-    );
+      // Fetch attendance_service data
+      final attendanceResponse = await http.get(
+        Uri.parse('$baseUrl/api/attendance/service/attendancedata?empId=${widget.empId}'),
+      );
 
-    // Fetch shift_timings data
-    final shiftResponse = await http.get(
-      Uri.parse('$baseUrl/api/shifts/shift_timings?empId=${widget.empId}'),
-    );
+      // Fetch shift_timings data
+      final shiftResponse = await http.get(
+        Uri.parse('$baseUrl/api/shifts/shift_timings?empId=${widget.empId}'),
+      );
 
-    if (attendanceResponse.statusCode == 200 && shiftResponse.statusCode == 200) {
-      final attendanceData = json.decode(attendanceResponse.body) as List;
-      final shiftData = json.decode(shiftResponse.body) as List;
+      if (attendanceResponse.statusCode == 200 && shiftResponse.statusCode == 200) {
+        final attendanceData = json.decode(attendanceResponse.body) as List;
+        final shiftData = json.decode(shiftResponse.body) as List;
 
-      // Print raw attendance and shift data
-      print('Raw Attendance Data: $attendanceData');
-      print('Raw Shift Data: $shiftData');
+        // Print raw attendance and shift data
+        print('Raw Attendance Data: $attendanceData');
+        print('Raw Shift Data: $shiftData');
 
-      // Process shift data
-      for (var shift in shiftData) {
-        final shiftNumber = shift['shiftNumber'] as int;
-        final startDate = DateTime.parse(shift['startTime']).toLocal();
-        final endDate = DateTime.parse(shift['endTime']).toLocal();
+        // Process shift data
+        for (var shift in shiftData) {
+          final shiftNumber = shift['shiftNumber'] as int;
+          final startDate = DateTime.parse(shift['startTime']).toLocal();
+          final endDate = DateTime.parse(shift['endTime']).toLocal();
 
-        // Initialize shift data if not already initialized
-        _shiftAttendanceData[shiftNumber] ??= {};
-        _shiftDays[shiftNumber] ??= [];
+          // Initialize shift data if not already initialized
+          _shiftAttendanceData[shiftNumber] ??= {};
+          _shiftDays[shiftNumber] ??= [];
 
-        // Add only the start date of the shift
-        final startDateOnly = DateTime(startDate.year, startDate.month, startDate.day);
-        if (!_shiftDays[shiftNumber]!.contains(startDateOnly)) {
-          _shiftDays[shiftNumber]!.add(startDateOnly);
+          // Add only the start date of the shift
+          final startDateOnly = DateTime(startDate.year, startDate.month, startDate.day);
+          if (!_shiftDays[shiftNumber]!.contains(startDateOnly)) {
+            _shiftDays[shiftNumber]!.add(startDateOnly);
+          }
         }
-      }
 
-      // Print shift days after mapping
-      print('Shift Days After Mapping: $_shiftDays');
+        // Store shift timings
+        _shiftTimings = shiftData.cast<Map<String, dynamic>>(); // Explicitly cast to List<Map<String, dynamic>>
 
-      // Process attendance data
-      for (var entry in attendanceData) {
-        final date = DateTime.parse(entry['id']['date']).toLocal();
-        final shiftNumber = entry['id']['shift_number'] as int;
-        final totalHours = entry['totalHours'] as double;
+        // Print shift days after mapping
+        print('Shift Days After Mapping: $_shiftDays');
 
-        if (_shiftAttendanceData.containsKey(shiftNumber)) {
-          _shiftAttendanceData[shiftNumber]![date] = totalHours;
+        // Process attendance data
+        for (var entry in attendanceData) {
+          final date = DateTime.parse(entry['id']['date']).toLocal();
+          final shiftNumber = entry['id']['shift_number'] as int;
+          final totalHours = entry['totalHours'] as double;
+
+          if (_shiftAttendanceData.containsKey(shiftNumber)) {
+            _shiftAttendanceData[shiftNumber]![date] = totalHours;
+          }
         }
+
+        // Print attendance data after mapping
+        print('Shift Attendance Data After Mapping: $_shiftAttendanceData');
+
+        setState(() {
+          _isLoading = false;
+        });
+      } else {
+        print('Failed to fetch data.');
+        setState(() {
+          _isLoading = false;
+        });
       }
-
-      // Print attendance data after mapping
-      print('Shift Attendance Data After Mapping: $_shiftAttendanceData');
-
-      setState(() {
-        _isLoading = false;
-      });
-    } else {
-      print('Failed to fetch data.');
+    } catch (e) {
+      print('Error fetching data: $e');
       setState(() {
         _isLoading = false;
       });
     }
-  } catch (e) {
-    print('Error fetching data: $e');
-    setState(() {
-      _isLoading = false;
-    });
   }
-}
 
+  double _calculateShiftDuration(Map<String, dynamic> shift) {
+    final startTime = DateTime.parse(shift['startTime']).toLocal();
+    final endTime = DateTime.parse(shift['endTime']).toLocal();
+    return endTime.difference(startTime).inHours.toDouble();
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -196,74 +205,85 @@ class _ServiceHistoryScreenState extends State<ServiceHistoryScreen> {
                             ),
                           ),
                           calendarBuilders: CalendarBuilders(
-  defaultBuilder: (context, day, focusedDay) {
-    final date = DateTime(day.year, day.month, day.day);
-    final totalHours = _shiftAttendanceData[shiftNumber]?[date] ?? 0;
+                            defaultBuilder: (context, day, focusedDay) {
+                              final date = DateTime(day.year, day.month, day.day);
+                              final totalHours = _shiftAttendanceData[shiftNumber]?[date] ?? 0;
 
-    // Print debugging information for each day
-    print('Shift: $shiftNumber, Date: $date, Total Hours: $totalHours');
+                              // Print debugging information for each day
+                              print('Shift: $shiftNumber, Date: $date, Total Hours: $totalHours');
 
-    // Check if the date is in the shift days
-    if (daysWithShifts.any((shiftDay) =>
-        shiftDay.year == date.year &&
-        shiftDay.month == date.month &&
-        shiftDay.day == date.day)) {
-      // Determine the color based on total hours
-      final color = totalHours >= 8 ? Colors.green : Colors.red;
+                              // Check if the date is in the shift days
+                              if (daysWithShifts.any((shiftDay) =>
+                                  shiftDay.year == date.year &&
+                                  shiftDay.month == date.month &&
+                                  shiftDay.day == date.day)) {
+                                // Fetch the shift timing for this shift number
+                                final shift = _shiftTimings.firstWhere(
+                                  (s) => s['shiftNumber'] == shiftNumber,
+                                  orElse: () => {}, // Return an empty map if no match is found
+                                );
 
-      if (color == Colors.red) {
-        return GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RegularizeScreen(
-                  date: date,
-                  empId: widget.empId,
-                  shiftNumber: shiftNumber,
-                ),
-              ),
-            );
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                '${day.day}',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-          ),
-        );
-      }
+                                if (shift.isNotEmpty) {
+                                  // Calculate the shift duration
+                                  final shiftDuration = _calculateShiftDuration(shift);
 
-      return Container(
-        decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
-        ),
-        child: Center(
-          child: Text(
-            '${day.day}',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-            ),
-          ),
-        ),
-      );
-    }
+                                  // Determine the color based on total hours compared to shift duration
+                                  final color = totalHours >= shiftDuration ? Colors.green : Colors.red;
 
-    // If the date is not in the shift days, return null (no marking)
-    return null;
-  },
-),
+                                  if (color == Colors.red) {
+                                    return GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => RegularizeScreen(
+                                              date: date,
+                                              empId: widget.empId,
+                                              shiftNumber: shiftNumber,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: color,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            '${day.day}',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }
+
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      color: color,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        '${day.day}',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+
+                              // If the date is not in the shift days, return null (no marking)
+                              return null;
+                            },
+                          ),
                         ),
                         SizedBox(height: 20),
                       ],
@@ -485,6 +505,7 @@ class _RegularizeScreenState extends State<RegularizeScreen> {
         'newInTime': _newInTime,
         'newOutTime': _newOutTime,
         'reason': _reasonController.text.trim(),
+        'status': 'Pending',
       };
 
       // Send the data to the backend

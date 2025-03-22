@@ -39,12 +39,14 @@ INJECTED from /Users/nikhil/location_checker/android/app/src/debug/AndroidManife
 INJECTED from /Users/nikhil/location_checker/android/app/src/debug/AndroidManifest.xml:1:1-7:12
 INJECTED from /Users/nikhil/location_checker/android/app/src/debug/AndroidManifest.xml:1:1-7:12
 MERGED from [:connectivity_plus] /Users/nikhil/.pub-cache/hosted/pub.dev/connectivity_plus-6.1.3/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-9:12
+MERGED from [:device_info_plus] /Users/nikhil/.pub-cache/hosted/pub.dev/device_info_plus-11.3.3/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-7:12
 MERGED from [:flutter_local_notifications] /Users/nikhil/.pub-cache/hosted/pub.dev/flutter_local_notifications-15.1.3/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-32:12
 MERGED from [:geolocator_android] /Users/nikhil/.pub-cache/hosted/pub.dev/geolocator_android-4.6.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-15:12
 MERGED from [:path_provider_android] /Users/nikhil/.pub-cache/hosted/pub.dev/path_provider_android-2.2.15/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-7:12
 MERGED from [:permission_handler_android] /Users/nikhil/.pub-cache/hosted/pub.dev/permission_handler_android-12.1.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-7:12
 MERGED from [:shared_preferences_android] /Users/nikhil/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-7:12
 MERGED from [:sqflite_android] /Users/nikhil/.pub-cache/hosted/pub.dev/sqflite_android-2.4.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-7:12
+MERGED from [:vibration] /Users/nikhil/.pub-cache/hosted/pub.dev/vibration-1.9.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-9:12
 MERGED from [:video_player_android] /Users/nikhil/.pub-cache/hosted/pub.dev/video_player_android-2.8.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-7:12
 MERGED from [:worldtime] /Users/nikhil/.pub-cache/hosted/pub.dev/worldtime-1.4.2/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-7:12
 MERGED from [com.google.android.gms:play-services-location:21.2.0] /Users/nikhil/.gradle/caches/transforms-3/90c145c6654263e9bd20394ef80d0ae8/transformed/jetified-play-services-location-21.2.0/AndroidManifest.xml:2:1-9:12
@@ -182,6 +184,8 @@ INJECTED from /Users/nikhil/location_checker/android/app/src/debug/AndroidManife
 INJECTED from /Users/nikhil/location_checker/android/app/src/debug/AndroidManifest.xml
 MERGED from [:connectivity_plus] /Users/nikhil/.pub-cache/hosted/pub.dev/connectivity_plus-6.1.3/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
 MERGED from [:connectivity_plus] /Users/nikhil/.pub-cache/hosted/pub.dev/connectivity_plus-6.1.3/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
+MERGED from [:device_info_plus] /Users/nikhil/.pub-cache/hosted/pub.dev/device_info_plus-11.3.3/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
+MERGED from [:device_info_plus] /Users/nikhil/.pub-cache/hosted/pub.dev/device_info_plus-11.3.3/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
 MERGED from [:flutter_local_notifications] /Users/nikhil/.pub-cache/hosted/pub.dev/flutter_local_notifications-15.1.3/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
 MERGED from [:flutter_local_notifications] /Users/nikhil/.pub-cache/hosted/pub.dev/flutter_local_notifications-15.1.3/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
 MERGED from [:geolocator_android] /Users/nikhil/.pub-cache/hosted/pub.dev/geolocator_android-4.6.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
@@ -194,6 +198,8 @@ MERGED from [:shared_preferences_android] /Users/nikhil/.pub-cache/hosted/pub.de
 MERGED from [:shared_preferences_android] /Users/nikhil/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
 MERGED from [:sqflite_android] /Users/nikhil/.pub-cache/hosted/pub.dev/sqflite_android-2.4.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
 MERGED from [:sqflite_android] /Users/nikhil/.pub-cache/hosted/pub.dev/sqflite_android-2.4.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
+MERGED from [:vibration] /Users/nikhil/.pub-cache/hosted/pub.dev/vibration-1.9.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
+MERGED from [:vibration] /Users/nikhil/.pub-cache/hosted/pub.dev/vibration-1.9.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
 MERGED from [:video_player_android] /Users/nikhil/.pub-cache/hosted/pub.dev/video_player_android-2.8.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
 MERGED from [:video_player_android] /Users/nikhil/.pub-cache/hosted/pub.dev/video_player_android-2.8.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
 MERGED from [:worldtime] /Users/nikhil/.pub-cache/hosted/pub.dev/worldtime-1.4.2/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-44
@@ -346,6 +352,8 @@ ADDED from [:flutter_local_notifications] /Users/nikhil/.pub-cache/hosted/pub.de
 		ADDED from [:flutter_local_notifications] /Users/nikhil/.pub-cache/hosted/pub.dev/flutter_local_notifications-15.1.3/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:7:22-78
 uses-permission#android.permission.VIBRATE
 ADDED from [:flutter_local_notifications] /Users/nikhil/.pub-cache/hosted/pub.dev/flutter_local_notifications-15.1.3/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:8:5-66
+MERGED from [:vibration] /Users/nikhil/.pub-cache/hosted/pub.dev/vibration-1.9.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-66
+MERGED from [:vibration] /Users/nikhil/.pub-cache/hosted/pub.dev/vibration-1.9.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:7:5-66
 	android:name
 		ADDED from [:flutter_local_notifications] /Users/nikhil/.pub-cache/hosted/pub.dev/flutter_local_notifications-15.1.3/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:8:22-63
 uses-permission#android.permission.USE_FULL_SCREEN_INTENT

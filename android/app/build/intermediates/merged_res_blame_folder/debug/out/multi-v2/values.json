@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.location_checker.app-mergeDebugResources-50:/values/values.xml",
+            "outputFile": "com.example.location_checker.app-mergeDebugResources-52:/values/values.xml",
             "map": [
                 {
                     "source": "/Users/nikhil/.gradle/caches/transforms-3/635af59a8bffcb75d965a93b3ab0af2e/transformed/jetified-appcompat-resources-1.1.0/res/values/values.xml",

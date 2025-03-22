@@ -1016,7 +1016,7 @@ library {
 }
 library {
   digests {
-    sha256: "1\210\222u0g\025\206\204\303\t\372`{\016t56\213\227p|\021\212\0239d\331\021Y\246\232"
+    sha256: ".\370T\322\375\342\257\210\325bs\250\221\231/\371x\030jS8\026L+hW;\267\242?al"
   }
 }
 library_dependencies {
@@ -1788,6 +1788,7 @@ module_dependencies {
   dependency_index: 5
   dependency_index: 6
   dependency_index: 7
+  dependency_index: 1
   dependency_index: 33
   dependency_index: 52
   dependency_index: 53
@@ -1816,6 +1817,26 @@ repositories {
 repositories {
   maven_repo {
     url: "https://storage.googleapis.com/download.flutter.io"
+  }
+}
+repositories {
+  maven_repo {
+    url: "https://dl.google.com/dl/android/maven2/"
+  }
+}
+repositories {
+  maven_repo {
+    url: "https://repo.maven.apache.org/maven2/"
+  }
+}
+repositories {
+  maven_repo {
+    url: "https://dl.google.com/dl/android/maven2/"
+  }
+}
+repositories {
+  maven_repo {
+    url: "https://repo.maven.apache.org/maven2/"
   }
 }
 repositories {
