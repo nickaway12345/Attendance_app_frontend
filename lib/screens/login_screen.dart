@@ -7,6 +7,8 @@ import 'service_home_screen.dart';
 import 'package:location_checker/services/login_service.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -140,170 +142,181 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false, // Prevents resizing of the scaffold when the keyboard appears
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/background.png'),
-                fit: BoxFit.cover,
-              ),
+  bool _obscurePassword = true; // Track password visibility
+
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    resizeToAvoidBottomInset: false,
+    body: Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/background.png'),
+              fit: BoxFit.cover,
             ),
           ),
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 80.0),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Image.asset(
-                          'assets/images/upscalemedia-transformed.png',
-                          height: 100, // Further increased logo size
-                        ),
+        ),
+        SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 80.0),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Image.asset(
+                        'assets/images/red-logo-removebg-preview.png',
+                        height: 100,
                       ),
-                      SizedBox(width: 20), // Increased spacing between logo and text
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Welcome,',
-                            style: TextStyle(
-                              color: Color(0xFFB84542),
-                              fontSize: 36, // Further increased font size
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            'Hashrate',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 26, // Further increased font size
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            'Communications',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 26, // Further increased font size
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 100), // Increased space between logo/text and fields
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                    child: Column(
+                    ),
+                    SizedBox(width: 20),
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Username', // Added label for username field
+                          'Welcome,',
                           style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
+                            color: Color(0xFFB84542),
+                            fontSize: 36,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         SizedBox(height: 10),
-                        TextField(
-                          controller: _usernameController,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Color(0xFFFDEEEE),
-                            hintText: 'Enter your username',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 30),
                         Text(
-                          'Password', // Added label for password field
+                          'Hashrate',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 16,
+                            fontSize: 26,
                           ),
                         ),
                         SizedBox(height: 10),
-                        TextField(
-                          controller: _passwordController,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Color(0xFFFDEEEE),
-                            hintText: 'Enter your password',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 50), // Increased space between fields and button
-                        Center(
-                          child: ElevatedButton(
-                            onPressed: _isLoading ? null : _login, // Disable button when loading
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _isLoading ? Colors.grey : Color(0xFFB84542), // Change button color when loading
-                              padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            child: Text(
-                              _isLoading ? 'LOGGING IN...' : 'LOGIN', // Change button text when loading
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            ),
+                        Text(
+                          'Communications',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 26,
                           ),
                         ),
                       ],
+                    ),
+                  ],
+                ),
+                SizedBox(height: 100),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Username',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      TextField(
+                        controller: _usernameController,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Color(0xFFFDEEEE),
+                          hintText: 'Enter your username',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 30),
+                      Text(
+                        'Password',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: _obscurePassword, // Toggle password visibility
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Color(0xFFFDEEEE),
+                          hintText: 'Enter your password',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                              color: Colors.grey,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword; // Toggle visibility
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 50),
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _login,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _isLoading ? Colors.grey : Color(0xFFB84542),
+                            padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: Text(
+                            _isLoading ? 'LOGGING IN...' : 'LOGIN',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (_isLoading)
+          Container(
+            color: Colors.black.withOpacity(0.7),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'assets/images/loading.gif',
+                    width: 100,
+                    height: 100,
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Loading...',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
                     ),
                   ),
                 ],
               ),
             ),
           ),
-          // Buffer Screen (Overlay)
-          if (_isLoading)
-            Container(
-              color: Colors.black.withOpacity(0.7), // Semi-transparent background
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Display GIF
-                    Image.asset(
-                      'assets/images/loading.gif', // Path to your GIF file
-                      width: 100,
-                      height: 100,
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      'Loading...',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
+      ],
+    ),
+  );
+}
 }

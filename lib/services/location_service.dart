@@ -6,9 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:intl/intl.dart'; // For date formatting
 import 'package:location_checker/services/local_database_servie.dart';
-import 'package:sqflite/sqflite.dart'; // For SQL database
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
+// For SQL database
 import 'dart:io';
 import 'package:http/http.dart' as http;
 
@@ -17,27 +15,57 @@ class LocationService {
   final double latitude = double.tryParse(dotenv.env['STATIC_LAT'] ?? '') ?? 73.7945010;
   
   final LatLng hardcodedLocation;
+  final String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
 
   LocationService() : hardcodedLocation = LatLng(
-    double.tryParse(dotenv.env['STATIC_LONG'] ?? '') ?? 73.7945010,
-    double.tryParse(dotenv.env['STATIC_LAT'] ?? '') ?? 20.0360637
-  ); // Office location
-  static const double _radiusInYards = 150.0;
+    double.tryParse(dotenv.env['STATIC_LAT'] ?? '') ?? 73.7945010,
+    double.tryParse(dotenv.env['STATIC_LONG'] ?? '') ?? 20.0360637
+  );
+
+  static const double _radiusInYards = 27.3;
   static final double _radiusInMeters = _radiusInYards * 0.9144;
+
+  Future<List<LatLng>> _getOfficeLocations() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/locations/office-coordinates'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        // Convert API response to list of LatLng
+        return data.map((coord) => LatLng(
+          coord['latitude'] as double, 
+          coord['longitude'] as double
+        )).toList();
+      }
+      // If API fails, fall back to the hardcoded location
+      return [hardcodedLocation];
+    } catch (e) {
+      // If any error occurs, fall back to the hardcoded location
+      return [hardcodedLocation];
+    }
+  }
 
   static Future<String> checkUserProximity() async {
     try {
       LocationService locationService = LocationService();
-      LatLng officeLocation = locationService.hardcodedLocation;
-      bool serviceEnabled;
-      LocationPermission permission;
+      List<LatLng> officeLocations = await locationService._getOfficeLocations();
+      
+      // Debug print office locations
+      print('Office locations to check against:');
+      for (var loc in officeLocations) {
+        print('${loc.latitude}, ${loc.longitude}');
+      }
 
-      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      // Check location services
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         return 'Location services are disabled.';
       }
 
-      permission = await Geolocator.checkPermission();
+      // Check permissions
+      LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
@@ -49,28 +77,42 @@ class LocationService {
         return 'Location permissions are permanently denied.';
       }
 
-       Position position = await Geolocator.getCurrentPosition(
-      locationSettings: LocationSettings(
-        accuracy: LocationAccuracy.high,
-      ),
-    );
+      // Get current position
+      Position? position = await Geolocator.getLastKnownPosition();
+      position ??= await Geolocator.getCurrentPosition(
+          locationSettings: LocationSettings(
+            accuracy: LocationAccuracy.best,
+          ),
+        );
+
       LatLng userLocation = LatLng(position.latitude, position.longitude);
+      print('User location: ${userLocation.latitude}, ${userLocation.longitude}');
 
       final Distance distance = Distance();
-      double distanceInMeters = distance(officeLocation, userLocation);
-
-      if (distanceInMeters <= _radiusInMeters) {
-        return 'office';
-      } else {
-        return 'outside';
+      
+      // Check against all office locations
+      for (LatLng officeLocation in officeLocations) {
+        double distanceInMeters = distance(officeLocation, userLocation);
+        print('Distance to office (${officeLocation.latitude}, ${officeLocation.longitude}): $distanceInMeters meters');
+        
+        if (distanceInMeters <= _radiusInMeters) {
+          print('User is within office radius');
+          return 'office';
+        }
       }
+
+      print('User is outside all office locations');
+      return 'outside';
     } catch (e) {
+      print('Error in checkUserProximity: $e');
       return 'Error: $e';
     }
   }
 }
 
 class AttendanceForm extends StatefulWidget {
+  const AttendanceForm({super.key});
+
   @override
   _AttendanceFormState createState() => _AttendanceFormState();
 }

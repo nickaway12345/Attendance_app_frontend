@@ -1,5 +1,5 @@
+import 'package:path/path.dart' as path;
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
@@ -15,96 +15,304 @@ class LocalDatabaseService {
   }
 
   // Initialize the database and handle version upgrades
+  // static Future<Database> _initDatabase() async {
+  //   Directory documentsDirectory = await getApplicationDocumentsDirectory();
+  //   String path = join(documentsDirectory.path, 'attendance_new.db');
+
+  //   return openDatabase(
+  //     path,
+  //     version: 7, // Incremented version to 7 for mediclaim card table
+  //     onCreate: (db, version) async {
+  //       // Create the attendance table
+  //       await db.execute('''
+  //         CREATE TABLE attendance (
+  //           emp_id TEXT,
+  //           date TEXT,
+  //           in_time TEXT,
+  //           out_time TEXT,
+  //           total_hours REAL,
+  //           location_in TEXT,
+  //           location_out TEXT,
+  //           day TEXT,
+  //           punch_in_lat REAL,
+  //           punch_in_long REAL,
+  //           punch_out_lat REAL,
+  //           punch_out_long REAL,
+  //           synced INTEGER DEFAULT 0
+  //         )
+  //       ''');
+
+  //       // Create the regularization table
+  //       await db.execute('''
+  //         CREATE TABLE regularization (
+  //           emp_id TEXT,
+  //           date TEXT,
+  //           in_time TEXT,
+  //           out_time TEXT,
+  //           total_hours REAL,
+  //           location_in TEXT,
+  //           location_out TEXT,
+  //           day TEXT,
+  //           punch_in_lat REAL,
+  //           punch_in_long REAL,
+  //           punch_out_lat REAL,
+  //           punch_out_long REAL,
+  //           approval TEXT,
+  //           approved_by TEXT,
+  //           synced INTEGER DEFAULT 0
+  //         )
+  //       ''');
+
+  //       // Create the attendance_service table with shift_number
+  //       await db.execute('''
+  //         CREATE TABLE attendance_service (
+  //           emp_id TEXT,
+  //           date TEXT,
+  //           in_time TEXT,
+  //           out_time TEXT,
+  //           total_hours REAL,
+  //           location_in TEXT,
+  //           location_out TEXT,
+  //           punch_in_lat REAL,
+  //           punch_in_long REAL,
+  //           punch_out_lat REAL,
+  //           punch_out_long REAL,
+  //           shift_number INTEGER,
+  //           synced INTEGER DEFAULT 0
+  //         )
+  //       ''');
+
+  //       // Create the mediclaim_cards table
+  //       await db.execute('''
+  //         CREATE TABLE mediclaim_cards (
+  //           emp_id TEXT PRIMARY KEY,
+  //           file_path TEXT NOT NULL,
+  //           uploaded_at TEXT NOT NULL
+  //         )
+  //       ''');
+  //     },
+  //     onUpgrade: (db, oldVersion, newVersion) async {
+  //       if (oldVersion < 6) {
+  //         await db.execute('''
+  //           CREATE TABLE attendance_service (
+  //             emp_id TEXT,
+  //             date TEXT,
+  //             in_time TEXT,
+  //             out_time TEXT,
+  //             total_hours REAL,
+  //             location_in TEXT,
+  //             location_out TEXT,
+  //             punch_in_lat REAL,
+  //             punch_in_long REAL,
+  //             punch_out_lat REAL,
+  //             punch_out_long REAL,
+  //             shift_number INTEGER,
+  //             synced INTEGER DEFAULT 0
+  //           )
+  //         ''');
+  //       }
+  //       if (oldVersion < 7) {
+  //         await db.execute('''
+  //           CREATE TABLE mediclaim_cards (
+  //             emp_id TEXT PRIMARY KEY,
+  //             file_path TEXT NOT NULL,
+  //             uploaded_at TEXT NOT NULL
+  //           )
+  //         ''');
+  //       }
+  //     },
+  //   );
+  // }
   static Future<Database> _initDatabase() async {
-  Directory documentsDirectory = await getApplicationDocumentsDirectory();
-  String path = join(documentsDirectory.path, 'attendance_new.db');
+    Directory documentsDirectory = await getApplicationDocumentsDirectory();
+    String dbPath = path.join(documentsDirectory.path, 'attendance_new.db');
 
-  return openDatabase(
-    path,
-    version: 6, // Incremented version to 7 for new changes
-    onCreate: (db, version) async {
-      // Create the attendance table
-      await db.execute('''
-        CREATE TABLE attendance (
-          emp_id TEXT,
-          date TEXT,
-          in_time TEXT,
-          out_time TEXT,
-          total_hours REAL,
-          location_in TEXT,
-          location_out TEXT,
-          day TEXT,
-          punch_in_lat REAL,
-          punch_in_long REAL,
-          punch_out_lat REAL,
-          punch_out_long REAL,
-          synced INTEGER DEFAULT 0
-        )
-      ''');
-
-      // Create the regularization table
-      await db.execute('''
-        CREATE TABLE regularization (
-          emp_id TEXT,
-          date TEXT,
-          in_time TEXT,
-          out_time TEXT,
-          total_hours REAL,
-          location_in TEXT,
-          location_out TEXT,
-          day TEXT,
-          punch_in_lat REAL,
-          punch_in_long REAL,
-          punch_out_lat REAL,
-          punch_out_long REAL,
-          approval TEXT,
-          approved_by TEXT,
-          synced INTEGER DEFAULT 0
-        )
-      ''');
-
-      // Create the attendance_service table with shift_number
-      await db.execute('''
-        CREATE TABLE attendance_service (
-          emp_id TEXT,
-          date TEXT,
-          in_time TEXT,
-          out_time TEXT,
-          total_hours REAL,
-          location_in TEXT,
-          location_out TEXT,
-          punch_in_lat REAL,
-          punch_in_long REAL,
-          punch_out_lat REAL,
-          punch_out_long REAL,
-          shift_number INTEGER, -- Add shift_number column
-          synced INTEGER DEFAULT 0
-        )
-      ''');
-    },
-    onUpgrade: (db, oldVersion, newVersion) async {
-      if (oldVersion < 6) {
+    return openDatabase(
+      dbPath,
+      version: 8, // Incremented version to add profile_images table
+      onCreate: (db, version) async {
         await db.execute('''
-            CREATE TABLE attendance_service (
-              emp_id TEXT,
-              date TEXT,
-              in_time TEXT,
-              out_time TEXT,
-              total_hours REAL,
-              location_in TEXT,
-              location_out TEXT,
-              punch_in_lat REAL,
-              punch_in_long REAL,
-              punch_out_lat REAL,
-              punch_out_long REAL,
-              shift_number INTEGER,
-              synced INTEGER DEFAULT 0
+          CREATE TABLE attendance (
+            emp_id TEXT,
+            date TEXT,
+            in_time TEXT,
+            out_time TEXT,
+            total_hours REAL,
+            location_in TEXT,
+            location_out TEXT,
+            day TEXT,
+            punch_in_lat REAL,
+            punch_in_long REAL,
+            punch_out_lat REAL,
+            punch_out_long REAL,
+            synced INTEGER DEFAULT 0
+          )
+        ''');
+        await db.execute('''
+          CREATE TABLE regularization (
+            emp_id TEXT,
+            date TEXT,
+            in_time TEXT,
+            out_time TEXT,
+            total_hours REAL,
+            location_in TEXT,
+            location_out TEXT,
+            day TEXT,
+            punch_in_lat REAL,
+            punch_in_long REAL,
+            punch_out_lat REAL,
+            punch_out_long REAL,
+            approval TEXT,
+            approved_by TEXT,
+            synced INTEGER DEFAULT 0
+          )
+        ''');
+        await db.execute('''
+          CREATE TABLE attendance_service (
+            emp_id TEXT,
+            date TEXT,
+            in_time TEXT,
+            out_time TEXT,
+            total_hours REAL,
+            location_in TEXT,
+            location_out TEXT,
+            punch_in_lat REAL,
+            punch_in_long REAL,
+            punch_out_lat REAL,
+            punch_out_long REAL,
+            shift_number INTEGER,
+            synced INTEGER DEFAULT 0
+          )
+        ''');
+        await db.execute('''
+          CREATE TABLE mediclaim_cards (
+            emp_id TEXT PRIMARY KEY,
+            file_path TEXT NOT NULL,
+            uploaded_at TEXT NOT NULL
+          )
+        ''');
+        await db.execute('''
+          CREATE TABLE profile_images (
+            emp_id TEXT PRIMARY KEY,
+            file_path TEXT NOT NULL,
+            uploaded_at TEXT NOT NULL
+          )
+        ''');
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 8) {
+          await db.execute('''
+            CREATE TABLE profile_images (
+              emp_id TEXT PRIMARY KEY,
+              file_path TEXT NOT NULL,
+              uploaded_at TEXT NOT NULL
             )
           ''');
+        }
+      },
+    );
+  }
+
+  static Future<void> saveProfileImage(String empId, String imagePath) async {
+    final db = await database;
+    final directory = await getApplicationDocumentsDirectory();
+    final fileName = 'profile_$empId.jpg';
+    final newPath = '${directory.path}/$fileName';
+    
+    await File(imagePath).copy(newPath);
+    
+    await db.insert(
+      'profile_images',
+      {
+        'emp_id': empId,
+        'file_path': newPath,
+        'uploaded_at': DateTime.now().toIso8601String(),
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  static Future<String?> getProfileImagePath(String empId) async {
+    final db = await database;
+    final result = await db.query(
+      'profile_images',
+      where: 'emp_id = ?',
+      whereArgs: [empId],
+      limit: 1,
+    );
+    
+    if (result.isNotEmpty) {
+      return result.first['file_path'] as String?;
+    }
+    return null;
+  }
+
+  static Future<void> saveMediclaimCard(String empId, String imagePath) async {
+    final db = await database;
+    final directory = await getApplicationDocumentsDirectory();
+    final fileName = 'mediclaim_$empId.jpg';
+    final newPath = '${directory.path}/$fileName';
+    
+    // Copy the file to app's documents directory
+    await File(imagePath).copy(newPath);
+    
+    // Save the path in database
+    await db.insert(
+      'mediclaim_cards',
+      {
+        'emp_id': empId,
+        'file_path': newPath,
+        'uploaded_at': DateTime.now().toIso8601String(),
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  static Future<String?> getMediclaimCardPath(String empId) async {
+    final db = await database;
+    final result = await db.query(
+      'mediclaim_cards',
+      where: 'emp_id = ?',
+      whereArgs: [empId],
+      limit: 1,
+    );
+    
+    if (result.isNotEmpty) {
+      return result.first['file_path'] as String?;
+    }
+    return null;
+  }
+
+  static Future<void> deleteMediclaimCard(String empId) async {
+    final db = await database;
+    // First get the file path to delete the actual file
+    final path = await getMediclaimCardPath(empId);
+    if (path != null) {
+      try {
+        await File(path).delete();
+      } catch (e) {
+        print('Error deleting mediclaim card file: $e');
       }
-    },
-  );
-}
+    }
+    // Then delete the database record
+    await db.delete(
+      'mediclaim_cards',
+      where: 'emp_id = ?',
+      whereArgs: [empId],
+    );
+  }
+
+  static Future<bool> hasMediclaimCard(String empId) async {
+    final db = await database;
+    final result = await db.query(
+      'mediclaim_cards',
+      where: 'emp_id = ?',
+      whereArgs: [empId],
+      limit: 1,
+    );
+    return result.isNotEmpty;
+  }
+
 
   // Save attendance_service data locally
   static Future<void> saveAttendanceServiceLocally(Map<String, dynamic> attendanceData) async {
@@ -360,4 +568,7 @@ static Future<void> markRegularizationAsSynced(String empId, String date) async 
       whereArgs: [date],
     );
   }
+
+
+
 }

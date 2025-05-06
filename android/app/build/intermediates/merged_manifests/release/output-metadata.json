@@ -4,7 +4,7 @@
     "type": "MERGED_MANIFESTS",
     "kind": "Directory"
   },
-  "applicationId": "com.example.location_checker",
+  "applicationId": "com.application.location_checker",
   "variantName": "release",
   "elements": [
     {

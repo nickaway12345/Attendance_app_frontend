@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:location_checker/screens/login_screen.dart';
+import 'package:location_checker/screens/profile_screen.dart';
 import 'package:location_checker/screens/service_history_screen.dart';
 import 'package:location_checker/services/LocationSitesService.dart';
 import 'package:location_checker/services/fetchAndSetTime.dart';
+import 'package:location_checker/services/notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart'; // For date and time formatting
 import 'package:http/http.dart' as http;
@@ -19,7 +21,7 @@ class ServiceHomePage extends StatefulWidget {
   final String empId;
 
   // Constructor to accept empId
-  ServiceHomePage({
+  const ServiceHomePage({super.key, 
     required this.empId,
   });
 
@@ -41,7 +43,7 @@ class _ServiceHomePageState extends State<ServiceHomePage> {
   Timer? _syncTimer; // Timer for syncing data
   String _punchInDate = ''; // Store the date of the punch-in
   int _currentShiftNumber = 1; // Default to shift 1
-  int _selectedIndex = 0; 
+  final int _selectedIndex = 0; 
   String _inTime = '';
   String _outTime = '';
   double _totalHours = 0.0;
@@ -78,6 +80,7 @@ class _ServiceHomePageState extends State<ServiceHomePage> {
     _timer?.cancel(); // Cancel the timer when the widget is disposed
     _syncTimer?.cancel(); // Cancel the sync timer
     _connectivitySubscription.cancel(); // Cancel the connectivity subscription
+    cancelAllNotifications();
     super.dispose();
   }
 
@@ -95,7 +98,7 @@ class _ServiceHomePageState extends State<ServiceHomePage> {
   Future<void> _fetchAttendanceData() async {
   final db = await LocalDatabaseService.database;
   final currentDate = DateFormat('yyyy-MM-dd').format(TimeService.appTime);
-  _currentShiftNumber = _getCurrentShiftNumber();
+  _currentShiftNumber = await _getCurrentShiftNumber() ;
 
   try {
     // Fetch the most recent entry with both in_time and out_time
@@ -146,6 +149,11 @@ class _ServiceHomePageState extends State<ServiceHomePage> {
     print("Refresh pressed");
     await _fetchUserSite(); // Fetch the user site first
     await _checkUserLocation();
+    await _fetchShiftTimings();
+    if (await Vibration.hasVibrator() ?? false) {
+      Vibration.vibrate(duration: 100); // Vibrate for 100ms
+    }
+    _fetchAttendanceData();
     _syncAttendanceData(); // Recheck the location
   }
 
@@ -164,8 +172,11 @@ class _ServiceHomePageState extends State<ServiceHomePage> {
         _shiftTimings = data['shiftTimings'];
         // _userSite = data['site'] ?? 'Unknown Site'; // Fetch user site
       });
+
+      _updatePunchInOutState();
+      await scheduleShiftNotifications(_shiftTimings);
       print('Fetched shift timings: $_shiftTimings'); // Debug log
-      _updatePunchInOutState(); // Update punch-in/out state after fetching shifts
+       // Update punch-in/out state after fetching shifts
     } catch (e) {
       print('Error fetching shift timings: $e');
     }
@@ -225,22 +236,6 @@ class _ServiceHomePageState extends State<ServiceHomePage> {
     });
   }
 
-  // Check if shifts are continuous
-  bool _areShiftsContinuous(List<Map<String, dynamic>> shifts) {
-    if (shifts.length < 2) return false;
-
-    for (int i = 1; i < shifts.length; i++) {
-      final previousShiftEnd = DateTime.parse(shifts[i - 1]['endTime']);
-      final currentShiftStart = DateTime.parse(shifts[i]['startTime']);
-
-      if (currentShiftStart.isAfter(previousShiftEnd)) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
   void _updatePunchInOutState() async {
   final now = TimeService.appTime;
   bool punchInEnabled = false;
@@ -250,69 +245,73 @@ class _ServiceHomePageState extends State<ServiceHomePage> {
   _shiftTimings.sort((a, b) => DateTime.parse(a['startTime']).compareTo(DateTime.parse(b['startTime'])));
 
   // Determine the current shift number dynamically
-  _currentShiftNumber = _getCurrentShiftNumber();
-  print('Current shift number: $_currentShiftNumber'); // Debug log
+  _currentShiftNumber = await _getCurrentShiftNumber();
+  print('Current shift number: $_currentShiftNumber');
 
   await _fetchAttendanceData();
 
-  // Check if shifts are continuous
-  bool areShiftsContinuous = _areShiftsContinuous(_shiftTimings);
+  // Check attendance status for all shifts
+  final hasPunchInCurrentShift = await _hasPunchForCurrentShift(checkIn: true);
+  final hasPunchOutCurrentShift = await _hasPunchForCurrentShift(checkIn: false);
+  final hasCompleteAttendanceCurrentShift = hasPunchInCurrentShift && hasPunchOutCurrentShift;
 
-  if (areShiftsContinuous) {
-    // Handle continuous shifts
-    final firstShiftStart = DateTime.parse(_shiftTimings.first['startTime']);
-    final lastShiftEnd = DateTime.parse(_shiftTimings.last['endTime']);
+  print('Punch-in date: $_punchInDate');
+  print('Has punch-in for current shift: $hasPunchInCurrentShift');
+  print('Has punch-out for current shift: $hasPunchOutCurrentShift');
 
-    // Enable punch-in from one hour before the first shift starts until one hour after the last shift ends
-    if (now.isAfter(firstShiftStart.subtract(Duration(hours: 1))) && now.isBefore(lastShiftEnd.add(Duration(hours: 1)))) {
-      punchInEnabled = true;
+  // Find the current active shift (the one we should be working with)
+  Map<String, dynamic>? activeShift;
+  for (var shift in _shiftTimings) {
+    final shiftStart = DateTime.parse(shift['startTime']);
+    final shiftEnd = DateTime.parse(shift['endTime']);
+    final shiftNumber = shift['shiftNumber'];
+
+    // Check if we're within this shift's window (including buffers)
+    if (now.isAfter(shiftStart.subtract(Duration(hours: 1))) && 
+        now.isBefore(shiftEnd.add(Duration(hours: 1)))) {
+      
+      // Check if this shift is complete (both punch-in and punch-out exist)
+      final hasPunchIn = await _hasPunchForShift(shiftNumber, checkIn: true);
+      final hasPunchOut = await _hasPunchForShift(shiftNumber, checkIn: false);
+      
+      if (!(hasPunchIn && hasPunchOut)) {
+        // This is the first incomplete shift we find
+        activeShift = shift;
+        _currentShiftNumber = shiftNumber; // Update current shift number
+        break;
+      }
     }
+  }
 
-    // Enable punch-out if punch-in has been pressed and until one hour after the last shift ends
-    if (_isPunchInPressed && now.isBefore(lastShiftEnd.add(Duration(hours: 1)))) {
-      punchOutEnabled = true;
-    }
-  } else {
-    // Handle alternate shifts
-    for (var shift in _shiftTimings) {
-      final shiftStart = DateTime.parse(shift['startTime']);
-      final shiftEnd = DateTime.parse(shift['endTime']);
-      final shiftNumber = shift['shiftNumber']; // Get shift number
+  // If we found an active shift, determine punch in/out states
+  if (activeShift != null) {
+    final shiftStart = DateTime.parse(activeShift['startTime']);
+    final shiftEnd = DateTime.parse(activeShift['endTime']);
+    final shiftNumber = activeShift['shiftNumber'];
 
-      // Enable punch-in one hour before the shift starts and until one hour after the shift ends
-      if (now.isAfter(shiftStart.subtract(Duration(hours: 1))) && now.isBefore(shiftEnd.add(Duration(hours: 1)))) {
+    // Check attendance status for this specific shift
+    final hasPunchIn = await _hasPunchForShift(shiftNumber, checkIn: true);
+    final hasPunchOut = await _hasPunchForShift(shiftNumber, checkIn: false);
+
+    // Enable punch-in if:
+    // 1. We're within the shift window (start -1hr to end +1hr)
+    // 2. No existing punch-in for this shift
+    // 3. Either:
+    //    a. It's >= 1hr before shift start, OR
+    //    b. It's during the shift and no punch-in exists
+    if (now.isAfter(shiftStart.subtract(Duration(hours: 1)))) {
+      if (!hasPunchIn) {
         punchInEnabled = true;
       }
-
-      // Enable punch-out if punch-in has been pressed and until one hour after the shift ends
-      if (_isPunchInPressed && now.isBefore(shiftEnd.add(Duration(hours: 1)))) {
-        punchOutEnabled = true;
-      }
     }
-  }
 
-  // Check if punch-in or punch-out already exists for the current shift
-  final hasPunchInForCurrentShift = await _hasPunchForCurrentShift(checkIn: true);
-  final hasPunchOutForCurrentShift = await _hasPunchForCurrentShift(checkIn: false);
-
-  // Debug logs
-  print('Punch-in date: $_punchInDate'); // Debug log
-  print('Has punch-in for current shift: $hasPunchInForCurrentShift');
-  print('Has punch-out for current shift: $hasPunchOutForCurrentShift');
-
-  // Disable punch-in if already punched in for the current shift
-  if (hasPunchInForCurrentShift) {
-    punchInEnabled = false;
-  }
-
-  // Disable punch-out if already punched out for the current shift
-  if (hasPunchOutForCurrentShift) {
-    punchOutEnabled = false;
-  }
-
-  // Disable punch-in if there are no further shifts and an entry already exists
-  if (!areShiftsContinuous && hasPunchInForCurrentShift && hasPunchOutForCurrentShift) {
-    punchInEnabled = false;
+    // Enable punch-out if:
+    // 1. There's a punch-in for this shift
+    // 2. No existing punch-out for this shift
+    // 3. We're within the shift window (start -1hr to end +1hr)
+    if (hasPunchIn && !hasPunchOut) {
+      punchOutEnabled = true;
+    }
   }
 
   setState(() {
@@ -320,28 +319,343 @@ class _ServiceHomePageState extends State<ServiceHomePage> {
     _isPunchOutEnabled = punchOutEnabled;
   });
 }
+  
+//   void _updatePunchInOutState() async {
+//   final now = TimeService.appTime;
+//   bool punchInEnabled = false;
+//   bool punchOutEnabled = false;
 
-int _getCurrentShiftNumber() {
+//   // Sort shifts by start time
+//   _shiftTimings.sort((a, b) => DateTime.parse(a['startTime']).compareTo(DateTime.parse(b['startTime'])));
+
+//   // Determine the current shift number dynamically
+//   _currentShiftNumber = await _getCurrentShiftNumber();
+//   print('Current shift number: $_currentShiftNumber');
+
+//   await _fetchAttendanceData();
+
+//   // Find all shifts that are either active or in their buffer period
+//   List<Map<String, dynamic>> activeShifts = [];
+//   for (var shift in _shiftTimings) {
+//     final shiftStart = DateTime.parse(shift['startTime']);
+//     final shiftEnd = DateTime.parse(shift['endTime']);
+    
+//     if (now.isAfter(shiftStart.subtract(Duration(hours: 1))) && 
+//         now.isBefore(shiftEnd.add(Duration(hours: 1)))) {
+//       activeShifts.add(shift);
+//     }
+//   }
+
+//   // Process shifts in chronological order
+//   for (var shift in activeShifts) {
+//     final shiftStart = DateTime.parse(shift['startTime']);
+//     final shiftEnd = DateTime.parse(shift['endTime']);
+//     final shiftNumber = shift['shiftNumber'];
+
+//     // Check attendance status for this shift
+//     final hasPunchIn = await _hasPunchForShift(shiftNumber, checkIn: true);
+//     final hasPunchOut = await _hasPunchForShift(shiftNumber, checkIn: false);
+
+//     // Case 1: User hasn't punched in for this shift at all
+//     if (!hasPunchIn) {
+//       // If we're in the next shift's time, skip this shift (too late to punch in)
+//       if (now.isAfter(shiftEnd.add(Duration(hours: 1)))) {
+//         continue;
+//       }
+      
+//       // Enable punch-in if within buffer period or shift time
+//       if (now.isAfter(shiftStart.subtract(Duration(hours: 1)))) {
+//         punchInEnabled = true;
+//         _currentShiftNumber = shiftNumber;
+//         break; // Focus on this shift until punch-in is done
+//       }
+//     }
+//     // Case 2: User has punched in but not out
+//     else if (!hasPunchOut) {
+//       // Enable punch-out if within buffer period or shift time
+//       punchOutEnabled = true;
+//       _currentShiftNumber = shiftNumber;
+//       break; // Focus on completing this shift's punch-out
+//     }
+//     // Case 3: Shift is complete, move to next shift if any
+//     else {
+//       continue;
+//     }
+//   }
+
+//   // Special case: If we're in the buffer period between shifts and haven't punched out
+//   // of previous shift, but the next shift has started
+//   if (!punchInEnabled && !punchOutEnabled && activeShifts.length > 1) {
+//     final currentShift = activeShifts.firstWhere(
+//       (shift) => shift['shiftNumber'] == _currentShiftNumber,
+//       orElse: () => activeShifts.first,
+//     );
+    
+//     final nextShift = activeShifts.firstWhere(
+//       (shift) => shift['shiftNumber'] != _currentShiftNumber,
+//       orElse: () => activeShifts.last,
+//     );
+
+//     final nextShiftStart = DateTime.parse(nextShift['startTime']);
+    
+//     if (now.isAfter(nextShiftStart)) {
+//       // Move to next shift if current shift is complete or we're past its buffer
+//       final hasPunchInCurrent = await _hasPunchForShift(_currentShiftNumber, checkIn: true);
+//       final hasPunchOutCurrent = await _hasPunchForShift(_currentShiftNumber, checkIn: false);
+      
+//       if (hasPunchOutCurrent || !hasPunchInCurrent) {
+//         _currentShiftNumber = nextShift['shiftNumber'];
+//         punchInEnabled = now.isAfter(nextShiftStart.subtract(Duration(hours: 1)));
+//       }
+//     }
+//   }
+
+//   setState(() {
+//     _isPunchInEnabled = punchInEnabled;
+//     _isPunchOutEnabled = punchOutEnabled;
+//   });
+// }
+
+
+
+
+  
+
+
+// Future<bool> _hasPunchForShift(int shiftNumber, {required bool checkIn}) async {
+//   final db = await LocalDatabaseService.database;
+//   final columnToCheck = checkIn ? 'in_time' : 'out_time';
+//   final currentDate = DateFormat('yyyy-MM-dd').format(TimeService.appTime);
+
+//   try {
+//     final result = await db.query(
+//       'attendance_service',
+//       where: 'emp_id = ? AND date = ? AND shift_number = ? AND $columnToCheck IS NOT NULL',
+//       whereArgs: [widget.empId, currentDate, shiftNumber],
+//       orderBy: 'in_time DESC',
+//       limit: 1,
+//     );
+//     return result.isNotEmpty;
+//   } catch (e) {
+//     print('Error checking punch for shift $shiftNumber: $e');
+//     return false;
+//   }
+// }
+
+  Future<bool> _hasPunchForShift(int shiftNumber, {required bool checkIn}) async {
+  final db = await LocalDatabaseService.database;
+  final columnToCheck = checkIn ? 'in_time' : 'out_time';
   final now = TimeService.appTime;
+  
+  // Default to current date
+  String dateToCheck = DateFormat('yyyy-MM-dd').format(now);
 
-  for (var shift in _shiftTimings) {
-    final shiftStart = DateTime.parse(shift['startTime']);
-    final shiftEnd = DateTime.parse(shift['endTime']);
-
-    // Check if the current time falls within this shift
-    if (now.isAfter(shiftStart.subtract(Duration(hours: 1))) && now.isBefore(shiftEnd.add(Duration(hours: 1)))) {
-      return shift['shiftNumber']; // Return the shift number
+  // Special handling for shift 3 (night shift)
+  if (shiftNumber == 3 && columnToCheck == 'in_time') {
+    // If it's early morning (typically when night shift ends), check previous day's date
+    if (now.hour >= 0 && now.hour < 8) { // Assuming night shift ends by 8 AM
+      dateToCheck = DateFormat('yyyy-MM-dd').format(now.subtract(Duration(days: 1)));
     }
   }
 
-  // If no shift is found, return the default shift number (e.g., 1)
-  return 0;
+  try {
+    final result = await db.query(
+      'attendance_service',
+      where: 'emp_id = ? AND date = ? AND shift_number = ? AND $columnToCheck IS NOT NULL',
+      whereArgs: [widget.empId, dateToCheck, shiftNumber],
+      orderBy: 'in_time DESC',
+      limit: 1,
+    );
+    
+    print('Checking ${checkIn ? 'punch-in' : 'punch-out'} for shift $shiftNumber on date $dateToCheck');
+    print('Query result: ${result.length} records found');
+    return result.isNotEmpty;
+  } catch (e) {
+    print('Error checking punch for shift $shiftNumber: $e');
+    return false;
+  }
 }
+
+// Future<int> _getCurrentShiftNumber() async {
+//   final now = TimeService.appTime;
+
+//   // First try to find the earliest incomplete shift
+//   for (var shift in _shiftTimings) {
+//     final shiftStart = DateTime.parse(shift['startTime']);
+//     final shiftEnd = DateTime.parse(shift['endTime']);
+//     final shiftNumber = shift['shiftNumber'];
+
+//     // Check if we're within this shift's window (including buffers)
+//     if (now.isAfter(shiftStart.subtract(Duration(hours: 1))) && 
+//         now.isBefore(shiftEnd.add(Duration(hours: 1)))) {
+      
+//       // Check if this shift is complete
+//       final hasPunchIn = await _hasPunchForShift(shiftNumber, checkIn: true);
+//       final hasPunchOut = await _hasPunchForShift(shiftNumber, checkIn: false);
+      
+//       if (!(hasPunchIn && hasPunchOut)) {
+//         return shiftNumber;
+//       }
+//     }
+//   }
+
+//   // If all shifts are complete or none match, return the first shift that would be upcoming
+//   for (var shift in _shiftTimings) {
+//     final shiftStart = DateTime.parse(shift['startTime']);
+//     if (now.isBefore(shiftStart.add(Duration(hours: 1)))) {
+//       return shift['shiftNumber'];
+//     }
+//   }
+
+//   // Default to first shift if none found
+//   return _shiftTimings.isNotEmpty ? _shiftTimings[0]['shiftNumber'] : 1;
+// }
+
+Future<int> _getCurrentShiftNumber() async {
+  final now = TimeService.appTime;
+  
+  // First, find all shifts that are either active or in their buffer period
+  List<Map<String, dynamic>> activeShifts = [];
+  for (var shift in _shiftTimings) {
+    final shiftStart = DateTime.parse(shift['startTime']);
+    final shiftEnd = DateTime.parse(shift['endTime']);
+    
+    if (now.isAfter(shiftStart.subtract(Duration(hours: 1))) && 
+        now.isBefore(shiftEnd.add(Duration(hours: 1)))) {
+      activeShifts.add(shift);
+    }
+  }
+
+  // Process shifts in chronological order
+  for (var shift in activeShifts) {
+    final shiftNumber = shift['shiftNumber'];
+    final shiftStart = DateTime.parse(shift['startTime']);
+    final shiftEnd = DateTime.parse(shift['endTime']);
+
+    // Check if we're past this shift's end time + buffer
+    if (now.isAfter(shiftEnd.add(Duration(hours: 1)))) {
+      // Skip this shift if no punch-in exists
+      final hasPunchIn = await _hasPunchForShift(shiftNumber, checkIn: true);
+      if (!hasPunchIn) {
+        continue; // Move to next shift
+      }
+    }
+
+    // If we're in this shift's window (including buffer)
+    if (now.isAfter(shiftStart.subtract(Duration(hours: 1)))) {
+      final hasPunchIn = await _hasPunchForShift(shiftNumber, checkIn: true);
+      final hasPunchOut = await _hasPunchForShift(shiftNumber, checkIn: false);
+
+      // If no punch-in exists and we're in the actual shift time (not just buffer)
+      if (!hasPunchIn && now.isAfter(shiftStart)) {
+        return shiftNumber;
+      }
+      // If punched in but not out
+      else if (hasPunchIn && !hasPunchOut) {
+        return shiftNumber;
+      }
+      // If shift is complete, continue to next shift
+    }
+  }
+
+  // If no incomplete shift found, return the first upcoming shift
+  for (var shift in _shiftTimings) {
+    final shiftStart = DateTime.parse(shift['startTime']);
+    if (now.isBefore(shiftStart.add(Duration(hours: 1)))) {
+      return shift['shiftNumber'];
+    }
+  }
+
+  // Default to first shift if none found
+  return _shiftTimings.isNotEmpty ? _shiftTimings[0]['shiftNumber'] : 1;
+}
+
+
+   
+
+//   void _updatePunchInOutState() async {
+//   final now = TimeService.appTime;
+//   bool punchInEnabled = false;
+//   bool punchOutEnabled = false;
+
+//   // Sort shifts by start time
+//   _shiftTimings.sort((a, b) => DateTime.parse(a['startTime']).compareTo(DateTime.parse(b['startTime'])));
+
+//   // Determine the current shift number dynamically
+//   _currentShiftNumber = _getCurrentShiftNumber();
+//   print('Current shift number: $_currentShiftNumber');
+
+//   await _fetchAttendanceData();
+
+//   // Check if user has punched in for current shift
+//   final hasPunchIn = await _hasPunchForCurrentShift(checkIn: true);
+//   final hasPunchOut = await _hasPunchForCurrentShift(checkIn: false);
+
+//   print('Punch-in date: $_punchInDate');
+//   print('Has punch-in for current shift: $hasPunchIn');
+//   print('Has punch-out for current shift: $hasPunchOut');
+
+//   // Enable punch-in if:
+//   // 1. Within shift timings (plus buffer)
+//   // 2. No existing punch-in for current shift
+//   for (var shift in _shiftTimings) {
+//     final shiftStart = DateTime.parse(shift['startTime']);
+//     final shiftEnd = DateTime.parse(shift['endTime']);
+//     final shiftNumber = shift['shiftNumber'];
+
+//     if (now.isAfter(shiftStart.subtract(Duration(hours: 1)))) {
+//       if (now.isBefore(shiftEnd.add(Duration(hours: 1)))) {
+//         punchInEnabled = !hasPunchIn;
+//       }
+//     }
+//   }
+
+//   // Enable punch-out if:
+//   // 1. User has punched in for current shift
+//   // 2. No existing punch-out for current shift
+//   // 3. Within shift end time + buffer
+//   if (hasPunchIn && !hasPunchOut) {
+//     punchOutEnabled = true;
+    
+//     // Additionally check if we're within any shift's end time + buffer
+//     for (var shift in _shiftTimings) {
+//       final shiftEnd = DateTime.parse(shift['endTime']);
+//       if (now.isBefore(shiftEnd.add(Duration(hours: 1)))) {
+//         punchOutEnabled = true;
+//         break;
+//       }
+//     }
+//   }
+
+//   setState(() {
+//     _isPunchInEnabled = punchInEnabled;
+//     _isPunchOutEnabled = punchOutEnabled;
+//   });
+// }
+
+// int _getCurrentShiftNumber() {
+//   final now = TimeService.appTime;
+
+//   for (var shift in _shiftTimings) {
+//     final shiftStart = DateTime.parse(shift['startTime']);
+//     final shiftEnd = DateTime.parse(shift['endTime']);
+
+//     // Check if the current time falls within this shift
+//     if (now.isAfter(shiftStart.subtract(Duration(hours: 1))) && now.isBefore(shiftEnd.add(Duration(hours: 1)))) {
+//       return shift['shiftNumber']; // Return the shift number
+//     }
+//   }
+
+//   // If no shift is found, return the default shift number (e.g., 1)
+//   return 0;
+// }
 
   Future<bool> _hasPunchForCurrentShift({required bool checkIn}) async {
   final db = await LocalDatabaseService.database;
   final columnToCheck = checkIn ? 'in_time' : 'out_time';
   final currentDate = DateFormat('yyyy-MM-dd').format(TimeService.appTime);
+
+  print('Checking for ${checkIn ? 'punch-in' : 'punch-out'} on $currentDate, shift $_currentShiftNumber');
 
   try {
     final result = await db.query(
@@ -351,10 +665,11 @@ int _getCurrentShiftNumber() {
       orderBy: 'in_time DESC',
       limit: 1,
     );
-    print('Punch query for empId: ${widget.empId}, date: $currentDate, shift: $_currentShiftNumber, result: $result');
+    
+    print('Query result: ${result.length} records found');
     return result.isNotEmpty;
   } catch (e) {
-    print('Error querying database: $e');
+    print('Error in _hasPunchForCurrentShift: $e');
     return false;
   }
 }
@@ -416,6 +731,14 @@ int _getCurrentShiftNumber() {
   // Punch-in logic
   Future<void> _markIn() async {
   try {
+
+     bool confirm = await _showConfirmationDialog('Punch In');
+    if (!confirm) {
+      print('User canceled mark-in.');
+      return; // User canceled the action
+    }
+    print('User confirmed mark-in.');
+
     // Check if user is inside the office
     await _checkUserLocation();
     if (_location != 'Office') {
@@ -499,6 +822,14 @@ int _getCurrentShiftNumber() {
   // Punch-out logic
   Future<void> _markOut() async {
   try {
+
+     bool confirm = await _showConfirmationDialog('Punch In');
+    if (!confirm) {
+      print('User canceled mark-in.');
+      return; // User canceled the action
+    }
+    print('User confirmed mark-in.');
+
     // Check if user is inside the office
     await _checkUserLocation();
     if (_location != 'Office') {
@@ -537,6 +868,16 @@ int _getCurrentShiftNumber() {
       );
       return;
     }
+
+    final now = TimeService.appTime;
+    DateTime punchDate = now;
+
+    // Handle date for midnight shifts
+    if (_currentShiftNumber == 3 && now.hour >= 0 && now.hour < 8) {
+      punchDate = now.subtract(Duration(days: 1));
+    }
+
+    _punchInDate = DateFormat('yyyy-MM-dd').format(punchDate);
 
     // Fetch the punch-in record for the current employee, date, and shift
     final db = await LocalDatabaseService.database;
@@ -594,6 +935,27 @@ int _getCurrentShiftNumber() {
   } catch (e) {
     print('Error in _markOut: $e');
   }
+}
+
+// Show confirmation dialog
+  Future<bool> _showConfirmationDialog(String action) async {
+  return await showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('Confirm $action'),
+      content: Text('Do you want to mark attendance?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: Text('Proceed'),
+        ),
+      ],
+    ),
+  ) ?? false;
 }
 
   // Sync attendance data with the backend
@@ -684,375 +1046,452 @@ int _getCurrentShiftNumber() {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    double barHeight = 60; // Height of the bottom bar and sliding box
+  String _getShiftLetter(int shiftNumber) {
+  switch (shiftNumber) {
+    case 1: return 'Morning';
+    case 2: return 'Afternoon';
+    case 3: return 'Night';
+    case 4: return 'General';
+    default: return shiftNumber.toString();
+  }
+}
+
+ @override
+Widget build(BuildContext context) {
+  // Get the bottom padding (safe area) to account for system navigation bar
+  final bottomPadding = MediaQuery.of(context).padding.bottom;
+  double barHeight = 60; // Keep original height
   double barWidth = MediaQuery.of(context).size.width;
   double tabWidth = barWidth / 2;
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/background.png'),
-                fit: BoxFit.cover,
-              ),
+  
+  return Scaffold(
+    resizeToAvoidBottomInset: false,
+    backgroundColor: Colors.black, // Add black background to scaffold
+    body: Stack(
+      children: [
+        // Black background layer
+        Container(color: Colors.black),
+        
+        // Background image
+        Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/background.png'),
+              fit: BoxFit.cover,
             ),
           ),
-          Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 45.0),
-                    child: Column(
-                      children: [
-                        // Header
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Row(
-                            children: [
-                              PopupMenuButton<String>(
-                                onSelected: (String value) async {
-                                  if (value == 'logout') {
-                                    // Clear the session data
-                                    final prefs = await SharedPreferences.getInstance();
-                                    await prefs.setBool('isLoggedIn', false);
-                                    await prefs.remove('empId');
-                                    await prefs.remove('role');
+        ),
+        
+        // Main content
+        Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 45.0),
+                  child: Column(
+                    children: [
+                      // Header
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Row(
+                          children: [
+                            // PopupMenuButton<String>(
+                            //   onSelected: (String value) async {
+                            //     if (value == 'logout') {
+                            //       // Clear the session data
+                            //       final prefs = await SharedPreferences.getInstance();
+                            //       await prefs.setBool('isLoggedIn', false);
+                            //       await prefs.remove('empId');
+                            //       await prefs.remove('role');
 
-                                    // Navigate to LoginScreen when logout is selected
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => LoginScreen(),
-                                      ),
-                                    );
-                                  }
-                                },
-                                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                                  const PopupMenuItem<String>(
-                                    value: 'logout',
-                                    child: Text('Logout'),
-                                  ),
-                                ],
-                                child: CircleAvatar(
-                                  backgroundColor: Colors.grey[800],
-                                  radius: 24,
-                                  child: Icon(
-                                    Icons.person, // You can change this icon to something else if needed
-                                    color: Colors.white,
+                            //       // Navigate to LoginScreen when logout is selected
+                            //       Navigator.pushReplacement(
+                            //         context,
+                            //         MaterialPageRoute(
+                            //           builder: (context) => LoginScreen(),
+                            //         ),
+                            //       );
+                            //     }
+                            //   },
+                            //   itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                            //     const PopupMenuItem<String>(
+                            //       value: 'logout',
+                            //       child: Text('Logout'),
+                            //     ),
+                            //   ],
+                            //   child: CircleAvatar(
+                            //     backgroundColor: Colors.grey[800],
+                            //     radius: 24,
+                            //     child: Icon(
+                            //       Icons.person,
+                            //       color: Colors.white,
+                            //     ),
+                            //   ),
+                            // ),
+                            PopupMenuButton<String>(
+  onSelected: (String value) async {
+    if (value == 'logout') {
+      // Clear the session data
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', false);
+      await prefs.remove('empId');
+      await prefs.remove('role');
+
+      // Navigate to LoginScreen when logout is selected
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LoginScreen(),
+        ),
+      );
+    } else if (value == 'profile') {
+      // Navigate to ProfileScreen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ProfileScreen(empId: widget.empId),
+        ),
+      );
+    }
+  },
+  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+    const PopupMenuItem<String>(
+      value: 'profile',
+      child: Text('Profile'),
+    ),
+    const PopupMenuItem<String>(
+      value: 'logout',
+      child: Text('Logout'),
+    ),
+  ],
+  child: CircleAvatar(
+    backgroundColor: Colors.grey[800],
+    radius: 24,
+    child: Icon(
+      Icons.person,
+      color: Colors.white,
+    ),
+  ),
+),
+                            SizedBox(width: 16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'HEY ${_userDetails['firstName']}',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFFB84542),
                                   ),
                                 ),
-                              ),
-                              SizedBox(width: 16),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'HEY ${_userDetails['firstName']}', // Display the fetched first name
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFFB84542),
-                                    ),
+                                Text(
+                                  _userDetails['email']!,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Color(0xFFB84542),
                                   ),
-                                  Text(
-                                    _userDetails['email']!, // Display the fetched email
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Color(0xFFB84542),
-                                    ),
+                                ),
+                                Text(
+                                  'Site: $_userSite',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Color(0xFFB84542),
                                   ),
-                                  Text(
-                                    'Site: $_userSite', // Display user site
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Color(0xFFB84542),
-                                    ),
+                                ),
+                              ],
+                            ),
+                            Spacer(),
+                            IconButton(
+                              icon: Icon(Icons.refresh, size: 24, color: Color(0xFFB84542)),
+                              onPressed: _refreshLocation,
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 40),
+
+                      // Main Content
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Current Time
+                          Text(
+                            DateFormat('hh:mm a').format(currentTime),
+                            style: TextStyle(
+                              fontSize: 48,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFFB84542),
+                            ),
+                          ),
+                          SizedBox(height: 16),
+
+                          // Date
+                          Text(
+                            _currentDate,
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Color(0xFFB84542),
+                            ),
+                          ),
+                          SizedBox(height: 16),
+
+                          // Location
+                          Text(
+                            'LOCATION - $_location',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Color(0xFFB84542),
+                            ),
+                          ),
+                          SizedBox(height: 16),
+
+                          Text(
+  'SHIFT ${_getShiftLetter(_currentShiftNumber)}',
+  style: TextStyle(
+    fontSize: 18,
+    color: Color(0xFFB84542),
+  ),
+),
+SizedBox(height: 32),
+
+                          // Punch In/Out Button
+                          GestureDetector(
+                            onTap: _isPunchInEnabled ? _markIn : _isPunchOutEnabled ? _markOut : null,
+                            child: Container(
+                              width: 180,
+                              height: 180,
+                              decoration: BoxDecoration(
+                                color: _isPunchInEnabled || _isPunchOutEnabled ? Colors.white : Colors.grey,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.white.withOpacity(0.2),
+                                    blurRadius: 10,
+                                    spreadRadius: 2,
                                   ),
                                 ],
                               ),
-                              Spacer(),
-                              IconButton(
-                                icon: Icon(Icons.refresh, size: 24, color: Color(0xFFB84542)),
-                                onPressed: _refreshLocation,
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 40),
-
-                        // Main Content
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // Current Time
-                            Text(
-                              DateFormat('hh:mm a').format(currentTime),
-                              style: TextStyle(
-                                fontSize: 48,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFFB84542),
-                              ),
-                            ),
-                            SizedBox(height: 16),
-
-                            // Date
-                            Text(
-                              _currentDate,
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Color(0xFFB84542),
-                              ),
-                            ),
-                            SizedBox(height: 16),
-
-                            // Location
-                            Text(
-                              'LOCATION - $_location',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Color(0xFFB84542),
-                              ),
-                            ),
-                            SizedBox(height: 32),
-
-                            // Punch In/Out Button
-                            GestureDetector(
-                              onTap: _isPunchInEnabled ? _markIn : _isPunchOutEnabled ? _markOut : null,
-                              child: Container(
-                                width: 180,
-                                height: 180,
-                                decoration: BoxDecoration(
-                                  color: _isPunchInEnabled || _isPunchOutEnabled ? Colors.white : Colors.grey,
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.white.withOpacity(0.2),
-                                      blurRadius: 10,
-                                      spreadRadius: 2,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      _isPunchInEnabled
+                                          ? 'assets/images/presson.png'
+                                          : 'assets/images/pressout.png',
+                                      width: 60,
+                                      height: 60,
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      _isPunchInEnabled ? 'PUNCH IN' : _isPunchOutEnabled ? 'PUNCH OUT' : 'DISABLED',
+                                      style: TextStyle(
+                                        color: _isPunchInEnabled || _isPunchOutEnabled ? Colors.black : Colors.black54,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ],
                                 ),
-                                child: Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Image.asset(
-                                        _isPunchInEnabled
-                                            ? 'assets/images/presson.png'
-                                            : 'assets/images/pressout.png',
-                                        width: 60,
-                                        height: 60,
-                                      ),
-                                      SizedBox(height: 8),
-                                      Text(
-                                        _isPunchInEnabled ? 'PUNCH IN' : _isPunchOutEnabled ? 'PUNCH OUT' : 'DISABLED',
-                                        style: TextStyle(
-                                          color: _isPunchInEnabled || _isPunchOutEnabled ? Colors.black : Colors.black54,
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
                               ),
                             ),
-SizedBox(height: 40), // Space between punch button and the row
+                          ),
+                          SizedBox(height: 40),
 
-// Punch In, Punch Out, and Total Hours in a Row
-Padding(
-  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-  child: Row(
-    mainAxisAlignment: MainAxisAlignment.spaceAround,
-    children: [
-      // Punch In with image above
-      Column(
-        children: [
-          Image.asset(
-            'assets/images/punchin.png', // Path to punch-in icon
-            width: 40,
-            height: 40,
-          ),
-          SizedBox(height: 8), // Space between image and text
-          Text(
-            _inTime.isNotEmpty ? DateFormat('HH:mm').format(DateFormat('HH:mm:ss').parse(_inTime)) : '--:--',
-            style: TextStyle(
-              fontSize: 18,
-              color: Color(0xFFB84542),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
-            'Punch In',
-            style: TextStyle(
-              fontSize: 14,
-              color: Color(0xFFB84542),
-            ),
-          ),
-        ],
-      ),
+                          // Punch In, Punch Out, and Total Hours in a Row
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                // Punch In with image above
+                                Column(
+                                  children: [
+                                    Image.asset(
+                                      'assets/images/punchin.png',
+                                      width: 40,
+                                      height: 40,
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      _inTime.isNotEmpty ? DateFormat('HH:mm').format(DateFormat('HH:mm:ss').parse(_inTime)) : '--:--',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        color: Color(0xFFB84542),
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Punch In',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Color(0xFFB84542),
+                                      ),
+                                    ),
+                                  ],
+                                ),
 
-      // Punch Out with image above
-      Column(
-        children: [
-          Image.asset(
-            'assets/images/punchout.png', // Path to punch-out icon
-            width: 40,
-            height: 40,
-          ),
-          SizedBox(height: 8), // Space between image and text
-          Text(
-            _outTime.isNotEmpty ? DateFormat('HH:mm').format(DateFormat('HH:mm:ss').parse(_outTime)) : '--:--',
-            style: TextStyle(
-              fontSize: 18,
-              color: Color(0xFFB84542),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
-            'Punch Out',
-            style: TextStyle(
-              fontSize: 14,
-              color: Color(0xFFB84542),
-            ),
-          ),
-        ],
-      ),
+                                // Punch Out with image above
+                                Column(
+                                  children: [
+                                    Image.asset(
+                                      'assets/images/punchout.png',
+                                      width: 40,
+                                      height: 40,
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      _outTime.isNotEmpty ? DateFormat('HH:mm').format(DateFormat('HH:mm:ss').parse(_outTime)) : '--:--',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        color: Color(0xFFB84542),
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Punch Out',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Color(0xFFB84542),
+                                      ),
+                                    ),
+                                  ],
+                                ),
 
-      // Total Hours with image above
-      Column(
-        children: [
-          Image.asset(
-            'assets/images/totalhours.png', // Path to total hours icon
-            width: 40,
-            height: 40,
-          ),
-          SizedBox(height: 8), // Space between image and text
-          Text(
-            _totalHours.toStringAsFixed(2),
-            style: TextStyle(
-              fontSize: 18,
-              color: Color(0xFFB84542),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
-            'Total Hours',
-            style: TextStyle(
-              fontSize: 14,
-              color: Color(0xFFB84542),
-            ),
-          ),
-        ],
-      ),
-    ],
-  ),
-),
-                          ],
-                        ),
-                      ],
-                    ),
+                                // Total Hours with image above
+                                Column(
+                                  children: [
+                                    Image.asset(
+                                      'assets/images/totalhours.png',
+                                      width: 40,
+                                      height: 40,
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      _totalHours.toStringAsFixed(2),
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        color: Color(0xFFB84542),
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Total Hours',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Color(0xFFB84542),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+    bottomNavigationBar: Container(
+      color: Colors.black, // Outer black container
+      padding: EdgeInsets.only(bottom: bottomPadding), // Apply safe area padding here
+      child: Container(
+        margin: EdgeInsets.only(bottom: 10),
+        child: Container(
+          height: barHeight,
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+          decoration: BoxDecoration(
+            color: Color(0xFFFF7043),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 10,
+                spreadRadius: 2,
               ),
             ],
           ),
-        ],
-      ),
-      bottomNavigationBar: Container(
-      color: Colors.black, // Outer container with black margin effect
-      margin: EdgeInsets.only(bottom: 10), // This creates the margin
-      child: Container(
-        height: barHeight,
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
-        decoration: BoxDecoration(
-          color: Color(0xFFFF7043), // Actual bottom bar color
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 10,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            // Sliding box (darker shade)
-            AnimatedPositioned(
-              duration: Duration(milliseconds: 300),
-              left: _selectedIndex == 0 ? 0 : tabWidth,
-              top: 0,
-              bottom: 0,
-              child: Container(
-                width: tabWidth,
-                height: barHeight,
-                decoration: BoxDecoration(
-                  color: Color(0xFFB84542).withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(20),
+          child: Stack(
+            children: [
+              // Sliding box (darker shade)
+              AnimatedPositioned(
+                duration: Duration(milliseconds: 300),
+                left: _selectedIndex == 0 ? 0 : tabWidth,
+                top: 0,
+                bottom: 0,
+                child: Container(
+                  width: tabWidth,
+                  height: barHeight,
+                  decoration: BoxDecoration(
+                    color: Color(0xFFB84542).withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                 ),
               ),
-            ),
-            // Tab items (Home and History)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Home Tab
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => _onItemTapped(0),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.home, color: Colors.white),
-                          SizedBox(width: 8),
-                          Text(
-                            'HOME',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
+              // Tab items (Home and History)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Home Tab
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => _onItemTapped(0),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.home, color: Colors.white),
+                            SizedBox(width: 8),
+                            Text(
+                              'HOME',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                // History Tab
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => _onItemTapped(1),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.history, color: Colors.white),
-                          SizedBox(width: 8),
-                          Text(
-                            'HISTORY',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
+                  // History Tab
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => _onItemTapped(1),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.history, color: Colors.white),
+                            SizedBox(width: 8),
+                            Text(
+                              'HISTORY',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     ),
-    );
-  }
+  );
+}
 }

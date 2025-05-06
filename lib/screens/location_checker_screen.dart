@@ -6,6 +6,8 @@ import 'package:intl/intl.dart'; // For formatting date and time
 import 'package:http/http.dart' as http;
 import 'package:location_checker/screens/history_screen.dart';
 import 'package:location_checker/screens/login_screen.dart';
+import 'package:location_checker/screens/mediclaim_screen.dart';
+import 'package:location_checker/screens/profile_screen.dart';
 import 'package:location_checker/services/fetchAndSetTime.dart';
 import 'dart:convert';
 import 'package:location_checker/services/location_service.dart';
@@ -27,7 +29,7 @@ class LocationCheckerScreen extends StatefulWidget {
 
 class _LocationCheckerScreenState extends State<LocationCheckerScreen> {
   Map<String, String> _userDetails = {'firstName': 'Unknown', 'email': 'Unknown'};
-  int _selectedIndex = 0;
+  final int _selectedIndex = 0;
   DateTime currentTime = TimeService.appTime;
   String _statusMessage = 'Check your location';
   bool _isMarkInEnabled = false;
@@ -35,12 +37,13 @@ class _LocationCheckerScreenState extends State<LocationCheckerScreen> {
   String _inTime = '';
   String _outTime = '';
   String _location = 'Outside Office';
-  String _day = 'H'; // Default to 'H' for half-day
+  final String _day = 'H'; // Default to 'H' for half-day
   late String emp_id;
-  String _currentDate = DateFormat('yyyy-MM-dd').format(TimeService.appTime);
+  final String _currentDate = DateFormat('yyyy-MM-dd').format(TimeService.appTime);
   double _totalHours = 0.0;
   bool _isLoading = false; // Track loading state
 
+  bool _isAdmin = false;
   // Subscription for connectivity changes
   late StreamSubscription<ConnectivityResult> _connectivitySubscription;
 
@@ -73,6 +76,9 @@ Future<void> _deleteEntriesForCurrentDate() async {
     emp_id = widget.empId;
     _fetchHolidays();
     _fetchUserDetails();
+    _fetchLocations();
+    _checkAdminStatus(); 
+    _checkAndRequestLocationPermissions();
 
    //_deleteEntriesForCurrentDate();
 
@@ -87,10 +93,10 @@ Future<void> _deleteEntriesForCurrentDate() async {
     _fetchAttendanceData();
 
     // Declare _connectivitySubscription as StreamSubscription<List<ConnectivityResult>>
-    late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
+    late StreamSubscription<List<ConnectivityResult>> connectivitySubscription;
 
     // Monitor internet connectivity changes
-    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
+    connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
       for (var result in results) {
         if (result == ConnectivityResult.mobile || result == ConnectivityResult.wifi) {
           // Trigger sync when connectivity is regained
@@ -281,7 +287,10 @@ Future<void> _openAppSettings() async {
 }
 
   // Refresh Button Functionality
-  void _refreshLocation() {
+  Future<void> _refreshLocation() async {
+    if (await Vibration.hasVibrator() ?? false) {
+      Vibration.vibrate(duration: 100); // Vibrate for 100ms
+    }
     _checkUserLocation(); // Recheck the location
     setState(() {
       print("Refresh pressed");
@@ -322,28 +331,22 @@ Future<void> _markIn() async {
 
     // Check user location
     print('Checking user location...');
-    _checkUserLocation();
+    await _checkUserLocation(); // Ensure this method updates `_location`
+
+    // Check if user is inside the office
+    if (_location != 'Office') {
+      print('User is outside the office. Showing alert...');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('You must be inside the office to punch in.')),
+      );
+      return; // Exit the function if the user is outside the office
+    }
 
     // Check if today is Sunday or a holiday
     if (_isSundayOrHoliday(TimeService.appTime)) {
       print('Today is a Sunday or holiday. Mark-in not allowed.');
       _showSundayOrHolidayAlert();
       return;
-    }
-
-    // Determine if the user is inside the office
-    bool isInsideOffice = _location == 'Office';
-    print('User is inside office: $isInsideOffice');
-
-    // If outside the office, show regularization alert
-    if (!isInsideOffice) {
-      print('User is outside the office. Showing regularization alert...');
-      bool confirm = await _showRegularizationAlert('mark-in');
-      if (!confirm) {
-        print('User canceled regularization.');
-        return; // User canceled the action
-      }
-      print('User confirmed regularization.');
     }
 
     // Trigger vibration feedback
@@ -402,19 +405,8 @@ Future<void> _markIn() async {
     final db = await LocalDatabaseService.database;
     try {
       await db.transaction((txn) async {
-        if (isInsideOffice) {
-          // Save to attendance table
-          await txn.insert('attendance', attendanceData);
-          print('Attendance data saved to attendance table.');
-        } else {
-          // Save to regularization table
-          await txn.insert('regularization', {
-            ...attendanceData,
-            'approval': 'Pending',
-            'approved_by': null,
-          });
-          print('Attendance data saved to regularization table.');
-        }
+        await txn.insert('attendance', attendanceData);
+        print('Attendance data saved to attendance table.');
       });
       await schedulePunchOutReminder();
     } catch (e) {
@@ -450,7 +442,6 @@ Future<void> _markIn() async {
     print('Syncing data with backend...');
     try {
       await _syncAttendanceData();
-      await _syncRegularizationData();
       print('Data synced successfully.');
     } catch (e) {
       print('Error syncing data: $e');
@@ -468,21 +459,33 @@ Future<void> _markIn() async {
   }
 }
 
-  Future<void> _markOut() async {
+Future<void> _markOut() async {
   try {
     // Show confirmation dialog
     bool confirm = await _showConfirmationDialog('Punch Out');
     if (!confirm) return; // User canceled the action
 
+    // Check and request location permissions
     await _checkAndRequestLocationPermissions();
-    _checkUserLocation();
+
+    // Check user location
+    print('Checking user location...');
+    await _checkUserLocation(); // Ensure this method updates `_location`
+
+    // Check if user is inside the office
+    if (_location != 'Office') {
+      print('User is outside the office. Showing alert...');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('You must be inside the office to punch out.')),
+      );
+      return; // Exit the function if the user is outside the office
+    }
+
     // Check if today is Sunday or a holiday
     if (_isSundayOrHoliday(TimeService.appTime)) {
       _showSundayOrHolidayAlert();
       return;
     }
-
-    bool isInsideOffice = _location == 'Office';
 
     // Fetch punch-in data (check if in attendance or regularization)
     Map<String, dynamic>? punchInData = await LocalDatabaseService.getPunchInDataForDate(emp_id, _currentDate);
@@ -494,9 +497,8 @@ Future<void> _markIn() async {
     if (await Vibration.hasVibrator() ?? false) {
       Vibration.vibrate(duration: 100); // Vibrate for 100ms
     }
-     
+
     // Get current location coordinates for punch-out
-    // Fetch current location coordinates
     print('Fetching current location...');
     Position? currentPosition;
     try {
@@ -504,7 +506,7 @@ Future<void> _markIn() async {
       currentPosition = await Geolocator.getLastKnownPosition();
       if (currentPosition == null) {
         print('No last known position. Fetching new location...');
-       currentPosition = await Geolocator.getCurrentPosition(
+        currentPosition = await Geolocator.getCurrentPosition(
           locationSettings: LocationSettings(
             accuracy: LocationAccuracy.high,
           ),
@@ -532,131 +534,71 @@ Future<void> _markIn() async {
         // Case 1: Entry found in attendance table
         locationIn = 'Office';
 
-        if (isInsideOffice) {
-          // Case 1a: Mark-out inside office
-          setState(() {
-            _inTime = punchInData['in_time']; // Take inTime from attendance entry
-            _outTime = DateFormat('HH:mm:ss').format(TimeService.appTime);
-            _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
-            if (_totalHours >= 8) day = 'F';
-            else day = 'H';
-            _isMarkOutEnabled = false; // Disable mark-out after pressing
-          });
+        // Case 1a: Mark-out inside office
+        setState(() {
+          _inTime = punchInData['in_time']; // Take inTime from attendance entry
+          _outTime = DateFormat('HH:mm:ss').format(TimeService.appTime);
+          _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
+          if (_totalHours >= 8) {
+            day = 'F';
+          } else {
+            day = 'H';
+          }
+          _isMarkOutEnabled = false; // Disable mark-out after pressing
+        });
 
-          final db = await LocalDatabaseService.database;
-          await db.transaction((txn) async {
-            await txn.update(
-              'attendance',
-              {
-                'out_time': _outTime,
-                'total_hours': _totalHours,
-                'location_out': 'Office',
-                'day': day,
-                'punch_out_lat': punchOutLat,
-                'punch_out_long': punchOutLong,
-                'synced': 0, // Mark as unsynced
-              },
-              where: 'emp_id = ? AND date = ?',
-              whereArgs: [emp_id, _currentDate],
-            );
-          });
-        } else {
-          // Case 1b: Mark-out outside office
-          setState(() {
-            _inTime = punchInData['in_time']; // Take inTime from attendance entry
-            _outTime = DateFormat('HH:mm:ss').format(TimeService.appTime);
-            _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
-            if (_totalHours >= 8) day = 'F';
-            else day = 'H';
-            _isMarkOutEnabled = false; // Disable mark-out after pressing
-          });
-
-          final db = await LocalDatabaseService.database;
-          await db.transaction((txn) async {
-            await txn.insert('regularization', {
-              'emp_id': emp_id,
-              'date': _currentDate,
-              'in_time': _inTime,
+        final db = await LocalDatabaseService.database;
+        await db.transaction((txn) async {
+          await txn.update(
+            'attendance',
+            {
               'out_time': _outTime,
               'total_hours': _totalHours,
-              'location_in': locationIn,
+              'location_out': 'Office',
               'day': day,
-              'location_out': 'Outside Office',
-              'punch_in_lat': punchInData['punch_in_lat'],
-              'punch_in_long': punchInData['punch_in_long'],
               'punch_out_lat': punchOutLat,
               'punch_out_long': punchOutLong,
-              'approval': 'Pending',
-              'approved_by': null,
               'synced': 0, // Mark as unsynced
-            });
-          });
-        }
+            },
+            where: 'emp_id = ? AND date = ?',
+            whereArgs: [emp_id, _currentDate],
+          );
+        });
       } else {
         // Case 2: Entry found in regularization table
         locationIn = 'Outside Office';
 
-        if (isInsideOffice) {
-          // Case 2a: Mark-out inside office
-          setState(() {
-            _inTime = punchInData['in_time'] ?? ''; // Take inTime from regularization entry
-            _outTime = DateFormat('HH:mm:ss').format(TimeService.appTime);
-            _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
-            if (_totalHours >= 8) day = 'F';
-            else day = 'H';
-            _isMarkOutEnabled = false; // Disable mark-out after pressing
-          });
+        // Case 2a: Mark-out inside office
+        setState(() {
+          _inTime = punchInData['in_time'] ?? ''; // Take inTime from regularization entry
+          _outTime = DateFormat('HH:mm:ss').format(TimeService.appTime);
+          _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
+          if (_totalHours >= 8) {
+            day = 'F';
+          } else {
+            day = 'H';
+          }
+          _isMarkOutEnabled = false; // Disable mark-out after pressing
+        });
 
-          final db = await LocalDatabaseService.database;
-          await db.transaction((txn) async {
-            await txn.insert('attendance', {
-              'emp_id': emp_id,
-              'date': _currentDate,
-              'in_time': _inTime,
-              'out_time': _outTime,
-              'total_hours': _totalHours,
-              'day': day,
-              'location_in': 'Outside Office',
-              'location_out': 'Office',
-              'punch_in_lat': punchInData['punch_in_lat'],
-              'punch_in_long': punchInData['punch_in_long'],
-              'punch_out_lat': punchOutLat,
-              'punch_out_long': punchOutLong,
-              'synced': 0, // Mark as unsynced
-            });
+        final db = await LocalDatabaseService.database;
+        await db.transaction((txn) async {
+          await txn.insert('attendance', {
+            'emp_id': emp_id,
+            'date': _currentDate,
+            'in_time': _inTime,
+            'out_time': _outTime,
+            'total_hours': _totalHours,
+            'day': day,
+            'location_in': 'Outside Office',
+            'location_out': 'Office',
+            'punch_in_lat': punchInData['punch_in_lat'],
+            'punch_in_long': punchInData['punch_in_long'],
+            'punch_out_lat': punchOutLat,
+            'punch_out_long': punchOutLong,
+            'synced': 0, // Mark as unsynced
           });
-        } else {
-          // Case 2b: Mark-out outside office
-          setState(() {
-            _inTime = punchInData['in_time']; // Take inTime from regularization entry
-            _outTime = DateFormat('HH:mm:ss').format(TimeService.appTime);
-            _totalHours = _calculateTotalHours().inMinutes / 60; // Calculate totalHours
-            if (_totalHours >= 8) day = 'F';
-            else day = 'H';
-            _isMarkOutEnabled = false; // Disable mark-out after pressing
-          });
-
-          final db = await LocalDatabaseService.database;
-          await db.transaction((txn) async {
-            await txn.insert('regularization', {
-              'emp_id': emp_id,
-              'date': _currentDate,
-              'in_time': _inTime,
-              'out_time': _outTime,
-              'total_hours': _totalHours,
-              'day': day,
-              'location_in': 'Outside Office',
-              'location_out': 'Outside Office',
-              'punch_in_lat': punchInData['punch_in_lat'],
-              'punch_in_long': punchInData['punch_in_long'],
-              'punch_out_lat': punchOutLat,
-              'punch_out_long': punchOutLong,
-              'approval': 'Pending',
-              'approved_by': null,
-              'synced': 0, // Mark as unsynced
-            });
-          });
-        }
+        });
       }
     }
     await cancelPunchOutReminder();
@@ -666,7 +608,9 @@ Future<void> _markIn() async {
     await _syncRegularizationData();
   } catch (e) {
     print('Error in _markOut: $e');
-    // Handle error, show a message to the user, etc.
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('An unexpected error occurred. Please try again.')),
+    );
   }
 }
 
@@ -841,6 +785,429 @@ Future<void> _markIn() async {
     }
   }
 
+//   Future<void> _showAddLocationDialog() async {
+//   final latController = TextEditingController();
+//   final lngController = TextEditingController();
+
+//   return showDialog(
+//     context: context,
+//     builder: (context) {
+//       return AlertDialog(
+//         title: Text('Add location coordinates for office'),
+//         content: Column(
+//           mainAxisSize: MainAxisSize.min,
+//           children: [
+//             TextField(
+//               controller: latController,
+//               decoration: InputDecoration(
+//                 labelText: 'Latitude',
+//                 hintText: 'Enter latitude',
+//               ),
+//               keyboardType: TextInputType.numberWithOptions(decimal: true),
+//             ),
+//             TextField(
+//               controller: lngController,
+//               decoration: InputDecoration(
+//                 labelText: 'Longitude',
+//                 hintText: 'Enter longitude',
+//               ),
+//               keyboardType: TextInputType.numberWithOptions(decimal: true),
+//             ),
+//           ],
+//         ),
+//         actions: [
+//           TextButton(
+//             onPressed: () => Navigator.pop(context),
+//             child: Text('Cancel'),
+//           ),
+//           TextButton(
+//             onPressed: () async {
+//               if (latController.text.isEmpty || lngController.text.isEmpty) {
+//                 ScaffoldMessenger.of(context).showSnackBar(
+//                   SnackBar(content: Text('Please enter both latitude and longitude')),
+//                 );
+//                 return;
+//               }
+
+//               try {
+//                 final lat = double.parse(latController.text);
+//                 final lng = double.parse(lngController.text);
+//                 await _submitLocationCoordinates(lat, lng);
+//                 Navigator.pop(context);
+//               } catch (e) {
+//                 ScaffoldMessenger.of(context).showSnackBar(
+//                   SnackBar(content: Text('Invalid coordinates. Please enter valid numbers')),
+//                 );
+//               }
+//             },
+//             child: Text('Submit'),
+//           ),
+//         ],
+//       );
+//     },
+//   );
+// }
+
+Future<void> _showAddLocationDialog() async {
+  final latController = TextEditingController();
+  final lngController = TextEditingController();
+  final nameController = TextEditingController();
+
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Add location coordinates for office'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(
+                labelText: 'Location Name',
+                hintText: 'Enter location name',
+              ),
+            ),
+            TextField(
+              controller: latController,
+              decoration: InputDecoration(
+                labelText: 'Latitude',
+                hintText: 'Enter latitude',
+              ),
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+            ),
+            TextField(
+              controller: lngController,
+              decoration: InputDecoration(
+                labelText: 'Longitude',
+                hintText: 'Enter longitude',
+              ),
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              if (latController.text.isEmpty || 
+                  lngController.text.isEmpty || 
+                  nameController.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Please enter all fields')),
+                );
+                return;
+              }
+
+              try {
+                final lat = double.parse(latController.text);
+                final lng = double.parse(lngController.text);
+                final name = nameController.text;
+                await _submitLocationCoordinates(lat, lng, name);
+                Navigator.pop(context);
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Invalid coordinates. Please enter valid numbers')),
+                );
+              }
+            },
+            child: Text('Submit'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+// Future<void> _submitLocationCoordinates(double latitude, double longitude) async {
+//   setState(() {
+//     _isLoading = true;
+//   });
+
+//   try {
+//     String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
+//     final response = await http.post(
+//       Uri.parse('$baseUrl/api/locations/office-coordinates'),
+//       headers: {'Content-Type': 'application/json'},
+//       body: jsonEncode({
+//         'latitude': latitude,
+//         'longitude': longitude,
+//         'empId': emp_id,
+//       }),
+//     );
+
+//     if (response.statusCode == 200) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(content: Text('New office location added successfully')),
+//       );
+//     } else {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(content: Text('Error adding new location: ${response.body}')),
+//       );
+//     }
+//   } catch (e) {
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       SnackBar(content: Text('Failed to connect to server: $e')),
+//     );
+//   } finally {
+//     setState(() {
+//       _isLoading = false;
+//     });
+//   }
+// }
+
+Future<void> _submitLocationCoordinates(double latitude, double longitude, String locationName) async {
+  setState(() {
+    _isLoading = true;
+  });
+
+  try {
+    String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/locations/office-coordinates'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'latitude': latitude,
+        'longitude': longitude,
+        'locationName': locationName,
+        'empId': emp_id,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('New office location added successfully')),
+      );
+      // Refresh the locations list after adding a new one
+      _fetchLocations();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error adding new location: ${response.body}')),
+      );
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to connect to server: $e')),
+    );
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
+  }
+}
+
+List<Map<String, dynamic>> _locations = [];
+
+Future<void> _fetchLocations() async {
+  setState(() {
+    _isLoading = true;
+  });
+
+  try {
+    String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/locations/office-coordinates'),
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _locations = List<Map<String, dynamic>>.from(jsonDecode(response.body));
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to fetch locations')),
+      );
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to connect to server: $e')),
+    );
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
+  }
+}
+
+Future<void> _deleteLocation(String locationId) async {
+  setState(() {
+    _isLoading = true;
+  });
+
+  try {
+    String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/locations/delete/$locationId'),
+    );
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Location deleted successfully')),
+      );
+      // Refresh the locations list after deletion
+      await _fetchLocations();
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error deleting location: ${response.body}')),
+      );
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to connect to server: $e')),
+    );
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
+  }
+}
+
+// Future<void> _showLocationsList() async {
+//   await _fetchLocations(); // Refresh the list before showing
+
+//   return showDialog(
+//     context: context,
+//     builder: (context) {
+//       return AlertDialog(
+//         title: Text('Office Locations'),
+//         content: Container(
+//           width: double.maxFinite,
+//           child: ListView.builder(
+//             shrinkWrap: true,
+//             itemCount: _locations.length,
+//             itemBuilder: (context, index) {
+//               final location = _locations[index];
+//               return ListTile(
+//                 title: Text(location['locationName'] ?? 'Unnamed Location'),
+//                 subtitle: Text(
+//                   'Lat: ${location['latitude']}, Lng: ${location['longitude']}',
+//                 ),
+//                 trailing: IconButton(
+//                   icon: Icon(Icons.delete, color: Colors.red),
+//                  onPressed: () async {
+//                               await _deleteLocation(location['id'].toString());
+//                  }
+//                 ),
+//               );
+//             },
+//           ),
+//         ),
+//         actions: [
+//           TextButton(
+//             onPressed: () => Navigator.pop(context),
+//             child: Text('Close'),
+//           ),
+//         ],
+//       );
+//     },
+//   );
+// }
+
+Future<void> _showLocationsList() async {
+  await _fetchLocations();
+
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Office Locations'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: _locations.length,
+            itemBuilder: (context, index) {
+              final location = _locations[index];
+              return ListTile(
+                title: Text(location['locationName'] ?? 'Unnamed Location'),
+                subtitle: Text(
+                  'Lat: ${location['latitude']}, Lng: ${location['longitude']}',
+                ),
+                trailing: _isAdmin ? IconButton(
+                  icon: Icon(Icons.delete, color: Colors.red),
+                  onPressed: () async {
+                    await _deleteLocation(location['id'].toString());
+                  },
+                ) : null,
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Close'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> _checkAdminStatus() async {
+  if (emp_id.isEmpty) {
+    print('Employee ID is empty');
+    return;
+  }
+
+  setState(() {
+    _isLoading = true;
+  });
+
+  try {
+    String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
+    final uri = Uri.parse('$baseUrl/api/locations/getadmin').replace(
+      queryParameters: {'empId': emp_id},
+    );
+
+    print('Checking admin status with URL: ${uri.toString()}'); // Debug print
+
+    final response = await http.get(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+    ).timeout(Duration(seconds: 10));
+
+    print('Admin status response: ${response.statusCode}, ${response.body}'); // Debug print
+
+    if (response.statusCode == 200) {
+      final result = jsonDecode(response.body);
+      if (result is Map<String, dynamic> && result.containsKey('isAdmin')) {
+        setState(() {
+          _isAdmin = result['isAdmin'] as bool;
+        });
+      } else {
+        print('Invalid admin status response format');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Invalid admin status response format')),
+        );
+      }
+    } else {
+      print('Failed to check admin status: ${response.statusCode}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to check admin status: ${response.statusCode}')),
+      );
+    }
+  } on TimeoutException catch (e) {
+    print('Admin status check timeout: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Request timeout. Please try again')),
+    );
+  } catch (e) {
+    print('Error checking admin status: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error checking admin status: $e')),
+    );
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
+  }
+}
+
   // Check for internet connection
   Future<bool> _hasNetworkConnection() async {
     try {
@@ -851,17 +1218,22 @@ Future<void> _markIn() async {
     }
   }
 
-  @override
+@override
 Widget build(BuildContext context) {
   bool isSundayOrHoliday = _isSundayOrHoliday(TimeService.appTime);
-  double barHeight = 60; // Height of the bottom bar and sliding box
+  final bottomPadding = MediaQuery.of(context).padding.bottom; // Get system bottom padding
+  double barHeight = 60;
   double barWidth = MediaQuery.of(context).size.width;
   double tabWidth = barWidth / 2;
 
   return Scaffold(
     resizeToAvoidBottomInset: false,
+    backgroundColor: Colors.black, // Set scaffold background to black
     body: Stack(
       children: [
+        // Black background layer
+        Container(color: Colors.black),
+        
         // Background Image covering entire screen
         Positioned.fill(
           child: Container(
@@ -887,25 +1259,64 @@ Widget build(BuildContext context) {
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Row(
                           children: [
+                            // PopupMenuButton<String>(
+                            //   onSelected: (String value) async {
+                            //     if (value == 'logout') {
+                            //       final prefs = await SharedPreferences.getInstance();
+                            //       await prefs.setBool('isLoggedIn', false);
+                            //       await prefs.remove('empId');
+                            //       await prefs.remove('role');
+                            //       Navigator.pushReplacement(
+                            //         context,
+                            //         MaterialPageRoute(
+                            //           builder: (context) => LoginScreen(),
+                            //         ),
+                            //       );
+                            //     }
+                            //   },
+                            //   itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                            //     const PopupMenuItem<String>(
+                            //       value: 'logout',
+                            //       child: Text('Logout'),
+                            //     ),
+                            //   ],
+                            //   child: CircleAvatar(
+                            //     backgroundColor: Colors.grey[800],
+                            //     radius: 24,
+                            //     child: Icon(
+                            //       Icons.person,
+                            //       color: Colors.white,
+                            //     ),
+                            //   ),
+                            // ),
+                            // SizedBox(width: 16),
                             PopupMenuButton<String>(
                               onSelected: (String value) async {
                                 if (value == 'logout') {
-                                  // Clear the session data
                                   final prefs = await SharedPreferences.getInstance();
                                   await prefs.setBool('isLoggedIn', false);
                                   await prefs.remove('empId');
                                   await prefs.remove('role');
-
-                                  // Navigate to LoginScreen when logout is selected
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => LoginScreen(),
                                     ),
                                   );
+                                } else if (value == 'profile') {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ProfileScreen(empId: widget.empId),
+                                    ),
+                                  );
                                 }
                               },
                               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                                const PopupMenuItem<String>(
+                                  value: 'profile',
+                                  child: Text('Profile'),
+                                ),
                                 const PopupMenuItem<String>(
                                   value: 'logout',
                                   child: Text('Logout'),
@@ -915,7 +1326,7 @@ Widget build(BuildContext context) {
                                 backgroundColor: Colors.grey[800],
                                 radius: 24,
                                 child: Icon(
-                                  Icons.person, // You can change this icon to something else if needed
+                                  Icons.person,
                                   color: Colors.white,
                                 ),
                               ),
@@ -925,7 +1336,7 @@ Widget build(BuildContext context) {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'HEY ${_userDetails['firstName']}', // Display the fetched first name
+                                  'HEY ${_userDetails['firstName']}',
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -933,7 +1344,7 @@ Widget build(BuildContext context) {
                                   ),
                                 ),
                                 Text(
-                                  _userDetails['email']!, // Display the fetched email
+                                  _userDetails['email']!,
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: Color(0xFFB84542),
@@ -942,6 +1353,96 @@ Widget build(BuildContext context) {
                               ],
                             ),
                             Spacer(),
+                            IconButton(
+                              icon: Icon(Icons.local_hospital, size: 24, color: Color(0xFFB84542)),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => MediclaimScreen(empId: emp_id),
+                                  ),
+                                );
+                              },
+                            ),
+    //                         IconButton(
+    //   icon: Icon(Icons.add, size: 24, color: Color(0xFFB84542)),
+    //   onPressed: _showAddLocationDialog,
+    // ),
+   if(_isAdmin) IconButton(
+  icon: Icon(Icons.add, size: 24, color: Color(0xFFB84542)),
+  onPressed: () {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 16.0),
+                child: Text(
+                  'Location Options',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFB84542),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              ListTile(
+                leading: Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Color(0xFFB84542).withOpacity(0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.add_location, color: Color(0xFFB84542)),
+                ),
+                title: Text('Add New Location'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showAddLocationDialog();
+                },
+              ),
+              Divider(indent: 16, endIndent: 16),
+              ListTile(
+                leading: Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Color(0xFFB84542).withOpacity(0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.list, color: Color(0xFFB84542)),
+                ),
+                title: Text('View Locations'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showLocationsList();
+                },
+              ),
+              SizedBox(height: 16),
+              TextButton(
+                child: Text(
+                  'CLOSE',
+                  style: TextStyle(
+                    color: Color(0xFFB84542),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                onPressed: () => Navigator.pop(context),
+              ),
+              SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+  },
+),
                             IconButton(
                               icon: Icon(Icons.refresh, size: 24, color: Color(0xFFB84542)),
                               onPressed: _refreshLocation,
@@ -988,16 +1489,16 @@ Widget build(BuildContext context) {
 
                           // Punch In/Out Button with PNG Images
                           GestureDetector(
-                            onTap: _isSundayOrHoliday(TimeService.appTime) // Check if today is Sunday or a holiday
-                                ? null // Disable onTap if it's Sunday or a holiday
-                                : (_isMarkInEnabled ? _markIn : _isMarkOutEnabled ? _markOut : null), // Enable onTap otherwise
+                            onTap: isSundayOrHoliday
+                                ? null
+                                : (_isMarkInEnabled ? _markIn : _isMarkOutEnabled ? _markOut : null),
                             child: Container(
                               width: 180,
                               height: 180,
                               decoration: BoxDecoration(
-                                color: _isSundayOrHoliday(TimeService.appTime) // Change color if it's Sunday or a holiday
-                                    ? Colors.grey // Grey color for disabled state
-                                    : Colors.white, // White color for enabled state
+                                color: isSundayOrHoliday
+                                    ? Colors.grey
+                                    : Colors.white,
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
@@ -1011,23 +1512,22 @@ Widget build(BuildContext context) {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    // Display PNG image based on Punch In/Out state
                                     Image.asset(
                                       _isMarkInEnabled
-                                          ? 'assets/images/presson.png' // Punch In image
-                                          : 'assets/images/pressout.png', // Punch Out image
+                                          ? 'assets/images/presson.png'
+                                          : 'assets/images/pressout.png',
                                       width: 60,
                                       height: 60,
                                     ),
                                     SizedBox(height: 8),
                                     Text(
-                                      _isSundayOrHoliday(TimeService.appTime) // Check if today is Sunday or a holiday
-                                          ? 'DISABLED' // Show "DISABLED" if it's Sunday or a holiday
-                                          : (_isMarkInEnabled ? 'PUNCH IN' : _isMarkOutEnabled ? 'PUNCH OUT' : 'DISABLED'), // Otherwise, show appropriate text
+                                      isSundayOrHoliday
+                                          ? 'DISABLED'
+                                          : (_isMarkInEnabled ? 'PUNCH IN' : _isMarkOutEnabled ? 'PUNCH OUT' : 'DISABLED'),
                                       style: TextStyle(
-                                        color: _isSundayOrHoliday(TimeService.appTime) // Change text color if it's Sunday or a holiday
-                                            ? Colors.black54 // Greyish color for disabled state
-                                            : Colors.black, // Black color for enabled state
+                                        color: isSundayOrHoliday
+                                            ? Colors.black54
+                                            : Colors.black,
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -1037,7 +1537,7 @@ Widget build(BuildContext context) {
                               ),
                             ),
                           ),
-                          SizedBox(height: 40), // Reduced space between punch button and icons
+                          SizedBox(height: 40),
 
                           // Punch In, Punch Out, and Total Hours in a Row
                           Padding(
@@ -1049,11 +1549,11 @@ Widget build(BuildContext context) {
                                 Column(
                                   children: [
                                     Image.asset(
-                                      'assets/images/punchin.png', // Update with correct asset path
+                                      'assets/images/punchin.png',
                                       width: 40,
                                       height: 40,
                                     ),
-                                    SizedBox(height: 8), // Reduced space between image and text
+                                    SizedBox(height: 8),
                                     TimeDisplay(
                                       label: 'Punch In',
                                       time: _inTime.isNotEmpty ? _inTime : '--:--',
@@ -1065,11 +1565,11 @@ Widget build(BuildContext context) {
                                 Column(
                                   children: [
                                     Image.asset(
-                                      'assets/images/punchout.png', // Update with correct asset path
+                                      'assets/images/punchout.png',
                                       width: 40,
                                       height: 40,
                                     ),
-                                    SizedBox(height: 8), // Reduced space between image and text
+                                    SizedBox(height: 8),
                                     TimeDisplay(
                                       label: 'Punch Out',
                                       time: _outTime.isNotEmpty ? _outTime : '--:--',
@@ -1081,11 +1581,11 @@ Widget build(BuildContext context) {
                                 Column(
                                   children: [
                                     Image.asset(
-                                      'assets/images/totalhours.png', // Update with correct asset path
+                                      'assets/images/totalhours.png',
                                       width: 40,
                                       height: 40,
                                     ),
-                                    SizedBox(height: 8), // Reduced space between image and text
+                                    SizedBox(height: 8),
                                     TimeDisplay(
                                       label: 'Total Hours',
                                       time: _totalHours.toStringAsFixed(2),
@@ -1108,13 +1608,13 @@ Widget build(BuildContext context) {
         // Loading Overlay
         if (_isLoading)
           Container(
-            color: Colors.black.withOpacity(0.7), // Semi-transparent background
+            color: Colors.black.withOpacity(0.7),
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'assets/images/loading.gif', // Path to your GIF file
+                    'assets/images/loading.gif',
                     width: 100,
                     height: 100,
                   ),
@@ -1132,92 +1632,91 @@ Widget build(BuildContext context) {
           ),
       ],
     ),
-    bottomNavigationBar: Container(
-      color: Colors.black, // Outer container with black margin effect
-      margin: EdgeInsets.only(bottom: 10), // This creates the margin
+    bottomNavigationBar: Padding(
+      padding: EdgeInsets.only(bottom: bottomPadding), // Apply safe area padding
       child: Container(
-        height: barHeight,
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
-        decoration: BoxDecoration(
-          color: Color(0xFFFF7043), // Actual bottom bar color
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 10,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            // Sliding box (darker shade)
-            AnimatedPositioned(
-              duration: Duration(milliseconds: 300),
-              left: _selectedIndex == 0 ? 0 : tabWidth,
-              top: 0,
-              bottom: 0,
-              child: Container(
-                width: tabWidth,
-                height: barHeight,
-                decoration: BoxDecoration(
-                  color: Color(0xFFB84542).withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(20),
+        color: Colors.black,
+        margin: EdgeInsets.only(bottom: 10),
+        child: Container(
+          height: barHeight,
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+          decoration: BoxDecoration(
+            color: Color(0xFFFF7043),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 10,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              AnimatedPositioned(
+                duration: Duration(milliseconds: 300),
+                left: _selectedIndex == 0 ? 0 : tabWidth,
+                top: 0,
+                bottom: 0,
+                child: Container(
+                  width: tabWidth,
+                  height: barHeight,
+                  decoration: BoxDecoration(
+                    color: Color(0xFFB84542).withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                 ),
               ),
-            ),
-            // Tab items (Home and History)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Home Tab
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => _onItemTapped(0),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.home, color: Colors.white),
-                          SizedBox(width: 8),
-                          Text(
-                            'HOME',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => _onItemTapped(0),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.home, color: Colors.white),
+                            SizedBox(width: 8),
+                            Text(
+                              'HOME',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                // History Tab
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => _onItemTapped(1),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.history, color: Colors.white),
-                          SizedBox(width: 8),
-                          Text(
-                            'HISTORY',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => _onItemTapped(1),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.history, color: Colors.white),
+                            SizedBox(width: 8),
+                            Text(
+                              'HISTORY',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     ),
@@ -1229,7 +1728,7 @@ class TimeDisplay extends StatelessWidget {
   final String label;
   final String time;
 
-  const TimeDisplay({Key? key, required this.label, required this.time}) : super(key: key);
+  const TimeDisplay({super.key, required this.label, required this.time});
 
   @override
   Widget build(BuildContext context) {

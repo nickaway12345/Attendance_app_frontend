@@ -191,6 +191,7 @@
 			buildConfigurationList = 97C147051CF9000F007C117D /* Build configuration list for PBXNativeTarget "Runner" */;
 			buildPhases = (
 				AB5737C91FB0D6C48FB58DCC /* [CP] Check Pods Manifest.lock */,
+				3189BE162DA1B2E5007F1830 /* Select Info.plist Configuration */,
 				9740EEB61CF901F6004384FC /* Run Script */,
 				97C146EA1CF9000F007C117D /* Sources */,
 				97C146EB1CF9000F007C117D /* Frameworks */,
@@ -292,6 +293,24 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		3189BE162DA1B2E5007F1830 /* Select Info.plist Configuration */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Select Info.plist Configuration";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo \"Selecting appropriate Info.plist for $CONFIGURATION\"\n\n# Backup original Info.plist first (only if backup doesn't exist)\nif [ ! -f \"${SRCROOT}/Runner/Info.plist.original\" ]; then\n    cp \"${SRCROOT}/Runner/Info.plist\" \"${SRCROOT}/Runner/Info.plist.original\"\nfi\n\n# Select appropriate plist\nif [ \"$CONFIGURATION\" == \"Debug\" ]; then\n    echo \"Using development configuration\"\n    cp \"${SRCROOT}/Runner/Info-dev.plist\" \"${SRCROOT}/Runner/Info.plist\"\nelse\n    echo \"Using production configuration\"\n    cp \"${SRCROOT}/Runner/Info-prod.plist\" \"${SRCROOT}/Runner/Info.plist\"\nfi\n";
+		};
 		3B06AD1E1E4923F5004D2608 /* Thin Binary */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -355,7 +374,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build";
+			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build\n";
 		};
 		AB5737C91FB0D6C48FB58DCC /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;

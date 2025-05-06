@@ -7,8 +7,8 @@ class TimeService {
   static DateTime _appTime = DateTime.now(); // App's internal clock
   static Timer? _clockTimer; // Timer for the app's clock
   static Timer? _syncTimer; // Timer for hourly sync
-  static bool _isLocationPermissionGranted = false;
-  static bool _isFallbackTime = false;
+  static final bool _isLocationPermissionGranted = false;
+  static final bool _isFallbackTime = false;
 
   // Initialize the app's clock
   static Future<void> initialize() async {
@@ -39,8 +39,8 @@ class TimeService {
       );
 
       // Fetch time for the user's location
-      final _worldtimePlugin = Worldtime();
-      DateTime userTime = await _worldtimePlugin.timeByLocation(
+      final worldtimePlugin = Worldtime();
+      DateTime userTime = await worldtimePlugin.timeByLocation(
         latitude: position.latitude,
         longitude: position.longitude,
       );
@@ -63,8 +63,8 @@ class TimeService {
 
   // Fetch time for a specific timezone
   static Future<DateTime> getTimeForTimezone(String timezone) async {
-    final _worldtimePlugin = Worldtime();
-    return await _worldtimePlugin.timeByCity(timezone);
+    final worldtimePlugin = Worldtime();
+    return await worldtimePlugin.timeByCity(timezone);
   }
 
   // Set the app's internal clock

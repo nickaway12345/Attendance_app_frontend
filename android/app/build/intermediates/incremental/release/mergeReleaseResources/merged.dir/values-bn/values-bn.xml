@@ -53,6 +53,7 @@
     <string name="common_signin_button_text">সাইন-ইন করুন</string>
     <string name="common_signin_button_text_long">Google এর মাধ্যমে সাইন-ইন করুন</string>
     <string msgid="6083905920877235314" name="copy">"কপি করুন"</string>
+    <string msgid="3260749812566568062" name="copy_toast_msg">"লিঙ্ক ক্লিপবোর্ডে কপি করা হয়েছে"</string>
     <string name="exo_download_completed">ডাউনলোড হয়ে গেছে</string>
     <string name="exo_download_description">ডাউনলোড করুন</string>
     <string name="exo_download_downloading">ডাউনলোড হচ্ছে</string>
@@ -63,6 +64,9 @@
     <string name="exo_download_paused_for_wifi">ডাউনলোড চালু করার জন্য ওয়াই-ফাইয়ের সাথে কানেক্ট হওয়ার অপেক্ষা করা হচ্ছে</string>
     <string name="exo_download_removing">ডাউনলোড করা কন্টেন্ট সরিয়ে দেওয়া হচ্ছে</string>
     <string msgid="2427401033573778270" name="expand_button_title">"উন্নত"</string>
+    <string msgid="4566929209979330987" name="fallback_menu_item_copy_link">"লিঙ্ক কপি করুন"</string>
+    <string msgid="3413186855122069269" name="fallback_menu_item_open_in_browser">"ব্রাউজারে খুলুন"</string>
+    <string msgid="7145444925855055364" name="fallback_menu_item_share_link">"লিঙ্ক শেয়ার করুন"</string>
     <string msgid="6573031135582639649" name="not_set">"সেট করা হয়নি"</string>
     <string msgid="6685851473431805375" name="preference_copied">"\"<ns1:g id="SUMMARY">%1$s</ns1:g>\" ক্লিপবোর্ডে লিঙ্কটি কপি করা হয়েছে।"</string>
     <string msgid="730395136688082741" name="search_menu_title">"সার্চ করুন"</string>

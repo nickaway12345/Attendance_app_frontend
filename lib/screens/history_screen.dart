@@ -1,3 +1,498 @@
+// import 'package:flutter/material.dart';
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
+// import 'package:intl/intl.dart';
+// import 'package:location_checker/screens/location_checker_screen.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:table_calendar/table_calendar.dart';
+// import 'package:http/http.dart' as http;
+// import 'dart:convert';
+// import 'package:location_checker/services/fetchAndSetTime.dart';
+
+// class HistoryScreen extends StatefulWidget {
+//   final String empId;
+//   const HistoryScreen({super.key, required this.empId});
+
+//   @override
+//   _HistoryScreenState createState() => _HistoryScreenState();
+// }
+
+// class _HistoryScreenState extends State<HistoryScreen> {
+//   int _selectedIndex = 1; // Default to History tab
+//   final double barHeight = 60.0;
+//   final double tabWidth = 180.0;
+//   Map<DateTime, String> _attendanceData = {};
+//   late String empId;
+//   Set<DateTime> _holidays = {};
+//   Map<DateTime, String> _leaves = {};
+//   List<dynamic> _rawAttendanceData = []; 
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     empId = widget.empId;
+//     _fetchAttendanceData();
+//   }
+
+//   Future<void> _fetchAttendanceData() async {
+//   try {
+//     String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
+    
+//     // Fetch attendance data
+//     final attendanceResponse = await http.get(Uri.parse('$baseUrl/attendance?empId=${widget.empId}'));
+    
+//     if (attendanceResponse.statusCode == 200) {
+//       final attendanceData = json.decode(attendanceResponse.body) as List;
+      
+//       setState(() {
+//         _rawAttendanceData = attendanceData; // Store raw data
+//         _attendanceData = {
+//           for (var item in attendanceData)
+//             DateTime.parse(item['id']['date']): item['day'] ?? 'H'
+//         };
+//       });
+//     }
+//     // Fetch holidays data
+//     final holidaysResponse = await http.get(Uri.parse('$baseUrl/holidays'));
+    
+//     // Fetch leaves data
+//     final leavesResponse = await http.get(Uri.parse('$baseUrl/leaves?empId=${widget.empId}'));
+
+//     if (attendanceResponse.statusCode == 200 && holidaysResponse.statusCode == 200 && leavesResponse.statusCode == 200) {
+//       final attendanceData = json.decode(attendanceResponse.body) as List;
+//       final holidaysData = json.decode(holidaysResponse.body) as List;
+//       final leavesData = json.decode(leavesResponse.body) as List;
+
+//       // Debugging logs
+//       print('Attendance Data: $attendanceData');
+//       print('Holidays Data: $holidaysData');
+//       print('Leaves Data: $leavesData');
+
+//       setState(() {
+//         // Correctly mapping attendance data
+//         _attendanceData = {
+//           for (var item in attendanceData)
+//             DateTime.parse(item['id']['date']): item['day'] ?? 'H' // Accessing the date and day correctly
+//         };
+
+//         // Parse holidays data
+//         _holidays = {
+//           for (var item in holidaysData)
+//             if (item.containsKey('date')) DateTime.parse(item['date']) // Only parse if 'date' exists
+//         };
+
+//         // Parse leaves data
+//         _leaves = {
+//           for (var item in leavesData)
+//             DateTime.parse(item['date']): item['status'] // Assuming 'date' and 'status' are fields in the leaves data
+//         };
+//       });
+//     } else {
+//       print('Failed to fetch attendance, holidays, or leaves data.');
+//     }
+//   } catch (e) {
+//     print('Error fetching data: $e');
+//   }
+// }
+
+//   void _onItemTapped(int index) {
+//     setState(() {
+//       _selectedIndex = index; // Update the selected index for the slider
+//     });
+
+//     if (index == 0) {
+//       // Navigate to LocationCheckerScreen (Home)
+//       Navigator.push(
+//         context,
+//         MaterialPageRoute(builder: (context) => LocationCheckerScreen(empId: widget.empId)),
+//       );
+//     } else if (index == 1) {
+//       // Stay on HistoryScreen (no navigation needed)
+//     }
+//   }
+
+//   void _navigateToRegularizeScreen(DateTime date) {
+//     // Navigate to the regularize screen for the selected date
+//     Navigator.push(
+//       context,
+//       MaterialPageRoute(
+//         builder: (context) => RegularizeScreen(date: date, empId: widget.empId),
+//       ),
+//     );
+//   }
+
+//   void _navigateToApprovalPage() {
+//     // Navigate to the ApprovalPage
+//     Navigator.push(
+//       context,
+//       MaterialPageRoute(
+//         builder: (context) => ApprovalPage(empId: widget.empId),
+//       ),
+//     );
+//   }
+
+//   void _showAttendanceDetails(DateTime date) {
+//   // Find the attendance record for this date
+//   final attendanceRecord = _rawAttendanceData.firstWhere(
+//     (item) => DateTime.parse(item['id']['date']).year == date.year &&
+//                DateTime.parse(item['id']['date']).month == date.month &&
+//                DateTime.parse(item['id']['date']).day == date.day,
+//     orElse: () => null,
+//   );
+
+//   if (attendanceRecord != null) {
+//     showDialog(
+//       context: context,
+//       builder: (context) => AlertDialog(
+//         title: Text('Attendance Details'),
+//         content: Column(
+//           mainAxisSize: MainAxisSize.min,
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Text('Date: ${DateFormat('yyyy-MM-dd').format(date)}'),
+//             SizedBox(height: 8),
+//             Text('In Time: ${attendanceRecord['inTime']}'),
+//             SizedBox(height: 8),
+//             Text('Out Time: ${attendanceRecord['outTime']}'),
+//             SizedBox(height: 8),
+//             Text('Location In: ${attendanceRecord['location_in']}'),
+//             SizedBox(height: 8),
+//             Text('Location Out: ${attendanceRecord['location_out']}'),
+//             SizedBox(height: 8),
+//             Text('Total Hours: ${attendanceRecord['totalHours']}'),
+//           ],
+//         ),
+//         actions: [
+//           TextButton(
+//             onPressed: () => Navigator.pop(context),
+//             child: Text('Close'),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+// @override
+// Widget build(BuildContext context) {
+//   DateTime? firstAttendanceDate;
+//   final bottomPadding = MediaQuery.of(context).padding.bottom; // Get system bottom padding
+//   double barHeight = 60;
+//   double barWidth = MediaQuery.of(context).size.width;
+//   double tabWidth = barWidth / 2;
+  
+//   if (_attendanceData.isNotEmpty) {
+//     firstAttendanceDate = _attendanceData.keys.reduce((a, b) => a.isBefore(b) ? a : b);
+//   }
+
+//   return Scaffold(
+//     backgroundColor: Colors.black, // Set scaffold background to black
+//     appBar: AppBar(
+//       title: const Text('Attendance History'),
+//       backgroundColor: Color(0xFFB84542),
+//       foregroundColor: Colors.white,
+//       leading: IconButton(
+//         icon: const Icon(Icons.arrow_back),
+//         onPressed: () {
+//           Navigator.pushReplacement(
+//             context,
+//             MaterialPageRoute(builder: (context) => LocationCheckerScreen(empId: empId)),
+//           );
+//         },
+//       ),
+//       actions: [
+//         IconButton(
+//           icon: Icon(Icons.approval, color: Colors.black),
+//           onPressed: _navigateToApprovalPage,
+//         ),
+//       ],
+//     ),
+//     body: Stack(
+//       children: [
+//         // Black background layer
+//         Container(color: Colors.black),
+        
+//         // Background image
+//         Container(
+//           width: double.infinity,
+//           height: double.infinity,
+//           decoration: const BoxDecoration(
+//             image: DecorationImage(
+//               image: AssetImage('assets/images/background.png'),
+//               fit: BoxFit.cover,
+//             ),
+//           ),
+//         ),
+        
+//         Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             const Padding(
+//               padding: EdgeInsets.fromLTRB(20, 60, 20, 20),
+//               child: Text(
+//                 'Attendance History',
+//                 style: TextStyle(
+//                   fontSize: 32,
+//                   fontWeight: FontWeight.bold,
+//                   color: Color(0xFFFF7043),
+//                 ),
+//               ),
+//             ),
+//             Expanded(
+//               child: TableCalendar(
+//                 firstDay: DateTime.utc(2020, 1, 1),
+//                 lastDay: DateTime.utc(2030, 12, 31),
+//                 focusedDay: TimeService.appTime,
+//                 headerStyle: const HeaderStyle(
+//                   titleTextStyle: TextStyle(color: Color(0xFFB84542)),
+//                   formatButtonTextStyle: TextStyle(  // This controls the "2 weeks" text
+//       color: Color(0xFFB84542),      // Set to same color as arrows
+//       fontSize: 14,
+//     ),
+//                   leftChevronIcon: Icon(Icons.chevron_left, color: Color(0xFFB84542)),
+//                   rightChevronIcon: Icon(Icons.chevron_right, color: Color(0xFFB84542)),
+//                 ),
+//                 daysOfWeekStyle: const DaysOfWeekStyle(
+//                   weekdayStyle: TextStyle(color: Colors.white),
+//                   weekendStyle: TextStyle(color: Colors.white),
+//                 ),
+//                 calendarStyle: const CalendarStyle(
+//                   defaultTextStyle: TextStyle(color: Colors.white, fontSize: 18),
+//                   weekendTextStyle: TextStyle(color: Colors.white, fontSize: 18),
+//                   selectedTextStyle: TextStyle(color: Colors.white, fontSize: 18),
+//                   todayTextStyle: TextStyle(color: Colors.white, fontSize: 18),
+//                   cellPadding: EdgeInsets.all(10),
+//                   cellMargin: EdgeInsets.all(5),
+//                 ),
+//                 calendarBuilders: CalendarBuilders(
+//                   defaultBuilder: (context, day, focusedDay) {
+//                     final DateTime date = DateTime(day.year, day.month, day.day);
+
+//                     if (_holidays.contains(date) || _leaves.containsKey(date)) {
+//                       return Container(
+//                         decoration: BoxDecoration(
+//                           color: Colors.blue,
+//                           shape: BoxShape.circle,
+//                         ),
+//                         child: Center(
+//                           child: Text(
+//                             '${day.day}',
+//                             style: const TextStyle(color: Colors.white, fontSize: 18),
+//                           ),
+//                         ),
+//                       );
+//                     }
+
+//                     if (day.weekday == DateTime.sunday) {
+//                       return Container(
+//                         decoration: BoxDecoration(
+//                           shape: BoxShape.circle,
+//                         ),
+//                         child: Center(
+//                           child: Text(
+//                             '${day.day}',
+//                             style: const TextStyle(color: Colors.white, fontSize: 18),
+//                           ),
+//                         ),
+//                       );
+//                     }
+
+//                     if (day.isAfter(TimeService.appTime)) {
+//                       return Container(
+//                         decoration: BoxDecoration(
+//                           color: Colors.grey,
+//                           shape: BoxShape.circle,
+//                         ),
+//                         child: Center(
+//                           child: Text(
+//                             '${day.day}',
+//                             style: const TextStyle(color: Colors.white, fontSize: 18),
+//                           ),
+//                         ),
+//                       );
+//                     }
+
+//                     if (_attendanceData.containsKey(date)) {
+//                       switch (_attendanceData[date]) {
+//                         case 'F':
+//                           return GestureDetector(
+//                             onTap: () => _showAttendanceDetails(date),
+//                             child: Container(
+//                               decoration: BoxDecoration(
+//                                 color: Colors.green,
+//                                 shape: BoxShape.circle,
+//                               ),
+//                               child: Center(
+//                                 child: Text(
+//                                   '${day.day}',
+//                                   style: const TextStyle(color: Colors.white, fontSize: 18),
+//                                 ),
+//                               ),
+//                             ),
+//                           );
+//                         case 'H':
+//                           final attendanceRecord = _rawAttendanceData.firstWhere(
+//                             (item) => DateTime.parse(item['id']['date']) == date,
+//                             orElse: () => null,
+//                           );
+
+//                           bool isSaturday = date.weekday == DateTime.saturday;
+//                           double totalHours = attendanceRecord?['totalHours'] ?? 0.0;
+
+//                           if (isSaturday && totalHours >= 4) {
+//                             return GestureDetector(
+//                               onTap: () => _showAttendanceDetails(date),
+//                               child: Container(
+//                                 decoration: BoxDecoration(
+//                                   color: Colors.green,
+//                                   shape: BoxShape.circle,
+//                                 ),
+//                                 child: Center(
+//                                   child: Text(
+//                                     '${day.day}',
+//                                     style: const TextStyle(color: Colors.white, fontSize: 18),
+//                                   ),
+//                                 ),
+//                               ),
+//                             );
+//                           } else {
+//                             return GestureDetector(
+//                               onTap: () => _navigateToRegularizeScreen(date),
+//                               child: Container(
+//                                 decoration: BoxDecoration(
+//                                   color: Colors.red,
+//                                   shape: BoxShape.circle,
+//                                 ),
+//                                 child: Center(
+//                                   child: Text(
+//                                     '${day.day}',
+//                                     style: const TextStyle(color: Colors.white, fontSize: 18),
+//                                   ),
+//                                 ),
+//                               ),
+//                             );
+//                           }
+//                       }
+//                     }
+
+//                     if (firstAttendanceDate != null && date.isAfter(firstAttendanceDate)) {
+//                       return GestureDetector(
+//                         onTap: () => _navigateToRegularizeScreen(date),
+//                         child: Container(
+//                           decoration: BoxDecoration(
+//                             color: Colors.red,
+//                             shape: BoxShape.circle,
+//                           ),
+//                           child: Center(
+//                             child: Text(
+//                               '${day.day}',
+//                               style: const TextStyle(color: Colors.white, fontSize: 18),
+//                             ),
+//                           ),
+//                         ),
+//                       );
+//                     }
+
+//                     return null;
+//                   },
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ],
+//     ),
+//     bottomNavigationBar: Padding(
+//       padding: EdgeInsets.only(bottom: bottomPadding), // Apply safe area padding
+//       child: Container(
+//         color: Colors.black,
+//         margin: EdgeInsets.only(bottom: 10),
+//         child: Container(
+//           height: barHeight,
+//           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+//           decoration: BoxDecoration(
+//             color: Color(0xFFFF7043),
+//             boxShadow: [
+//               BoxShadow(
+//                 color: Colors.black.withOpacity(0.2),
+//                 blurRadius: 10,
+//                 spreadRadius: 2,
+//               ),
+//             ],
+//           ),
+//           child: Stack(
+//             children: [
+//               AnimatedPositioned(
+//                 duration: Duration(milliseconds: 300),
+//                 left: _selectedIndex == 0 ? 0 : tabWidth,
+//                 top: 0,
+//                 bottom: 0,
+//                 child: Container(
+//                   width: tabWidth,
+//                   height: barHeight,
+//                   decoration: BoxDecoration(
+//                     color: Color(0xFFB84542).withOpacity(0.5),
+//                     borderRadius: BorderRadius.circular(20),
+//                   ),
+//                 ),
+//               ),
+//               Row(
+//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                 children: [
+//                   Expanded(
+//                     child: GestureDetector(
+//                       onTap: () => _onItemTapped(0),
+//                       child: Padding(
+//                         padding: const EdgeInsets.symmetric(vertical: 10.0),
+//                         child: Row(
+//                           mainAxisAlignment: MainAxisAlignment.center,
+//                           children: [
+//                             Icon(Icons.home, color: Colors.white),
+//                             SizedBox(width: 8),
+//                             Text(
+//                               'HOME',
+//                               style: TextStyle(
+//                                 color: Colors.white,
+//                                 fontSize: 16,
+//                               ),
+//                             ),
+//                           ],
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                   Expanded(
+//                     child: GestureDetector(
+//                       onTap: () => _onItemTapped(1),
+//                       child: Padding(
+//                         padding: const EdgeInsets.symmetric(vertical: 10.0),
+//                         child: Row(
+//                           mainAxisAlignment: MainAxisAlignment.center,
+//                           children: [
+//                             Icon(Icons.history, color: Colors.white),
+//                             SizedBox(width: 8),
+//                             Text(
+//                               'HISTORY',
+//                               style: TextStyle(
+//                                 color: Colors.white,
+//                                 fontSize: 16,
+//                               ),
+//                             ),
+//                           ],
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     ),
+//   );
+// }
+// }
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
@@ -17,89 +512,123 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  int _selectedIndex = 1; // Default to History tab
+  int _selectedIndex = 1;
   final double barHeight = 60.0;
   final double tabWidth = 180.0;
   Map<DateTime, String> _attendanceData = {};
   late String empId;
   Set<DateTime> _holidays = {};
   Map<DateTime, String> _leaves = {};
+  List<dynamic> _rawAttendanceData = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+  late ScaffoldMessengerState scaffoldMessenger;
 
   @override
   void initState() {
     super.initState();
     empId = widget.empId;
-    _fetchAttendanceData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchAttendanceData();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    scaffoldMessenger = ScaffoldMessenger.of(context);
   }
 
   Future<void> _fetchAttendanceData() async {
-  try {
-    String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
-    
-    // Fetch attendance data
-    final attendanceResponse = await http.get(Uri.parse('$baseUrl/attendance?empId=${widget.empId}'));
-    
-    // Fetch holidays data
-    final holidaysResponse = await http.get(Uri.parse('$baseUrl/holidays'));
-    
-    // Fetch leaves data
-    final leavesResponse = await http.get(Uri.parse('$baseUrl/leaves?empId=${widget.empId}'));
+    if (!mounted) return;
 
-    if (attendanceResponse.statusCode == 200 && holidaysResponse.statusCode == 200 && leavesResponse.statusCode == 200) {
-      final attendanceData = json.decode(attendanceResponse.body) as List;
-      final holidaysData = json.decode(holidaysResponse.body) as List;
-      final leavesData = json.decode(leavesResponse.body) as List;
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
 
-      // Debugging logs
-      print('Attendance Data: $attendanceData');
-      print('Holidays Data: $holidaysData');
-      print('Leaves Data: $leavesData');
+    try {
+      String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
+      
+      final responses = await Future.wait([
+        http.get(Uri.parse('$baseUrl/attendance?empId=${widget.empId}')),
+        http.get(Uri.parse('$baseUrl/holidays')),
+        http.get(Uri.parse('$baseUrl/leaves?empId=${widget.empId}')),
+      ]);
 
-      setState(() {
-        // Correctly mapping attendance data
-        _attendanceData = {
-          for (var item in attendanceData)
-            DateTime.parse(item['id']['date']): item['day'] ?? 'H' // Accessing the date and day correctly
-        };
+      if (!mounted) return;
 
-        // Parse holidays data
-        _holidays = {
-          for (var item in holidaysData)
-            if (item.containsKey('date')) DateTime.parse(item['date']) // Only parse if 'date' exists
-        };
+      final attendanceResponse = responses[0];
+      final holidaysResponse = responses[1];
+      final leavesResponse = responses[2];
 
-        // Parse leaves data
-        _leaves = {
-          for (var item in leavesData)
-            DateTime.parse(item['date']): item['status'] // Assuming 'date' and 'status' are fields in the leaves data
-        };
-      });
-    } else {
-      print('Failed to fetch attendance, holidays, or leaves data.');
+      if (attendanceResponse.statusCode == 200 && 
+          holidaysResponse.statusCode == 200 && 
+          leavesResponse.statusCode == 200) {
+        
+        final attendanceData = json.decode(attendanceResponse.body) as List;
+        final holidaysData = json.decode(holidaysResponse.body) as List;
+        final leavesData = json.decode(leavesResponse.body) as List;
+
+        if (mounted) {
+          setState(() {
+            _rawAttendanceData = attendanceData;
+            _attendanceData = {
+              for (var item in attendanceData)
+                DateTime.parse(item['id']['date']): item['day'] ?? 'H'
+            };
+            _holidays = {
+              for (var item in holidaysData)
+                if (item.containsKey('date')) DateTime.parse(item['date'])
+            };
+            _leaves = {
+              for (var item in leavesData)
+                DateTime.parse(item['date']): item['status']
+            };
+            _isLoading = false;
+          });
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            _errorMessage = 'Failed to load data. Status codes: '
+                'Attendance: ${attendanceResponse.statusCode}, '
+                'Holidays: ${holidaysResponse.statusCode}, '
+                'Leaves: ${leavesResponse.statusCode}';
+            _isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Error fetching data: ${e.toString()}';
+          _isLoading = false;
+        });
+      }
     }
-  } catch (e) {
-    print('Error fetching data: $e');
   }
-}
 
   void _onItemTapped(int index) {
+    if (!mounted) return;
+
     setState(() {
-      _selectedIndex = index; // Update the selected index for the slider
+      _selectedIndex = index;
     });
 
     if (index == 0) {
-      // Navigate to LocationCheckerScreen (Home)
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => LocationCheckerScreen(empId: widget.empId)),
+        MaterialPageRoute(
+          builder: (context) => LocationCheckerScreen(empId: widget.empId),
+        ),
       );
-    } else if (index == 1) {
-      // Stay on HistoryScreen (no navigation needed)
     }
   }
 
   void _navigateToRegularizeScreen(DateTime date) {
-    // Navigate to the regularize screen for the selected date
+    if (!mounted) return;
+    
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -109,7 +638,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   void _navigateToApprovalPage() {
-    // Navigate to the ApprovalPage
+    if (!mounted) return;
+    
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -118,285 +648,426 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-@override
-Widget build(BuildContext context) {
-  DateTime? firstAttendanceDate;
-  
-  if (_attendanceData.isNotEmpty) {
-    // Find the first (earliest) attendance date
-    firstAttendanceDate = _attendanceData.keys.reduce((a, b) => a.isBefore(b) ? a : b);
-  }
+  void _showAttendanceDetails(DateTime date) {
+    if (!mounted) return;
 
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text('Attendance History'),
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () {
-          // Navigate back to LocationCheckerScreen
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => LocationCheckerScreen(empId: empId)),
-          );
-        },
-      ),
-      actions: [
-        IconButton(
-          icon: Icon(Icons.approval, color: Colors.black),
-          onPressed: _navigateToApprovalPage,
-        ),
-      ],
-    ),
-    body: Container(
-      width: double.infinity, // Ensures the container takes full width
-      height: double.infinity, // Ensures the container takes full height
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/images/background.png'),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(20, 60, 20, 20),
-            child: Text(
-              'Attendance History',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFFFF7043),
-              ),
-            ),
-          ),
-          Expanded(
-            child: TableCalendar(
-              firstDay: DateTime.utc(2020, 1, 1),
-              lastDay: DateTime.utc(2030, 12, 31),
-              focusedDay: TimeService.appTime,
-              // Customize the header style
-              headerStyle: const HeaderStyle(
-                titleTextStyle: TextStyle(color: Color(0xFFB84542)), // Month and year text color
-                leftChevronIcon: Icon(Icons.chevron_left, color: Color(0xFFB84542)), // Left arrow color
-                rightChevronIcon: Icon(Icons.chevron_right, color: Color(0xFFB84542)), // Right arrow color
-              ),
-              // Customize the days of the week style
-              daysOfWeekStyle: const DaysOfWeekStyle(
-                weekdayStyle: TextStyle(color: Colors.white), // Weekday text color
-                weekendStyle: TextStyle(color: Colors.white), // Weekend text color
-              ),
-              // Customize the calendar style
-              calendarStyle: const CalendarStyle(
-                defaultTextStyle: TextStyle(color: Colors.white, fontSize: 18), // Default date text color and size
-                weekendTextStyle: TextStyle(color: Colors.white, fontSize: 18), // Weekend date text color and size
-                selectedTextStyle: TextStyle(color: Colors.white, fontSize: 18), // Selected date text color and size
-                todayTextStyle: TextStyle(color: Colors.white, fontSize: 18), // Today's date text color and size
-                cellPadding: EdgeInsets.all(10), // Increase cell padding for more space
-                cellMargin: EdgeInsets.all(5), // Increase cell margin for more space
-              ),
-              calendarBuilders: CalendarBuilders(
-  defaultBuilder: (context, day, focusedDay) {
-    final DateTime date = DateTime(day.year, day.month, day.day);
+    final attendanceRecord = _rawAttendanceData.firstWhere(
+      (item) {
+        try {
+          return DateTime.parse(item['id']['date']).year == date.year &&
+                 DateTime.parse(item['id']['date']).month == date.month &&
+                 DateTime.parse(item['id']['date']).day == date.day;
+        } catch (e) {
+          return false;
+        }
+      },
+      orElse: () => null,
+    );
 
-    // Check if the date is a holiday
-    if (_holidays.contains(date) || _leaves.containsKey(date)) {
-      return Container(
-        decoration: BoxDecoration(
-          color: Colors.blue,
-          shape: BoxShape.circle,
-        ),
-        child: Center(
-          child: Text(
-            '${day.day}',
-            style: const TextStyle(color: Colors.white, fontSize: 18),
+    if (attendanceRecord != null && mounted) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Attendance Details'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Date: ${DateFormat('yyyy-MM-dd').format(date)}'),
+              const SizedBox(height: 8),
+              Text('In Time: ${attendanceRecord['inTime'] ?? 'N/A'}'),
+              const SizedBox(height: 8),
+              Text('Out Time: ${attendanceRecord['outTime'] ?? 'N/A'}'),
+              const SizedBox(height: 8),
+              Text('Location In: ${attendanceRecord['location_in'] ?? 'N/A'}'),
+              const SizedBox(height: 8),
+              Text('Location Out: ${attendanceRecord['location_out'] ?? 'N/A'}'),
+              const SizedBox(height: 8),
+              Text('Total Hours: ${attendanceRecord['totalHours'] ?? 'N/A'}'),
+            ],
           ),
-        ),
-      );
-    }
-
-    // Check if the date is a Sunday
-    if (day.weekday == DateTime.sunday) {
-      return Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-        ),
-        child: Center(
-          child: Text(
-            '${day.day}',
-            style: const TextStyle(color: Colors.white, fontSize: 18),
-          ),
-        ),
-      );
-    }
-
-    // Check if the date is in the future
-    if (day.isAfter(TimeService.appTime)) {
-      return Container(
-        decoration: BoxDecoration(
-          color: Colors.grey,
-          shape: BoxShape.circle,
-        ),
-        child: Center(
-          child: Text(
-            '${day.day}',
-            style: const TextStyle(color: Colors.white, fontSize: 18),
-          ),
-        ),
-      );
-    }
-
-    // Check if the date has attendance data
-    if (_attendanceData.containsKey(date)) {
-      switch (_attendanceData[date]) {
-        case 'F':
-          return Container(
-            decoration: BoxDecoration(
-              color: Colors.green,
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                '${day.day}',
-                style: const TextStyle(color: Colors.white, fontSize: 18),
-              ),
-            ),
-          );
-        case 'H':
-          return GestureDetector(
-            onTap: () => _navigateToRegularizeScreen(date),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.red,
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(
-                  '${day.day}',
-                  style: const TextStyle(color: Colors.white, fontSize: 18),
-                ),
-              ),
-            ),
-          );
-      }
-    }
-
-    // If no attendance data is found for the date, mark it as red only after the first attendance date
-    if (firstAttendanceDate != null && date.isAfter(firstAttendanceDate)) {
-      return GestureDetector(
-        onTap: () => _navigateToRegularizeScreen(date),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.red,
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: Text(
-              '${day.day}',
-              style: const TextStyle(color: Colors.white, fontSize: 18),
-            ),
-          ),
-        ),
-      );
-    }
-
-    return null;
-  },
-),
-            ),
-          ),
-        ],
-      ),
-    ),
-      bottomNavigationBar: Container(
-  color: Colors.black, // Outer container with black margin effect
-  margin: EdgeInsets.only(bottom: 10), // This creates the margin
-  child: Container(
-    height: barHeight,
-    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
-    decoration: BoxDecoration(
-      color: Color(0xFFFF7043), // Actual bottom bar color
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.2),
-          blurRadius: 10,
-          spreadRadius: 2,
-        ),
-      ],
-    ),
-    child: Stack(
-      children: [
-        // Sliding box (darker shade)
-        AnimatedPositioned(
-          duration: Duration(milliseconds: 300),
-          left: _selectedIndex == 0 ? 0 : tabWidth,
-          top: 0,
-          bottom: 0,
-          child: Container(
-            width: tabWidth,
-            height: barHeight,
-            decoration: BoxDecoration(
-              color: Color(0xFFB84542).withOpacity(0.5),
-              borderRadius: BorderRadius.circular(20),
-            ),
-          ),
-        ),
-        // Tab items (Home and History)
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // Home Tab
-            Expanded(
-              child: GestureDetector(
-                onTap: () => _onItemTapped(0),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.home, color: Colors.white),
-                      SizedBox(width: 8),
-                      Text(
-                        'HOME',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            // History Tab
-            Expanded(
-              child: GestureDetector(
-                onTap: () => _onItemTapped(1),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.history, color: Colors.white),
-                      SizedBox(width: 8),
-                      Text(
-                        'HISTORY',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
             ),
           ],
         ),
-      ],
-    ),
-  ),
-),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    DateTime? firstAttendanceDate;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    double barWidth = MediaQuery.of(context).size.width;
+    
+    if (_attendanceData.isNotEmpty) {
+      firstAttendanceDate = _attendanceData.keys.reduce((a, b) => a.isBefore(b) ? a : b);
+    }
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: const Text('Attendance History'),
+        backgroundColor: const Color(0xFFB84542),
+        foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (mounted) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LocationCheckerScreen(empId: empId),
+                ),
+              );
+            }
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.approval, color: Colors.white),
+            onPressed: _navigateToApprovalPage,
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          Container(color: Colors.black),
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/background.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(20, 60, 20, 20),
+                child: Text(
+                  'Attendance History',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFFF7043),
+                  ),
+                ),
+              ),
+              if (_isLoading)
+                const Expanded(
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: Color(0xFFB84542),
+                    ),
+                  ),
+                )
+              else if (_errorMessage != null)
+                Expanded(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _errorMessage!,
+                            style: const TextStyle(color: Colors.white),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: _fetchAttendanceData,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFB84542),
+                            ),
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+              else
+                Expanded(
+                  child: TableCalendar(
+                    firstDay: DateTime.now().subtract(const Duration(days: 365)),
+                    lastDay: DateTime.now().add(const Duration(days: 365)),
+                    focusedDay: TimeService.appTime,
+                    headerStyle: const HeaderStyle(
+                      titleTextStyle: TextStyle(color: Color(0xFFB84542)),
+                      formatButtonTextStyle: TextStyle(
+                        color: Color(0xFFB84542),
+                        fontSize: 14,
+                      ),
+                      leftChevronIcon: Icon(Icons.chevron_left, color: Color(0xFFB84542)),
+                      rightChevronIcon: Icon(Icons.chevron_right, color: Color(0xFFB84542)),
+                    ),
+                    daysOfWeekStyle: const DaysOfWeekStyle(
+                      weekdayStyle: TextStyle(color: Colors.white),
+                      weekendStyle: TextStyle(color: Colors.white),
+                    ),
+                    calendarStyle: const CalendarStyle(
+                      defaultTextStyle: TextStyle(color: Colors.white, fontSize: 18),
+                      weekendTextStyle: TextStyle(color: Colors.white, fontSize: 18),
+                      selectedTextStyle: TextStyle(color: Colors.white, fontSize: 18),
+                      todayTextStyle: TextStyle(color: Colors.white, fontSize: 18),
+                      cellPadding: EdgeInsets.all(10),
+                      cellMargin: EdgeInsets.all(5),
+                    ),
+                    calendarBuilders: CalendarBuilders(
+                      defaultBuilder: (context, day, focusedDay) {
+                        try {
+                          final DateTime date = DateTime(day.year, day.month, day.day);
+
+                          if (_holidays.contains(date) || _leaves.containsKey(date)) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '${day.day}',
+                                  style: const TextStyle(color: Colors.white, fontSize: 18),
+                                ),
+                              ),
+                            );
+                          }
+
+                          if (day.weekday == DateTime.sunday) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '${day.day}',
+                                  style: const TextStyle(color: Colors.white, fontSize: 18),
+                                ),
+                              ),
+                            );
+                          }
+
+                          if (day.isAfter(TimeService.appTime)) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: Colors.grey,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '${day.day}',
+                                  style: const TextStyle(color: Colors.white, fontSize: 18),
+                                ),
+                              ),
+                            );
+                          }
+
+                          if (_attendanceData.containsKey(date)) {
+                            switch (_attendanceData[date]) {
+                              case 'F':
+                                return GestureDetector(
+                                  onTap: () => _showAttendanceDetails(date),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.green,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        '${day.day}',
+                                        style: const TextStyle(color: Colors.white, fontSize: 18),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              case 'H':
+                                final attendanceRecord = _rawAttendanceData.firstWhere(
+                                  (item) {
+                                    try {
+                                      return DateTime.parse(item['id']['date']) == date;
+                                    } catch (e) {
+                                      return false;
+                                    }
+                                  },
+                                  orElse: () => null,
+                                );
+
+                                bool isSaturday = date.weekday == DateTime.saturday;
+                                double totalHours = attendanceRecord?['totalHours'] ?? 0.0;
+
+                                if (isSaturday && totalHours >= 4) {
+                                  return GestureDetector(
+                                    onTap: () => _showAttendanceDetails(date),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.green,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          '${day.day}',
+                                          style: const TextStyle(color: Colors.white, fontSize: 18),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  return GestureDetector(
+                                    onTap: () => _navigateToRegularizeScreen(date),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          '${day.day}',
+                                          style: const TextStyle(color: Colors.white, fontSize: 18),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }
+                            }
+                          }
+
+                          if (firstAttendanceDate != null && date.isAfter(firstAttendanceDate)) {
+                            return GestureDetector(
+                              onTap: () => _navigateToRegularizeScreen(date),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '${day.day}',
+                                    style: const TextStyle(color: Colors.white, fontSize: 18),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+
+                          return null;
+                        } catch (e) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Text(
+                                '${day.day}',
+                                style: const TextStyle(color: Colors.white, fontSize: 18),
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.only(bottom: bottomPadding),
+        child: Container(
+          color: Colors.black,
+          margin: const EdgeInsets.only(bottom: 10),
+          child: Container(
+            height: barHeight,
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFF7043),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 300),
+                  left: _selectedIndex == 0 ? 0 : barWidth / 2,
+                  top: 0,
+                  bottom: 0,
+                  child: Container(
+                    width: barWidth / 2,
+                    height: barHeight,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFB84542).withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _onItemTapped(0),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 10.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.home, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text(
+                                'HOME',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _onItemTapped(1),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 10.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.history, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text(
+                                'HISTORY',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -418,7 +1089,7 @@ class _RegularizeScreenState extends State<RegularizeScreen> {
   String _getinTime = '';
   String _getoutTime = '';
   double _gettotalHours = 0.0;
-  double _totalHours = 0.0;
+  final double _totalHours = 0.0;
   final TextEditingController _reasonController = TextEditingController();
 
   @override
@@ -635,6 +1306,8 @@ Future<void> _submitRegularization() async {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Regularize Attendance'),
+        backgroundColor: Color(0xFFB84542),
+        foregroundColor: Colors.white,
       ),
       body: Container(
         width: double.infinity,
@@ -819,7 +1492,7 @@ TextFormField(
 class ApprovalPage extends StatefulWidget {
   final String empId;
 
-  const ApprovalPage({Key? key, required this.empId}) : super(key: key);
+  const ApprovalPage({super.key, required this.empId});
 
   @override
   _ApprovalPageState createState() => _ApprovalPageState();
@@ -924,185 +1597,129 @@ class _ApprovalPageState extends State<ApprovalPage> with SingleTickerProviderSt
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Approvals'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Pending'),
-            Tab(text: 'Approved'),
-            Tab(text: 'Rejected'),
-          ],
-        ),
+ @override
+Widget build(BuildContext context) {
+  final bottomPadding = MediaQuery.of(context).padding.bottom; // Get system bottom padding
+
+  return Scaffold(
+    backgroundColor: Colors.black, // Set scaffold background to black
+    appBar: AppBar(
+      title: const Text('Approvals'),
+      backgroundColor: Color(0xFFB84542),
+      foregroundColor: Colors.white,
+      bottom: TabBar(
+        controller: _tabController,
+        indicatorColor: Colors.purple,
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.white.withOpacity(0.7),
+        tabs: const [
+          Tab(text: 'Pending'),
+          Tab(text: 'Approved'),
+          Tab(text: 'Rejected'),
+        ],
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/background.png'), // Add your background image here
-            fit: BoxFit.cover,
+    ),
+    body: Stack(
+      children: [
+        // Black background layer
+        Container(color: Colors.black),
+        
+        // Background image
+        Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/background.png'),
+              fit: BoxFit.cover,
+            ),
           ),
         ),
-        child: TabBarView(
-          controller: _tabController,
-          children: [
-            // Pending Tab
-            ListView.builder(
-              itemCount: pendingEntries.length,
-              itemBuilder: (context, index) {
-                var entry = pendingEntries[index];
-                return Container(
-                  color: Color(0xFFFDEEEE).withOpacity(0.8), // Light orange background with opacity
-                  margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-                  child: ListTile(
-                    title: Text('${entry['empId']} - ${entry['firstName']} - ${entry['date']}', style: TextStyle(color: Colors.black)),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('${entry['locationIn']} to ${entry['locationOut']} (${entry['totalHours']} hrs)', style: TextStyle(color: Colors.black)),
-                        if (entry['reason'] != null) // Display reason if it exists
-                          Text('Reason: ${entry['reason']}', style: TextStyle(color: Colors.black)),
-                      ],
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.check, color: Colors.green),
-                          onPressed: () {
-                            updateApproval(entry['empId'], entry['date'], 'Approved');
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.close, color: Colors.red),
-                          onPressed: () {
-                            updateApproval(entry['empId'], entry['date'], 'Rejected');
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-            // Approved Tab
-            ListView.builder(
-              itemCount: approvedEntries.length,
-              itemBuilder: (context, index) {
-                var entry = approvedEntries[index];
-                return Container(
-                  color: Color(0xFFE8F5E9).withOpacity(0.8), // Light green background with opacity
-                  margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-                  child: ListTile(
-                    title: Text('${entry['empId']} - ${entry['firstName']} - ${entry['date']}', style: TextStyle(color: Colors.black)),
-                    subtitle: Text('Approved', style: TextStyle(color: Colors.black)),
-                  ),
-                );
-              },
-            ),
-            // Rejected Tab
-            ListView.builder(
-              itemCount: rejectedEntries.length,
-              itemBuilder: (context, index) {
-                var entry = rejectedEntries[index];
-                return Container(
-                  color: Color(0xFFFFEBEE).withOpacity(0.8), // Light red background with opacity
-                  margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-                  child: ListTile(
-                    title: Text('${entry['empId']} - ${entry['firstName']} - ${entry['date']}', style: TextStyle(color: Colors.black)),
-                    subtitle: Text('Rejected', style: TextStyle(color: Colors.black)),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: Container(
-        color: Colors.black,
-        margin: EdgeInsets.only(bottom: 10),
-        child: Container(
-          height: 60,
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
-          decoration: BoxDecoration(
-            color: Color(0xFFFF7043),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 10,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        
+        // Tab content with bottom padding
+        Padding(
+          padding: EdgeInsets.only(bottom: 60 + bottomPadding), // Account for bottom nav bar height + system padding
+          child: TabBarView(
+            controller: _tabController,
             children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LocationCheckerScreen(empId: widget.empId),
+              // Pending Tab
+              ListView.builder(
+                padding: EdgeInsets.only(bottom: bottomPadding), // Extra padding for scrollable content
+                itemCount: pendingEntries.length,
+                itemBuilder: (context, index) {
+                  var entry = pendingEntries[index];
+                  return Container(
+                    color: Color(0xFFFDEEEE).withOpacity(0.8),
+                    margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                    child: ListTile(
+                      title: Text('${entry['empId']} - ${entry['firstName']} - ${entry['date']}', style: TextStyle(color: Colors.black)),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('${entry['locationIn']} to ${entry['locationOut']} (${entry['totalHours']} hrs)', style: TextStyle(color: Colors.black)),
+                          if (entry['reason'] != null)
+                            Text('Reason: ${entry['reason']}', style: TextStyle(color: Colors.black)),
+                        ],
                       ),
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.home, color: Colors.white),
-                        SizedBox(width: 8),
-                        Text(
-                          'HOME',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.check, color: Colors.green),
+                            onPressed: () {
+                              updateApproval(entry['empId'], entry['date'], 'Approved');
+                            },
                           ),
-                        ),
-                      ],
+                          IconButton(
+                            icon: Icon(Icons.close, color: Colors.red),
+                            onPressed: () {
+                              updateApproval(entry['empId'], entry['date'], 'Rejected');
+                            },
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HistoryScreen(empId: widget.empId),
-                      ),
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.history, color: Colors.white),
-                        SizedBox(width: 8),
-                        Text(
-                          'HISTORY',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
+              // Approved Tab
+              ListView.builder(
+                padding: EdgeInsets.only(bottom: bottomPadding),
+                itemCount: approvedEntries.length,
+                itemBuilder: (context, index) {
+                  var entry = approvedEntries[index];
+                  return Container(
+                    color: Color(0xFFE8F5E9).withOpacity(0.8),
+                    margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                    child: ListTile(
+                      title: Text('${entry['empId']} - ${entry['firstName']} - ${entry['date']}', style: TextStyle(color: Colors.black)),
+                      subtitle: Text('Approved', style: TextStyle(color: Colors.black)),
                     ),
-                  ),
-                ),
+                  );
+                },
+              ),
+              // Rejected Tab
+              ListView.builder(
+                padding: EdgeInsets.only(bottom: bottomPadding),
+                itemCount: rejectedEntries.length,
+                itemBuilder: (context, index) {
+                  var entry = rejectedEntries[index];
+                  return Container(
+                    color: Color(0xFFFFEBEE).withOpacity(0.8),
+                    margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                    child: ListTile(
+                      title: Text('${entry['empId']} - ${entry['firstName']} - ${entry['date']}', style: TextStyle(color: Colors.black)),
+                      subtitle: Text('Rejected', style: TextStyle(color: Colors.black)),
+                    ),
+                  );
+                },
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
+      ],
+    ),
+    
+  );
+}
 }

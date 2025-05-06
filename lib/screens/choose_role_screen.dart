@@ -4,6 +4,8 @@ import 'location_checker_screen.dart';
 import 'service_home_screen.dart';
 
 class ChooseRoleScreen extends StatelessWidget {
+  const ChooseRoleScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

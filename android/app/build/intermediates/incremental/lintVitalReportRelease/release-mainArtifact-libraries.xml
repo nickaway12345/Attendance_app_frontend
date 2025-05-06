@@ -5,9 +5,9 @@
       resolved="__local_aars__:/Users/nikhil/location_checker/android/app/build/intermediates/flutter/release/libs.jar:unspecified"/>
   <library
       name="/Users/nikhil/location_checker/android@@:shared_preferences_android::release"
-      jars="/Users/nikhil/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.6/android/build/.transforms/be998a6faef829c2ee60204ec76c65a3/transformed/out/jars/classes.jar:/Users/nikhil/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.6/android/build/.transforms/be998a6faef829c2ee60204ec76c65a3/transformed/out/jars/libs/R.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/ee32687ef368456741bafea9c51dfd2c/transformed/out/jars/classes.jar:/Users/nikhil/.gradle/caches/transforms-4/ee32687ef368456741bafea9c51dfd2c/transformed/out/jars/libs/R.jar"
       resolved="io.flutter.plugins.sharedpreferences:shared_preferences_android:unspecified"
-      folder="/Users/nikhil/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.6/android/build/.transforms/be998a6faef829c2ee60204ec76c65a3/transformed/out"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/ee32687ef368456741bafea9c51dfd2c/transformed/out"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -18,9 +18,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="/Users/nikhil/location_checker/android@@:worldtime::release"
-      jars="/Users/nikhil/.pub-cache/hosted/pub.dev/worldtime-1.4.2/android/build/.transforms/84a8cd6b08f8e4a644330e201f4edf5c/transformed/out/jars/classes.jar:/Users/nikhil/.pub-cache/hosted/pub.dev/worldtime-1.4.2/android/build/.transforms/84a8cd6b08f8e4a644330e201f4edf5c/transformed/out/jars/libs/R.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/11a0f1212468c5a9f7f357a4d240e4fc/transformed/out/jars/classes.jar:/Users/nikhil/.gradle/caches/transforms-4/11a0f1212468c5a9f7f357a4d240e4fc/transformed/out/jars/libs/R.jar"
       resolved="com.worldtime.worldtime:worldtime:unspecified"
-      folder="/Users/nikhil/.pub-cache/hosted/pub.dev/worldtime-1.4.2/android/build/.transforms/84a8cd6b08f8e4a644330e201f4edf5c/transformed/out"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/11a0f1212468c5a9f7f357a4d240e4fc/transformed/out"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -35,9 +35,9 @@
       resolved="org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22"/>
   <library
       name="/Users/nikhil/location_checker/android@@:connectivity_plus::release"
-      jars="/Users/nikhil/.pub-cache/hosted/pub.dev/connectivity_plus-6.1.3/android/build/.transforms/38720fd27d251bcf0d41767c437e0b9d/transformed/out/jars/classes.jar:/Users/nikhil/.pub-cache/hosted/pub.dev/connectivity_plus-6.1.3/android/build/.transforms/38720fd27d251bcf0d41767c437e0b9d/transformed/out/jars/libs/R.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/8b1fab2b12d8ab510be8c2ba750367d1/transformed/out/jars/classes.jar:/Users/nikhil/.gradle/caches/transforms-4/8b1fab2b12d8ab510be8c2ba750367d1/transformed/out/jars/libs/R.jar"
       resolved="dev.fluttercommunity.plus.connectivity:connectivity_plus:unspecified"
-      folder="/Users/nikhil/.pub-cache/hosted/pub.dev/connectivity_plus-6.1.3/android/build/.transforms/38720fd27d251bcf0d41767c437e0b9d/transformed/out"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/8b1fab2b12d8ab510be8c2ba750367d1/transformed/out"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -48,9 +48,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="/Users/nikhil/location_checker/android@@:device_info_plus::release"
-      jars="/Users/nikhil/.pub-cache/hosted/pub.dev/device_info_plus-11.3.3/android/build/.transforms/70c264571bb0a07b6a9f895b2f521e06/transformed/out/jars/classes.jar:/Users/nikhil/.pub-cache/hosted/pub.dev/device_info_plus-11.3.3/android/build/.transforms/70c264571bb0a07b6a9f895b2f521e06/transformed/out/jars/libs/R.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/2b0708fcf322f19ed0af6aec5e1cd23e/transformed/out/jars/classes.jar:/Users/nikhil/.gradle/caches/transforms-4/2b0708fcf322f19ed0af6aec5e1cd23e/transformed/out/jars/libs/R.jar"
       resolved="dev.fluttercommunity.plus.device_info:device_info_plus:unspecified"
-      folder="/Users/nikhil/.pub-cache/hosted/pub.dev/device_info_plus-11.3.3/android/build/.transforms/70c264571bb0a07b6a9f895b2f521e06/transformed/out"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/2b0708fcf322f19ed0af6aec5e1cd23e/transformed/out"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -61,9 +61,22 @@
       proguardRules="proguard.txt"/>
   <library
       name="/Users/nikhil/location_checker/android@@:flutter_local_notifications::release"
-      jars="/Users/nikhil/.pub-cache/hosted/pub.dev/flutter_local_notifications-15.1.3/android/build/.transforms/8f6da9dd5707bb6d00a5e2bd9651bd8d/transformed/out/jars/classes.jar:/Users/nikhil/.pub-cache/hosted/pub.dev/flutter_local_notifications-15.1.3/android/build/.transforms/8f6da9dd5707bb6d00a5e2bd9651bd8d/transformed/out/jars/libs/R.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/e02f175d16817f53a57b92e0f2883206/transformed/out/jars/classes.jar:/Users/nikhil/.gradle/caches/transforms-4/e02f175d16817f53a57b92e0f2883206/transformed/out/jars/libs/R.jar"
       resolved="com.dexterous.flutterlocalnotifications:flutter_local_notifications:unspecified"
-      folder="/Users/nikhil/.pub-cache/hosted/pub.dev/flutter_local_notifications-15.1.3/android/build/.transforms/8f6da9dd5707bb6d00a5e2bd9651bd8d/transformed/out"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/e02f175d16817f53a57b92e0f2883206/transformed/out"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="/Users/nikhil/location_checker/android@@:flutter_plugin_android_lifecycle::release"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/d3b5b3e0cfd7f52e883e3bab969c1c97/transformed/out/jars/classes.jar:/Users/nikhil/.gradle/caches/transforms-4/d3b5b3e0cfd7f52e883e3bab969c1c97/transformed/out/jars/libs/R.jar"
+      resolved="io.flutter.plugins.flutter_plugin_android_lifecycle:flutter_plugin_android_lifecycle:unspecified"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/d3b5b3e0cfd7f52e883e3bab969c1c97/transformed/out"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -74,9 +87,22 @@
       proguardRules="proguard.txt"/>
   <library
       name="/Users/nikhil/location_checker/android@@:geolocator_android::release"
-      jars="/Users/nikhil/.pub-cache/hosted/pub.dev/geolocator_android-4.6.1/android/build/.transforms/ea56ee1ac569eba7a5709d12fc620293/transformed/out/jars/classes.jar:/Users/nikhil/.pub-cache/hosted/pub.dev/geolocator_android-4.6.1/android/build/.transforms/ea56ee1ac569eba7a5709d12fc620293/transformed/out/jars/libs/R.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/5d86c9742eddf5bee064c7fd9368dd65/transformed/out/jars/classes.jar:/Users/nikhil/.gradle/caches/transforms-4/5d86c9742eddf5bee064c7fd9368dd65/transformed/out/jars/libs/R.jar"
       resolved="com.baseflow.geolocator:geolocator_android:unspecified"
-      folder="/Users/nikhil/.pub-cache/hosted/pub.dev/geolocator_android-4.6.1/android/build/.transforms/ea56ee1ac569eba7a5709d12fc620293/transformed/out"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/5d86c9742eddf5bee064c7fd9368dd65/transformed/out"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="/Users/nikhil/location_checker/android@@:image_picker_android::release"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/adb491b1eef097653f1950300cc87dd4/transformed/out/jars/classes.jar:/Users/nikhil/.gradle/caches/transforms-4/adb491b1eef097653f1950300cc87dd4/transformed/out/jars/libs/R.jar"
+      resolved="io.flutter.plugins.imagepicker:image_picker_android:unspecified"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/adb491b1eef097653f1950300cc87dd4/transformed/out"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -87,9 +113,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="/Users/nikhil/location_checker/android@@:path_provider_android::release"
-      jars="/Users/nikhil/.pub-cache/hosted/pub.dev/path_provider_android-2.2.15/android/build/.transforms/0ee19c48566da239a7872dbf7da532e0/transformed/out/jars/classes.jar:/Users/nikhil/.pub-cache/hosted/pub.dev/path_provider_android-2.2.15/android/build/.transforms/0ee19c48566da239a7872dbf7da532e0/transformed/out/jars/libs/R.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/3797fc0c13c2b28aac522747e694632a/transformed/out/jars/classes.jar:/Users/nikhil/.gradle/caches/transforms-4/3797fc0c13c2b28aac522747e694632a/transformed/out/jars/libs/R.jar"
       resolved="io.flutter.plugins.pathprovider:path_provider_android:unspecified"
-      folder="/Users/nikhil/.pub-cache/hosted/pub.dev/path_provider_android-2.2.15/android/build/.transforms/0ee19c48566da239a7872dbf7da532e0/transformed/out"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/3797fc0c13c2b28aac522747e694632a/transformed/out"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -100,9 +126,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="/Users/nikhil/location_checker/android@@:permission_handler_android::release"
-      jars="/Users/nikhil/.pub-cache/hosted/pub.dev/permission_handler_android-12.1.0/android/build/.transforms/8e47faf408ab5805faf1204fac15d6b4/transformed/out/jars/classes.jar:/Users/nikhil/.pub-cache/hosted/pub.dev/permission_handler_android-12.1.0/android/build/.transforms/8e47faf408ab5805faf1204fac15d6b4/transformed/out/jars/libs/R.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/e4a352ba50d94ae1bf46239037290861/transformed/out/jars/classes.jar:/Users/nikhil/.gradle/caches/transforms-4/e4a352ba50d94ae1bf46239037290861/transformed/out/jars/libs/R.jar"
       resolved="com.baseflow.permissionhandler:permission_handler_android:unspecified"
-      folder="/Users/nikhil/.pub-cache/hosted/pub.dev/permission_handler_android-12.1.0/android/build/.transforms/8e47faf408ab5805faf1204fac15d6b4/transformed/out"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/e4a352ba50d94ae1bf46239037290861/transformed/out"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -113,9 +139,22 @@
       proguardRules="proguard.txt"/>
   <library
       name="/Users/nikhil/location_checker/android@@:sqflite_android::release"
-      jars="/Users/nikhil/.pub-cache/hosted/pub.dev/sqflite_android-2.4.1/android/build/.transforms/6b496e9630604b361cf99c48ee78a9c2/transformed/out/jars/classes.jar:/Users/nikhil/.pub-cache/hosted/pub.dev/sqflite_android-2.4.1/android/build/.transforms/6b496e9630604b361cf99c48ee78a9c2/transformed/out/jars/libs/R.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/6f0400cee67335b32503a0f7a13de9ea/transformed/out/jars/classes.jar:/Users/nikhil/.gradle/caches/transforms-4/6f0400cee67335b32503a0f7a13de9ea/transformed/out/jars/libs/R.jar"
       resolved="com.tekartik.sqflite:sqflite_android:unspecified"
-      folder="/Users/nikhil/.pub-cache/hosted/pub.dev/sqflite_android-2.4.1/android/build/.transforms/6b496e9630604b361cf99c48ee78a9c2/transformed/out"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/6f0400cee67335b32503a0f7a13de9ea/transformed/out"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="/Users/nikhil/location_checker/android@@:url_launcher_android::release"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/ea42cf7ae9ebaebb7038e793427d56c6/transformed/out/jars/classes.jar:/Users/nikhil/.gradle/caches/transforms-4/ea42cf7ae9ebaebb7038e793427d56c6/transformed/out/jars/libs/R.jar"
+      resolved="io.flutter.plugins.urllauncher:url_launcher_android:unspecified"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/ea42cf7ae9ebaebb7038e793427d56c6/transformed/out"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -126,9 +165,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="/Users/nikhil/location_checker/android@@:vibration::release"
-      jars="/Users/nikhil/.pub-cache/hosted/pub.dev/vibration-1.9.0/android/build/.transforms/38c550ddc5f39e584062f0deff3c7b18/transformed/out/jars/classes.jar:/Users/nikhil/.pub-cache/hosted/pub.dev/vibration-1.9.0/android/build/.transforms/38c550ddc5f39e584062f0deff3c7b18/transformed/out/jars/libs/R.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/c5adb6eda3089a64952646fed78ef76b/transformed/out/jars/classes.jar:/Users/nikhil/.gradle/caches/transforms-4/c5adb6eda3089a64952646fed78ef76b/transformed/out/jars/libs/R.jar"
       resolved="com.benjaminabel.vibration:vibration:unspecified"
-      folder="/Users/nikhil/.pub-cache/hosted/pub.dev/vibration-1.9.0/android/build/.transforms/38c550ddc5f39e584062f0deff3c7b18/transformed/out"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/c5adb6eda3089a64952646fed78ef76b/transformed/out"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -139,9 +178,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="/Users/nikhil/location_checker/android@@:video_player_android::release"
-      jars="/Users/nikhil/.pub-cache/hosted/pub.dev/video_player_android-2.8.1/android/build/.transforms/e769a26dde6cbdc47af80047dc3893ea/transformed/out/jars/classes.jar:/Users/nikhil/.pub-cache/hosted/pub.dev/video_player_android-2.8.1/android/build/.transforms/e769a26dde6cbdc47af80047dc3893ea/transformed/out/jars/libs/R.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/a747f172a7a54b38ee629e73f22deb96/transformed/out/jars/classes.jar:/Users/nikhil/.gradle/caches/transforms-4/a747f172a7a54b38ee629e73f22deb96/transformed/out/jars/libs/R.jar"
       resolved="io.flutter.plugins.videoplayer:video_player_android:unspecified"
-      folder="/Users/nikhil/.pub-cache/hosted/pub.dev/video_player_android-2.8.1/android/build/.transforms/e769a26dde6cbdc47af80047dc3893ea/transformed/out"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/a747f172a7a54b38ee629e73f22deb96/transformed/out"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -156,9 +195,9 @@
       resolved="io.flutter:flutter_embedding_release:1.0.0-f73bfc4522dd0bc87bbcdb4bb3088082755c5e87"/>
   <library
       name="androidx.fragment:fragment:1.7.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/0fa19f890be5fc9faed7c32d5207a189/transformed/fragment-1.7.1/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/a11d526518b7bab9da8442b5578c8dcf/transformed/fragment-1.7.1/jars/classes.jar"
       resolved="androidx.fragment:fragment:1.7.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/0fa19f890be5fc9faed7c32d5207a189/transformed/fragment-1.7.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/a11d526518b7bab9da8442b5578c8dcf/transformed/fragment-1.7.1"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -168,10 +207,10 @@
       externalAnnotations="annotations.zip"
       proguardRules="proguard.txt"/>
   <library
-      name="androidx.activity:activity:1.8.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/f2b07e04d6cefac0d535638104b1d5cd/transformed/jetified-activity-1.8.1/jars/classes.jar"
-      resolved="androidx.activity:activity:1.8.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/f2b07e04d6cefac0d535638104b1d5cd/transformed/jetified-activity-1.8.1"
+      name="androidx.activity:activity:1.9.3@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/224aa8f2bbf955f09738fa3adbc74b9f/transformed/jetified-activity-1.9.3/jars/classes.jar"
+      resolved="androidx.activity:activity:1.9.3"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/224aa8f2bbf955f09738fa3adbc74b9f/transformed/jetified-activity-1.9.3"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -182,9 +221,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.loader:loader:1.0.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/68f0eed72e231650668a8b0b3e123f6d/transformed/loader-1.0.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/cd343cbe7036b6e4d788a7df1cdb6c42/transformed/loader-1.0.0/jars/classes.jar"
       resolved="androidx.loader:loader:1.0.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/68f0eed72e231650668a8b0b3e123f6d/transformed/loader-1.0.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/cd343cbe7036b6e4d788a7df1cdb6c42/transformed/loader-1.0.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -195,9 +234,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.lifecycle:lifecycle-livedata-core-ktx:2.7.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/109b2344782c286a318a4f26d0571c16/transformed/jetified-lifecycle-livedata-core-ktx-2.7.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/ec0ab04eb4f936ec9e4e7a60f534b5cc/transformed/jetified-lifecycle-livedata-core-ktx-2.7.0/jars/classes.jar"
       resolved="androidx.lifecycle:lifecycle-livedata-core-ktx:2.7.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/109b2344782c286a318a4f26d0571c16/transformed/jetified-lifecycle-livedata-core-ktx-2.7.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/ec0ab04eb4f936ec9e4e7a60f534b5cc/transformed/jetified-lifecycle-livedata-core-ktx-2.7.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -208,9 +247,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.lifecycle:lifecycle-livedata:2.7.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/8e4b7489304cd6000f4daff24bf8ddd4/transformed/lifecycle-livedata-2.7.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/28f0820c60fd78091f0833b5ce8291c1/transformed/lifecycle-livedata-2.7.0/jars/classes.jar"
       resolved="androidx.lifecycle:lifecycle-livedata:2.7.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/8e4b7489304cd6000f4daff24bf8ddd4/transformed/lifecycle-livedata-2.7.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/28f0820c60fd78091f0833b5ce8291c1/transformed/lifecycle-livedata-2.7.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -221,9 +260,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.lifecycle:lifecycle-viewmodel:2.7.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/ef9aa35cbe70b2a18c675618c4dd1202/transformed/lifecycle-viewmodel-2.7.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/629b5b9ad63749fe53c4002add276a8a/transformed/lifecycle-viewmodel-2.7.0/jars/classes.jar"
       resolved="androidx.lifecycle:lifecycle-viewmodel:2.7.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/ef9aa35cbe70b2a18c675618c4dd1202/transformed/lifecycle-viewmodel-2.7.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/629b5b9ad63749fe53c4002add276a8a/transformed/lifecycle-viewmodel-2.7.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -234,9 +273,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.lifecycle:lifecycle-livedata-core:2.7.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/e179d0b50a330e7de8ff1fd17e8a7e0b/transformed/lifecycle-livedata-core-2.7.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/64ca736c7822e2eed159082ec40b53b0/transformed/lifecycle-livedata-core-2.7.0/jars/classes.jar"
       resolved="androidx.lifecycle:lifecycle-livedata-core:2.7.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/e179d0b50a330e7de8ff1fd17e8a7e0b/transformed/lifecycle-livedata-core-2.7.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/64ca736c7822e2eed159082ec40b53b0/transformed/lifecycle-livedata-core-2.7.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -247,9 +286,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.lifecycle:lifecycle-viewmodel-savedstate:2.7.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/d6b6ea23c18b59c8c093920b13559626/transformed/jetified-lifecycle-viewmodel-savedstate-2.7.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/1521458291cfa7b65579a17e712215e3/transformed/jetified-lifecycle-viewmodel-savedstate-2.7.0/jars/classes.jar"
       resolved="androidx.lifecycle:lifecycle-viewmodel-savedstate:2.7.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/d6b6ea23c18b59c8c093920b13559626/transformed/jetified-lifecycle-viewmodel-savedstate-2.7.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/1521458291cfa7b65579a17e712215e3/transformed/jetified-lifecycle-viewmodel-savedstate-2.7.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -260,9 +299,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.core:core-ktx:1.13.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/3ac2fe4709bc237b0d297b77ec66a2b9/transformed/jetified-core-ktx-1.13.1/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/fe687b359e08a6bf2e851af04a52c582/transformed/jetified-core-ktx-1.13.1/jars/classes.jar"
       resolved="androidx.core:core-ktx:1.13.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/3ac2fe4709bc237b0d297b77ec66a2b9/transformed/jetified-core-ktx-1.13.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/fe687b359e08a6bf2e851af04a52c582/transformed/jetified-core-ktx-1.13.1"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -273,9 +312,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.viewpager:viewpager:1.0.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/76d5e0b39ae6b299f53f679709fb7d28/transformed/viewpager-1.0.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/f83953bedf696e01521cab36e69a4223/transformed/viewpager-1.0.0/jars/classes.jar"
       resolved="androidx.viewpager:viewpager:1.0.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/76d5e0b39ae6b299f53f679709fb7d28/transformed/viewpager-1.0.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/f83953bedf696e01521cab36e69a4223/transformed/viewpager-1.0.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -286,9 +325,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.customview:customview:1.1.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/38d62cc44268dfe8bcbdb7aa5d74a922/transformed/customview-1.1.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/40b0c80eb66790ea9446e2e733745338/transformed/customview-1.1.0/jars/classes.jar"
       resolved="androidx.customview:customview:1.1.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/38d62cc44268dfe8bcbdb7aa5d74a922/transformed/customview-1.1.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/40b0c80eb66790ea9446e2e733745338/transformed/customview-1.1.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -299,9 +338,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.core:core:1.13.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/59e616f09c8f1e501b487b889c2419b4/transformed/core-1.13.1/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/ec13ee5e1587cd569a68cc409b4b71a2/transformed/core-1.13.1/jars/classes.jar"
       resolved="androidx.core:core:1.13.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/59e616f09c8f1e501b487b889c2419b4/transformed/core-1.13.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/ec13ee5e1587cd569a68cc409b4b71a2/transformed/core-1.13.1"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -312,9 +351,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.lifecycle:lifecycle-runtime:2.7.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/871514bd3fd80cf593328d7d0cfb0292/transformed/lifecycle-runtime-2.7.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/ec1aa64def5b0c468ecbcdf3a2b259ef/transformed/lifecycle-runtime-2.7.0/jars/classes.jar"
       resolved="androidx.lifecycle:lifecycle-runtime:2.7.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/871514bd3fd80cf593328d7d0cfb0292/transformed/lifecycle-runtime-2.7.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/ec1aa64def5b0c468ecbcdf3a2b259ef/transformed/lifecycle-runtime-2.7.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -325,9 +364,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.lifecycle:lifecycle-process:2.7.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/a047897fde424c70e59a88006f4100dd/transformed/jetified-lifecycle-process-2.7.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/104ef9e609acb3824482a5ccd4f9cbcf/transformed/jetified-lifecycle-process-2.7.0/jars/classes.jar"
       resolved="androidx.lifecycle:lifecycle-process:2.7.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/a047897fde424c70e59a88006f4100dd/transformed/jetified-lifecycle-process-2.7.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/104ef9e609acb3824482a5ccd4f9cbcf/transformed/jetified-lifecycle-process-2.7.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -346,9 +385,9 @@
       resolved="androidx.lifecycle:lifecycle-common:2.7.0"/>
   <library
       name="androidx.window:window:1.2.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/7ac176553e0defb187a48e13d2d7f494/transformed/jetified-window-1.2.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/8d8fe819e4b984ebaf1480f58022c880/transformed/jetified-window-1.2.0/jars/classes.jar"
       resolved="androidx.window:window:1.2.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/7ac176553e0defb187a48e13d2d7f494/transformed/jetified-window-1.2.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/8d8fe819e4b984ebaf1480f58022c880/transformed/jetified-window-1.2.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -359,9 +398,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.window:window-java:1.2.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/2a5f6dd2f7e126cb2fceb759dd4e7d05/transformed/jetified-window-java-1.2.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/47780dd0fde8ca6b4eb491a2804047f5/transformed/jetified-window-java-1.2.0/jars/classes.jar"
       resolved="androidx.window:window-java:1.2.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/2a5f6dd2f7e126cb2fceb759dd4e7d05/transformed/jetified-window-java-1.2.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/47780dd0fde8ca6b4eb491a2804047f5/transformed/jetified-window-java-1.2.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -372,9 +411,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.annotation:annotation-experimental:1.4.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/9b1845dfcdb30f2a39605cf07e57f640/transformed/jetified-annotation-experimental-1.4.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/433ce42803f982c447b0d6be24a3bd1a/transformed/jetified-annotation-experimental-1.4.0/jars/classes.jar"
       resolved="androidx.annotation:annotation-experimental:1.4.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/9b1845dfcdb30f2a39605cf07e57f640/transformed/jetified-annotation-experimental-1.4.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/433ce42803f982c447b0d6be24a3bd1a/transformed/jetified-annotation-experimental-1.4.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -385,9 +424,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.savedstate:savedstate:1.2.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/c13ed163c71b0e489dc66b0fb56aaed1/transformed/jetified-savedstate-1.2.1/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/cc5fb7e483c92f5f7d5f624089242165/transformed/jetified-savedstate-1.2.1/jars/classes.jar"
       resolved="androidx.savedstate:savedstate:1.2.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/c13ed163c71b0e489dc66b0fb56aaed1/transformed/jetified-savedstate-1.2.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/cc5fb7e483c92f5f7d5f624089242165/transformed/jetified-savedstate-1.2.1"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -398,9 +437,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.arch.core:core-runtime:2.2.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/24511669c5464d7fd3d225bdf15f2636/transformed/core-runtime-2.2.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/21fa685b500825fa0adeaf4246b3cba7/transformed/core-runtime-2.2.0/jars/classes.jar"
       resolved="androidx.arch.core:core-runtime:2.2.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/24511669c5464d7fd3d225bdf15f2636/transformed/core-runtime-2.2.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/21fa685b500825fa0adeaf4246b3cba7/transformed/core-runtime-2.2.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -415,9 +454,9 @@
       resolved="androidx.arch.core:core-common:2.2.0"/>
   <library
       name="androidx.versionedparcelable:versionedparcelable:1.1.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/5d86e922a4a00b751aaefce32d4dacdf/transformed/versionedparcelable-1.1.1/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/5a29f7f9d8adef3d385ed9fedb213749/transformed/versionedparcelable-1.1.1/jars/classes.jar"
       resolved="androidx.versionedparcelable:versionedparcelable:1.1.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/5d86e922a4a00b751aaefce32d4dacdf/transformed/versionedparcelable-1.1.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/5a29f7f9d8adef3d385ed9fedb213749/transformed/versionedparcelable-1.1.1"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -468,9 +507,9 @@
       resolved="org.jetbrains:annotations:23.0.0"/>
   <library
       name="androidx.startup:startup-runtime:1.1.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/da959c0f270eafb7295761e1553327b8/transformed/jetified-startup-runtime-1.1.1/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/373de5e97aadb6f5704709b96d7bd874/transformed/jetified-startup-runtime-1.1.1/jars/classes.jar"
       resolved="androidx.startup:startup-runtime:1.1.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/da959c0f270eafb7295761e1553327b8/transformed/jetified-startup-runtime-1.1.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/373de5e97aadb6f5704709b96d7bd874/transformed/jetified-startup-runtime-1.1.1"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -481,9 +520,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.tracing:tracing:1.2.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/b6aa9aa17b47bf0d5384ff540565e451/transformed/jetified-tracing-1.2.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/a8e7b369dba293b176d139951443f82a/transformed/jetified-tracing-1.2.0/jars/classes.jar"
       resolved="androidx.tracing:tracing:1.2.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/b6aa9aa17b47bf0d5384ff540565e451/transformed/jetified-tracing-1.2.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/a8e7b369dba293b176d139951443f82a/transformed/jetified-tracing-1.2.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -494,9 +533,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="com.getkeepsafe.relinker:relinker:1.4.5@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/5e96c23021fa580d1918636f04fa9c75/transformed/jetified-relinker-1.4.5/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/ca9d1585d0a03abd83158e84ab9bf690/transformed/jetified-relinker-1.4.5/jars/classes.jar"
       resolved="com.getkeepsafe.relinker:relinker:1.4.5"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/5e96c23021fa580d1918636f04fa9c75/transformed/jetified-relinker-1.4.5"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/ca9d1585d0a03abd83158e84ab9bf690/transformed/jetified-relinker-1.4.5"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -507,9 +546,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="com.google.android.gms:play-services-location:21.2.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/90c145c6654263e9bd20394ef80d0ae8/transformed/jetified-play-services-location-21.2.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/146db19eb9812b0a52aceae363e0912c/transformed/jetified-play-services-location-21.2.0/jars/classes.jar"
       resolved="com.google.android.gms:play-services-location:21.2.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/90c145c6654263e9bd20394ef80d0ae8/transformed/jetified-play-services-location-21.2.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/146db19eb9812b0a52aceae363e0912c/transformed/jetified-play-services-location-21.2.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -520,204 +559,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.media:media:1.1.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/e487e6f33ad69a0cff26216a310d67fa/transformed/media-1.1.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/6c277e2518ac17b5fb8a2bb411b1529b/transformed/media-1.1.0/jars/classes.jar"
       resolved="androidx.media:media:1.1.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/e487e6f33ad69a0cff26216a310d67fa/transformed/media-1.1.0"
-      manifest="AndroidManifest.xml"
-      resFolder="res"
-      assetsFolder="assets"
-      lintJar="lint.jar"
-      publicResources="public.txt"
-      symbolFile="R.txt"
-      externalAnnotations="annotations.zip"
-      proguardRules="proguard.txt"/>
-  <library
-      name="androidx.preference:preference:1.2.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/ba38ccded8635c6ff74ef6abc9dce11a/transformed/preference-1.2.1/jars/classes.jar"
-      resolved="androidx.preference:preference:1.2.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/ba38ccded8635c6ff74ef6abc9dce11a/transformed/preference-1.2.1"
-      manifest="AndroidManifest.xml"
-      resFolder="res"
-      assetsFolder="assets"
-      lintJar="lint.jar"
-      publicResources="public.txt"
-      symbolFile="R.txt"
-      externalAnnotations="annotations.zip"
-      proguardRules="proguard.txt"/>
-  <library
-      name="androidx.media3:media3-extractor:1.4.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/1ad3f25192ba3f07ab89edfe83f0797e/transformed/jetified-media3-extractor-1.4.1/jars/classes.jar"
-      resolved="androidx.media3:media3-extractor:1.4.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/1ad3f25192ba3f07ab89edfe83f0797e/transformed/jetified-media3-extractor-1.4.1"
-      manifest="AndroidManifest.xml"
-      resFolder="res"
-      assetsFolder="assets"
-      lintJar="lint.jar"
-      publicResources="public.txt"
-      symbolFile="R.txt"
-      externalAnnotations="annotations.zip"
-      proguardRules="proguard.txt"/>
-  <library
-      name="androidx.media3:media3-container:1.4.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/099a70ca6329f41fbbf91491460a1fed/transformed/jetified-media3-container-1.4.1/jars/classes.jar"
-      resolved="androidx.media3:media3-container:1.4.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/099a70ca6329f41fbbf91491460a1fed/transformed/jetified-media3-container-1.4.1"
-      manifest="AndroidManifest.xml"
-      resFolder="res"
-      assetsFolder="assets"
-      lintJar="lint.jar"
-      publicResources="public.txt"
-      symbolFile="R.txt"
-      externalAnnotations="annotations.zip"
-      proguardRules="proguard.txt"/>
-  <library
-      name="androidx.media3:media3-datasource:1.4.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/09da7a36be51d67ed3e2567da7aaa827/transformed/jetified-media3-datasource-1.4.1/jars/classes.jar"
-      resolved="androidx.media3:media3-datasource:1.4.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/09da7a36be51d67ed3e2567da7aaa827/transformed/jetified-media3-datasource-1.4.1"
-      manifest="AndroidManifest.xml"
-      resFolder="res"
-      assetsFolder="assets"
-      lintJar="lint.jar"
-      publicResources="public.txt"
-      symbolFile="R.txt"
-      externalAnnotations="annotations.zip"
-      proguardRules="proguard.txt"/>
-  <library
-      name="androidx.media3:media3-decoder:1.4.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/6762ad0d4b536c22d9d9ed561155b5f8/transformed/jetified-media3-decoder-1.4.1/jars/classes.jar"
-      resolved="androidx.media3:media3-decoder:1.4.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/6762ad0d4b536c22d9d9ed561155b5f8/transformed/jetified-media3-decoder-1.4.1"
-      manifest="AndroidManifest.xml"
-      resFolder="res"
-      assetsFolder="assets"
-      lintJar="lint.jar"
-      publicResources="public.txt"
-      symbolFile="R.txt"
-      externalAnnotations="annotations.zip"
-      proguardRules="proguard.txt"/>
-  <library
-      name="androidx.media3:media3-database:1.4.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/6ff5ddd9b41b70ddbb82373d50b320fb/transformed/jetified-media3-database-1.4.1/jars/classes.jar"
-      resolved="androidx.media3:media3-database:1.4.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/6ff5ddd9b41b70ddbb82373d50b320fb/transformed/jetified-media3-database-1.4.1"
-      manifest="AndroidManifest.xml"
-      resFolder="res"
-      assetsFolder="assets"
-      lintJar="lint.jar"
-      publicResources="public.txt"
-      symbolFile="R.txt"
-      externalAnnotations="annotations.zip"
-      proguardRules="proguard.txt"/>
-  <library
-      name="androidx.media3:media3-common:1.4.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/829341f7278de19661b9293ae13f70d3/transformed/jetified-media3-common-1.4.1/jars/classes.jar"
-      resolved="androidx.media3:media3-common:1.4.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/829341f7278de19661b9293ae13f70d3/transformed/jetified-media3-common-1.4.1"
-      manifest="AndroidManifest.xml"
-      resFolder="res"
-      assetsFolder="assets"
-      lintJar="lint.jar"
-      publicResources="public.txt"
-      symbolFile="R.txt"
-      externalAnnotations="annotations.zip"
-      proguardRules="proguard.txt"/>
-  <library
-      name="androidx.media3:media3-exoplayer-hls:1.4.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/300731cae15a7341e4ace9001853d301/transformed/jetified-media3-exoplayer-hls-1.4.1/jars/classes.jar"
-      resolved="androidx.media3:media3-exoplayer-hls:1.4.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/300731cae15a7341e4ace9001853d301/transformed/jetified-media3-exoplayer-hls-1.4.1"
-      manifest="AndroidManifest.xml"
-      resFolder="res"
-      assetsFolder="assets"
-      lintJar="lint.jar"
-      publicResources="public.txt"
-      symbolFile="R.txt"
-      externalAnnotations="annotations.zip"
-      proguardRules="proguard.txt"/>
-  <library
-      name="androidx.media3:media3-exoplayer-dash:1.4.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/07aa1a0a80363788e4bf9f4eee9584c8/transformed/jetified-media3-exoplayer-dash-1.4.1/jars/classes.jar"
-      resolved="androidx.media3:media3-exoplayer-dash:1.4.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/07aa1a0a80363788e4bf9f4eee9584c8/transformed/jetified-media3-exoplayer-dash-1.4.1"
-      manifest="AndroidManifest.xml"
-      resFolder="res"
-      assetsFolder="assets"
-      lintJar="lint.jar"
-      publicResources="public.txt"
-      symbolFile="R.txt"
-      externalAnnotations="annotations.zip"
-      proguardRules="proguard.txt"/>
-  <library
-      name="androidx.media3:media3-exoplayer-rtsp:1.4.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/ad77414e8a7ab844e09537d0588181f2/transformed/jetified-media3-exoplayer-rtsp-1.4.1/jars/classes.jar"
-      resolved="androidx.media3:media3-exoplayer-rtsp:1.4.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/ad77414e8a7ab844e09537d0588181f2/transformed/jetified-media3-exoplayer-rtsp-1.4.1"
-      manifest="AndroidManifest.xml"
-      resFolder="res"
-      assetsFolder="assets"
-      lintJar="lint.jar"
-      publicResources="public.txt"
-      symbolFile="R.txt"
-      externalAnnotations="annotations.zip"
-      proguardRules="proguard.txt"/>
-  <library
-      name="androidx.media3:media3-exoplayer-smoothstreaming:1.4.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/eb98c9c86cc281af3a35698d7a45ef81/transformed/jetified-media3-exoplayer-smoothstreaming-1.4.1/jars/classes.jar"
-      resolved="androidx.media3:media3-exoplayer-smoothstreaming:1.4.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/eb98c9c86cc281af3a35698d7a45ef81/transformed/jetified-media3-exoplayer-smoothstreaming-1.4.1"
-      manifest="AndroidManifest.xml"
-      resFolder="res"
-      assetsFolder="assets"
-      lintJar="lint.jar"
-      publicResources="public.txt"
-      symbolFile="R.txt"
-      externalAnnotations="annotations.zip"
-      proguardRules="proguard.txt"/>
-  <library
-      name="androidx.media3:media3-exoplayer:1.4.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/767c248775b9d73a0ef39bd17a8ac9c9/transformed/jetified-media3-exoplayer-1.4.1/jars/classes.jar"
-      resolved="androidx.media3:media3-exoplayer:1.4.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/767c248775b9d73a0ef39bd17a8ac9c9/transformed/jetified-media3-exoplayer-1.4.1"
-      manifest="AndroidManifest.xml"
-      resFolder="res"
-      assetsFolder="assets"
-      lintJar="lint.jar"
-      publicResources="public.txt"
-      symbolFile="R.txt"
-      externalAnnotations="annotations.zip"
-      proguardRules="proguard.txt"/>
-  <library
-      name="androidx.recyclerview:recyclerview:1.0.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/fa1012f7d6a181f2d9c89073673ce168/transformed/recyclerview-1.0.0/jars/classes.jar"
-      resolved="androidx.recyclerview:recyclerview:1.0.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/fa1012f7d6a181f2d9c89073673ce168/transformed/recyclerview-1.0.0"
-      manifest="AndroidManifest.xml"
-      resFolder="res"
-      assetsFolder="assets"
-      lintJar="lint.jar"
-      publicResources="public.txt"
-      symbolFile="R.txt"
-      externalAnnotations="annotations.zip"
-      proguardRules="proguard.txt"/>
-  <library
-      name="androidx.legacy:legacy-support-core-ui:1.0.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/342b8e16bc9dda11e136019ca5656a5a/transformed/legacy-support-core-ui-1.0.0/jars/classes.jar"
-      resolved="androidx.legacy:legacy-support-core-ui:1.0.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/342b8e16bc9dda11e136019ca5656a5a/transformed/legacy-support-core-ui-1.0.0"
-      manifest="AndroidManifest.xml"
-      resFolder="res"
-      assetsFolder="assets"
-      lintJar="lint.jar"
-      publicResources="public.txt"
-      symbolFile="R.txt"
-      externalAnnotations="annotations.zip"
-      proguardRules="proguard.txt"/>
-  <library
-      name="androidx.slidingpanelayout:slidingpanelayout:1.2.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/0fd0fb4f53e9fce43a65a29aaa163777/transformed/slidingpanelayout-1.2.0/jars/classes.jar"
-      resolved="androidx.slidingpanelayout:slidingpanelayout:1.2.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/0fd0fb4f53e9fce43a65a29aaa163777/transformed/slidingpanelayout-1.2.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/6c277e2518ac17b5fb8a2bb411b1529b/transformed/media-1.1.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -728,9 +572,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="com.google.android.gms:play-services-base:18.3.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/c9a30fbe63cd468a1bbceb04cebf2c0c/transformed/jetified-play-services-base-18.3.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/08c3e8f7b38214eb4e68b4e3af210577/transformed/jetified-play-services-base-18.3.0/jars/classes.jar"
       resolved="com.google.android.gms:play-services-base:18.3.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/c9a30fbe63cd468a1bbceb04cebf2c0c/transformed/jetified-play-services-base-18.3.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/08c3e8f7b38214eb4e68b4e3af210577/transformed/jetified-play-services-base-18.3.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -741,9 +585,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="com.google.android.gms:play-services-tasks:18.1.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/c0f9d6d0a188e7faa804a213f5f62905/transformed/jetified-play-services-tasks-18.1.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/fe4cea969dbf26cc036c4bfb054c3d3d/transformed/jetified-play-services-tasks-18.1.0/jars/classes.jar"
       resolved="com.google.android.gms:play-services-tasks:18.1.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/c0f9d6d0a188e7faa804a213f5f62905/transformed/jetified-play-services-tasks-18.1.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/fe4cea969dbf26cc036c4bfb054c3d3d/transformed/jetified-play-services-tasks-18.1.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -754,9 +598,22 @@
       proguardRules="proguard.txt"/>
   <library
       name="com.google.android.gms:play-services-basement:18.3.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/1ac7c1979f46983e7ecb3f41a16bbaf0/transformed/jetified-play-services-basement-18.3.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/b7fe9855c771c76dd2a79ed50b2cdc85/transformed/jetified-play-services-basement-18.3.0/jars/classes.jar"
       resolved="com.google.android.gms:play-services-basement:18.3.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/1ac7c1979f46983e7ecb3f41a16bbaf0/transformed/jetified-play-services-basement-18.3.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/b7fe9855c771c76dd2a79ed50b2cdc85/transformed/jetified-play-services-basement-18.3.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.preference:preference:1.2.1@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/e30b278f5646378a2bdb053331fbf542/transformed/preference-1.2.1/jars/classes.jar"
+      resolved="androidx.preference:preference:1.2.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/e30b278f5646378a2bdb053331fbf542/transformed/preference-1.2.1"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -767,9 +624,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.appcompat:appcompat:1.1.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/e8f081b825f6c06f4374711076507e7b/transformed/appcompat-1.1.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/496696192637638c388a31e7a0bfe7c6/transformed/appcompat-1.1.0/jars/classes.jar"
       resolved="androidx.appcompat:appcompat:1.1.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/e8f081b825f6c06f4374711076507e7b/transformed/appcompat-1.1.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/496696192637638c388a31e7a0bfe7c6/transformed/appcompat-1.1.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -780,9 +637,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.fragment:fragment-ktx:1.7.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/afd698f71d18f2b3f3b6769d907bb31d/transformed/jetified-fragment-ktx-1.7.1/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/2370766cda29a7be829d667cddb07753/transformed/jetified-fragment-ktx-1.7.1/jars/classes.jar"
       resolved="androidx.fragment:fragment-ktx:1.7.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/afd698f71d18f2b3f3b6769d907bb31d/transformed/jetified-fragment-ktx-1.7.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/2370766cda29a7be829d667cddb07753/transformed/jetified-fragment-ktx-1.7.1"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -792,10 +649,205 @@
       externalAnnotations="annotations.zip"
       proguardRules="proguard.txt"/>
   <library
-      name="androidx.activity:activity-ktx:1.8.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/84445d07db066b3216b621b3377d4f5e/transformed/jetified-activity-ktx-1.8.1/jars/classes.jar"
-      resolved="androidx.activity:activity-ktx:1.8.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/84445d07db066b3216b621b3377d4f5e/transformed/jetified-activity-ktx-1.8.1"
+      name="androidx.activity:activity-ktx:1.9.3@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/e5110a923466e34dd24dfc6155a27418/transformed/jetified-activity-ktx-1.9.3/jars/classes.jar"
+      resolved="androidx.activity:activity-ktx:1.9.3"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/e5110a923466e34dd24dfc6155a27418/transformed/jetified-activity-ktx-1.9.3"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.browser:browser:1.8.0@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/f305e1d77e7e96a1fdc69247c19db9e3/transformed/browser-1.8.0/jars/classes.jar"
+      resolved="androidx.browser:browser:1.8.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/f305e1d77e7e96a1fdc69247c19db9e3/transformed/browser-1.8.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.media3:media3-extractor:1.4.1@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/6de7735d0b3ecd9592048595402ca160/transformed/jetified-media3-extractor-1.4.1/jars/classes.jar"
+      resolved="androidx.media3:media3-extractor:1.4.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/6de7735d0b3ecd9592048595402ca160/transformed/jetified-media3-extractor-1.4.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.media3:media3-container:1.4.1@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/d4743585414f7431be42bcbc6f662d52/transformed/jetified-media3-container-1.4.1/jars/classes.jar"
+      resolved="androidx.media3:media3-container:1.4.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/d4743585414f7431be42bcbc6f662d52/transformed/jetified-media3-container-1.4.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.media3:media3-datasource:1.4.1@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/7658e96680721d9c2efebbc15e8c5841/transformed/jetified-media3-datasource-1.4.1/jars/classes.jar"
+      resolved="androidx.media3:media3-datasource:1.4.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/7658e96680721d9c2efebbc15e8c5841/transformed/jetified-media3-datasource-1.4.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.media3:media3-decoder:1.4.1@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/0dfd0c1b6c3a8a24970fdd61ebfec229/transformed/jetified-media3-decoder-1.4.1/jars/classes.jar"
+      resolved="androidx.media3:media3-decoder:1.4.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/0dfd0c1b6c3a8a24970fdd61ebfec229/transformed/jetified-media3-decoder-1.4.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.media3:media3-database:1.4.1@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/4b0fbc14568a022edd03ba6e32a35c48/transformed/jetified-media3-database-1.4.1/jars/classes.jar"
+      resolved="androidx.media3:media3-database:1.4.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/4b0fbc14568a022edd03ba6e32a35c48/transformed/jetified-media3-database-1.4.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.media3:media3-common:1.4.1@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/26d63467a99f25dadb086add8593eb12/transformed/jetified-media3-common-1.4.1/jars/classes.jar"
+      resolved="androidx.media3:media3-common:1.4.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/26d63467a99f25dadb086add8593eb12/transformed/jetified-media3-common-1.4.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.media3:media3-exoplayer-hls:1.4.1@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/f2279ee2c72783ba1944100350455ca0/transformed/jetified-media3-exoplayer-hls-1.4.1/jars/classes.jar"
+      resolved="androidx.media3:media3-exoplayer-hls:1.4.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/f2279ee2c72783ba1944100350455ca0/transformed/jetified-media3-exoplayer-hls-1.4.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.media3:media3-exoplayer-dash:1.4.1@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/0f44cdbe61ea28e4bbccdd6b88cf2608/transformed/jetified-media3-exoplayer-dash-1.4.1/jars/classes.jar"
+      resolved="androidx.media3:media3-exoplayer-dash:1.4.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/0f44cdbe61ea28e4bbccdd6b88cf2608/transformed/jetified-media3-exoplayer-dash-1.4.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.media3:media3-exoplayer-rtsp:1.4.1@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/c15b32b2f3ca16a0f6efd5ca6a96ecaa/transformed/jetified-media3-exoplayer-rtsp-1.4.1/jars/classes.jar"
+      resolved="androidx.media3:media3-exoplayer-rtsp:1.4.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/c15b32b2f3ca16a0f6efd5ca6a96ecaa/transformed/jetified-media3-exoplayer-rtsp-1.4.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.media3:media3-exoplayer-smoothstreaming:1.4.1@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/c0c7723f8cdabf6987a165431cd252a3/transformed/jetified-media3-exoplayer-smoothstreaming-1.4.1/jars/classes.jar"
+      resolved="androidx.media3:media3-exoplayer-smoothstreaming:1.4.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/c0c7723f8cdabf6987a165431cd252a3/transformed/jetified-media3-exoplayer-smoothstreaming-1.4.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.media3:media3-exoplayer:1.4.1@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/2b907b383d30ed7cca53e441d2a327c3/transformed/jetified-media3-exoplayer-1.4.1/jars/classes.jar"
+      resolved="androidx.media3:media3-exoplayer:1.4.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/2b907b383d30ed7cca53e441d2a327c3/transformed/jetified-media3-exoplayer-1.4.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.recyclerview:recyclerview:1.0.0@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/019a526ec392d185496ab3cc010a3ff1/transformed/recyclerview-1.0.0/jars/classes.jar"
+      resolved="androidx.recyclerview:recyclerview:1.0.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/019a526ec392d185496ab3cc010a3ff1/transformed/recyclerview-1.0.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.legacy:legacy-support-core-ui:1.0.0@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/268ec2fb3f821065a2d9bb2987d3e2b8/transformed/legacy-support-core-ui-1.0.0/jars/classes.jar"
+      resolved="androidx.legacy:legacy-support-core-ui:1.0.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/268ec2fb3f821065a2d9bb2987d3e2b8/transformed/legacy-support-core-ui-1.0.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.slidingpanelayout:slidingpanelayout:1.2.0@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/c045b00300cdb000c9be3683d6eb0bb4/transformed/slidingpanelayout-1.2.0/jars/classes.jar"
+      resolved="androidx.slidingpanelayout:slidingpanelayout:1.2.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/c045b00300cdb000c9be3683d6eb0bb4/transformed/slidingpanelayout-1.2.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -806,22 +858,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.legacy:legacy-support-core-utils:1.0.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/bac825c508fcfb588e6a05882af0dde1/transformed/legacy-support-core-utils-1.0.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/80ec2e5680fc33b8da23701df6908e67/transformed/legacy-support-core-utils-1.0.0/jars/classes.jar"
       resolved="androidx.legacy:legacy-support-core-utils:1.0.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/bac825c508fcfb588e6a05882af0dde1/transformed/legacy-support-core-utils-1.0.0"
-      manifest="AndroidManifest.xml"
-      resFolder="res"
-      assetsFolder="assets"
-      lintJar="lint.jar"
-      publicResources="public.txt"
-      symbolFile="R.txt"
-      externalAnnotations="annotations.zip"
-      proguardRules="proguard.txt"/>
-  <library
-      name="androidx.lifecycle:lifecycle-runtime-ktx:2.7.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/ed76b671b2758396526c5c2ff7b71ec2/transformed/jetified-lifecycle-runtime-ktx-2.7.0/jars/classes.jar"
-      resolved="androidx.lifecycle:lifecycle-runtime-ktx:2.7.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/ed76b671b2758396526c5c2ff7b71ec2/transformed/jetified-lifecycle-runtime-ktx-2.7.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/80ec2e5680fc33b8da23701df6908e67/transformed/legacy-support-core-utils-1.0.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -832,9 +871,22 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/f30d930c53bd4dedbb75bfb6e38156c6/transformed/jetified-lifecycle-viewmodel-ktx-2.7.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/c30d8f14d6fb45b4c3b308409c070000/transformed/jetified-lifecycle-viewmodel-ktx-2.7.0/jars/classes.jar"
       resolved="androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/f30d930c53bd4dedbb75bfb6e38156c6/transformed/jetified-lifecycle-viewmodel-ktx-2.7.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/c30d8f14d6fb45b4c3b308409c070000/transformed/jetified-lifecycle-viewmodel-ktx-2.7.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.lifecycle:lifecycle-runtime-ktx:2.7.0@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/6d4e8446e1899e14d4ea8e0465f5c932/transformed/jetified-lifecycle-runtime-ktx-2.7.0/jars/classes.jar"
+      resolved="androidx.lifecycle:lifecycle-runtime-ktx:2.7.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/6d4e8446e1899e14d4ea8e0465f5c932/transformed/jetified-lifecycle-runtime-ktx-2.7.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -845,9 +897,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.appcompat:appcompat-resources:1.1.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/635af59a8bffcb75d965a93b3ab0af2e/transformed/jetified-appcompat-resources-1.1.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/30d4775ab10325e47317ba7063b3e743/transformed/jetified-appcompat-resources-1.1.0/jars/classes.jar"
       resolved="androidx.appcompat:appcompat-resources:1.1.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/635af59a8bffcb75d965a93b3ab0af2e/transformed/jetified-appcompat-resources-1.1.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/30d4775ab10325e47317ba7063b3e743/transformed/jetified-appcompat-resources-1.1.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -858,9 +910,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.drawerlayout:drawerlayout:1.0.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/09b3a26b22414a010942edf197071c61/transformed/drawerlayout-1.0.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/ff0c2a34419fb0e599e40f89aa56a607/transformed/drawerlayout-1.0.0/jars/classes.jar"
       resolved="androidx.drawerlayout:drawerlayout:1.0.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/09b3a26b22414a010942edf197071c61/transformed/drawerlayout-1.0.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/ff0c2a34419fb0e599e40f89aa56a607/transformed/drawerlayout-1.0.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -871,9 +923,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.coordinatorlayout:coordinatorlayout:1.0.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/d4035ae6981bad7bb5e6f569e6ba874b/transformed/coordinatorlayout-1.0.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/5fd64c3e56c89cbe230adab8c7d2d521/transformed/coordinatorlayout-1.0.0/jars/classes.jar"
       resolved="androidx.coordinatorlayout:coordinatorlayout:1.0.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/d4035ae6981bad7bb5e6f569e6ba874b/transformed/coordinatorlayout-1.0.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/5fd64c3e56c89cbe230adab8c7d2d521/transformed/coordinatorlayout-1.0.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -884,9 +936,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.transition:transition:1.4.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/a9274e8f458fa8d74105caea80c7a77f/transformed/transition-1.4.1/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/b87829e012ad790431b2cdd2878bb02d/transformed/transition-1.4.1/jars/classes.jar"
       resolved="androidx.transition:transition:1.4.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/a9274e8f458fa8d74105caea80c7a77f/transformed/transition-1.4.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/b87829e012ad790431b2cdd2878bb02d/transformed/transition-1.4.1"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -897,9 +949,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.vectordrawable:vectordrawable-animated:1.1.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/949b3a44a7908699037c1211a54c9458/transformed/vectordrawable-animated-1.1.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/dd1871bdfee257623f1b46710618b202/transformed/vectordrawable-animated-1.1.0/jars/classes.jar"
       resolved="androidx.vectordrawable:vectordrawable-animated:1.1.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/949b3a44a7908699037c1211a54c9458/transformed/vectordrawable-animated-1.1.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/dd1871bdfee257623f1b46710618b202/transformed/vectordrawable-animated-1.1.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -910,9 +962,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.vectordrawable:vectordrawable:1.1.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/dabf838f608b63b132bef2ae95c34ed8/transformed/vectordrawable-1.1.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/ec2f6b1c22b13b2849dae8a9039436c3/transformed/vectordrawable-1.1.0/jars/classes.jar"
       resolved="androidx.vectordrawable:vectordrawable:1.1.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/dabf838f608b63b132bef2ae95c34ed8/transformed/vectordrawable-1.1.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/ec2f6b1c22b13b2849dae8a9039436c3/transformed/vectordrawable-1.1.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -923,9 +975,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.swiperefreshlayout:swiperefreshlayout:1.0.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/d59079a2774279f42e23faa9bc7f9b75/transformed/swiperefreshlayout-1.0.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/c948c2657d54ab5aeb052dd815a9ae34/transformed/swiperefreshlayout-1.0.0/jars/classes.jar"
       resolved="androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/d59079a2774279f42e23faa9bc7f9b75/transformed/swiperefreshlayout-1.0.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/c948c2657d54ab5aeb052dd815a9ae34/transformed/swiperefreshlayout-1.0.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -936,9 +988,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.asynclayoutinflater:asynclayoutinflater:1.0.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/3c0f37845b0d85783c07403fbeb9acc7/transformed/asynclayoutinflater-1.0.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/8ddea55dd0acf63a9db02a19ab95b425/transformed/asynclayoutinflater-1.0.0/jars/classes.jar"
       resolved="androidx.asynclayoutinflater:asynclayoutinflater:1.0.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/3c0f37845b0d85783c07403fbeb9acc7/transformed/asynclayoutinflater-1.0.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/8ddea55dd0acf63a9db02a19ab95b425/transformed/asynclayoutinflater-1.0.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -949,9 +1001,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.savedstate:savedstate-ktx:1.2.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/6fa19a5112f77b0c6609af297dc5cc8a/transformed/jetified-savedstate-ktx-1.2.1/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/86cac9054a60f6135684aad496450d90/transformed/jetified-savedstate-ktx-1.2.1/jars/classes.jar"
       resolved="androidx.savedstate:savedstate-ktx:1.2.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/6fa19a5112f77b0c6609af297dc5cc8a/transformed/jetified-savedstate-ktx-1.2.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/86cac9054a60f6135684aad496450d90/transformed/jetified-savedstate-ktx-1.2.1"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -970,9 +1022,9 @@
       resolved="androidx.datastore:datastore-core-okio-jvm:1.1.1"/>
   <library
       name="androidx.datastore:datastore-core-android:1.1.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/c78e55c8335ee0e5c84b09c0c784f641/transformed/jetified-datastore-core-release/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/86b1ea5309bd6cab965f87a89b91f413/transformed/jetified-datastore-core-release/jars/classes.jar"
       resolved="androidx.datastore:datastore-core-android:1.1.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/c78e55c8335ee0e5c84b09c0c784f641/transformed/jetified-datastore-core-release"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/86b1ea5309bd6cab965f87a89b91f413/transformed/jetified-datastore-core-release"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -983,9 +1035,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.datastore:datastore-preferences-android:1.1.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/9effe8751fecf6f06322e1ea68a97b08/transformed/jetified-datastore-preferences-release/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/5cb1e2cab40ed80a96b294c17d9d5112/transformed/jetified-datastore-preferences-release/jars/classes.jar"
       resolved="androidx.datastore:datastore-preferences-android:1.1.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/9effe8751fecf6f06322e1ea68a97b08/transformed/jetified-datastore-preferences-release"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/5cb1e2cab40ed80a96b294c17d9d5112/transformed/jetified-datastore-preferences-release"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -996,9 +1048,22 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.datastore:datastore-android:1.1.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/7d9abcf323db6115c0129cb9129fd6f4/transformed/jetified-datastore-release/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/2f98b9ce21bfe3b82cb57133a103d6d5/transformed/jetified-datastore-release/jars/classes.jar"
       resolved="androidx.datastore:datastore-android:1.1.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/7d9abcf323db6115c0129cb9129fd6f4/transformed/jetified-datastore-release"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/2f98b9ce21bfe3b82cb57133a103d6d5/transformed/jetified-datastore-release"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.exifinterface:exifinterface:1.3.7@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/413713288d649cbd6dab38161234aaea/transformed/exifinterface-1.3.7/jars/classes.jar"
+      resolved="androidx.exifinterface:exifinterface:1.3.7"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/413713288d649cbd6dab38161234aaea/transformed/exifinterface-1.3.7"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -1009,9 +1074,22 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.profileinstaller:profileinstaller:1.3.1@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/8bb022e04d0cb2e0ab845467cfc5fcc9/transformed/jetified-profileinstaller-1.3.1/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/8199cc875464e32b0b28254e4298b432/transformed/jetified-profileinstaller-1.3.1/jars/classes.jar"
       resolved="androidx.profileinstaller:profileinstaller:1.3.1"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/8bb022e04d0cb2e0ab845467cfc5fcc9/transformed/jetified-profileinstaller-1.3.1"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/8199cc875464e32b0b28254e4298b432/transformed/jetified-profileinstaller-1.3.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
+      name="androidx.interpolator:interpolator:1.0.0@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/aee24dc47d47ee06bf0febd4882a5b86/transformed/interpolator-1.0.0/jars/classes.jar"
+      resolved="androidx.interpolator:interpolator:1.0.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/aee24dc47d47ee06bf0febd4882a5b86/transformed/interpolator-1.0.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -1025,53 +1103,27 @@
       jars="/Users/nikhil/.gradle/caches/modules-2/files-2.1/androidx.collection/collection-ktx/1.1.0/f807b2f366f7b75142a67d2f3c10031065b5168/collection-ktx-1.1.0.jar"
       resolved="androidx.collection:collection-ktx:1.1.0"/>
   <library
-      name="androidx.exifinterface:exifinterface:1.3.6@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/dfef77dd58200f4c56a9ad64cf1afedd/transformed/exifinterface-1.3.6/jars/classes.jar"
-      resolved="androidx.exifinterface:exifinterface:1.3.6"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/dfef77dd58200f4c56a9ad64cf1afedd/transformed/exifinterface-1.3.6"
-      manifest="AndroidManifest.xml"
-      resFolder="res"
-      assetsFolder="assets"
-      lintJar="lint.jar"
-      publicResources="public.txt"
-      symbolFile="R.txt"
-      externalAnnotations="annotations.zip"
-      proguardRules="proguard.txt"/>
-  <library
-      name="androidx.interpolator:interpolator:1.0.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/0da894872bdf02d0cd81f6f44b133bc0/transformed/interpolator-1.0.0/jars/classes.jar"
-      resolved="androidx.interpolator:interpolator:1.0.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/0da894872bdf02d0cd81f6f44b133bc0/transformed/interpolator-1.0.0"
-      manifest="AndroidManifest.xml"
-      resFolder="res"
-      assetsFolder="assets"
-      lintJar="lint.jar"
-      publicResources="public.txt"
-      symbolFile="R.txt"
-      externalAnnotations="annotations.zip"
-      proguardRules="proguard.txt"/>
-  <library
-      name="androidx.cursoradapter:cursoradapter:1.0.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/d233987a82eb9203febaa510636d576a/transformed/cursoradapter-1.0.0/jars/classes.jar"
-      resolved="androidx.cursoradapter:cursoradapter:1.0.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/d233987a82eb9203febaa510636d576a/transformed/cursoradapter-1.0.0"
-      manifest="AndroidManifest.xml"
-      resFolder="res"
-      assetsFolder="assets"
-      lintJar="lint.jar"
-      publicResources="public.txt"
-      symbolFile="R.txt"
-      externalAnnotations="annotations.zip"
-      proguardRules="proguard.txt"/>
-  <library
       name="androidx.concurrent:concurrent-futures:1.1.0@jar"
       jars="/Users/nikhil/.gradle/caches/modules-2/files-2.1/androidx.concurrent/concurrent-futures/1.1.0/50b7fb98350d5f42a4e49704b03278542293ba48/concurrent-futures-1.1.0.jar"
       resolved="androidx.concurrent:concurrent-futures:1.1.0"/>
   <library
+      name="androidx.cursoradapter:cursoradapter:1.0.0@aar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/4aece3989ae662956984f13771a95a65/transformed/cursoradapter-1.0.0/jars/classes.jar"
+      resolved="androidx.cursoradapter:cursoradapter:1.0.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/4aece3989ae662956984f13771a95a65/transformed/cursoradapter-1.0.0"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
       name="androidx.window.extensions.core:core:1.0.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/353e938654d1a3b6c232bd17fdf1d16c/transformed/jetified-core-1.0.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/6512ffa0ef40682ddfc769f958b23cc6/transformed/jetified-core-1.0.0/jars/classes.jar"
       resolved="androidx.window.extensions.core:core:1.0.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/353e938654d1a3b6c232bd17fdf1d16c/transformed/jetified-core-1.0.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/6512ffa0ef40682ddfc769f958b23cc6/transformed/jetified-core-1.0.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -1082,9 +1134,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.documentfile:documentfile:1.0.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/849e5a3be319b9fb41b35a8219e65d50/transformed/documentfile-1.0.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/8199f6780a07821176b0a65a5baa2a1c/transformed/documentfile-1.0.0/jars/classes.jar"
       resolved="androidx.documentfile:documentfile:1.0.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/849e5a3be319b9fb41b35a8219e65d50/transformed/documentfile-1.0.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/8199f6780a07821176b0a65a5baa2a1c/transformed/documentfile-1.0.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -1095,9 +1147,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.localbroadcastmanager:localbroadcastmanager:1.0.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/bb7829b72312cd97adbd8dc05a880d4c/transformed/localbroadcastmanager-1.0.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/b5c1a08bc9c452a5b410e9df805b1373/transformed/localbroadcastmanager-1.0.0/jars/classes.jar"
       resolved="androidx.localbroadcastmanager:localbroadcastmanager:1.0.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/bb7829b72312cd97adbd8dc05a880d4c/transformed/localbroadcastmanager-1.0.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/b5c1a08bc9c452a5b410e9df805b1373/transformed/localbroadcastmanager-1.0.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -1108,9 +1160,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.print:print:1.0.0@aar"
-      jars="/Users/nikhil/.gradle/caches/transforms-3/28ba6b3bb67d39447ce9de991ede8f32/transformed/print-1.0.0/jars/classes.jar"
+      jars="/Users/nikhil/.gradle/caches/transforms-4/2e1d6c088ec84266145d064c4a621361/transformed/print-1.0.0/jars/classes.jar"
       resolved="androidx.print:print:1.0.0"
-      folder="/Users/nikhil/.gradle/caches/transforms-3/28ba6b3bb67d39447ce9de991ede8f32/transformed/print-1.0.0"
+      folder="/Users/nikhil/.gradle/caches/transforms-4/2e1d6c088ec84266145d064c4a621361/transformed/print-1.0.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"

@@ -4,6 +4,13 @@ plugins {
     id 'dev.flutter.flutter-gradle-plugin' // This is the correct Flutter plugin
 }
 
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -28,19 +35,29 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    namespace = "com.example.location_checker"
+    namespace = "com.application.location_checker"
     compileSdkVersion 35
 
     lint {
         baseline = file("lint-baseline.xml")
     }
 
+    signingConfigs {
+        release {
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+        }
+    }
+
     defaultConfig {
-        applicationId "com.example.location_checker"
+        applicationId "com.application.location_checker"
         minSdkVersion 21
         targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        multiDexEnabled true
     }
 
     compileOptions {
@@ -57,10 +74,12 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            signingConfig signingConfigs.debug
-            minifyEnabled true // Enable code shrinking
-            shrinkResources true // Enable resource shrinking
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // Create proper signing config first (see next section)
+            signingConfig signingConfigs.release  
+            debuggable false
+            minifyEnabled false  // Disable for Flutter temporarily
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 }

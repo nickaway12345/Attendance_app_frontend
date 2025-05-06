@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.location_checker.app-mergeReleaseResources-52:/values-night-v8/values-night-v8.xml",
+            "outputFile": "com.application.location_checker.app-mergeReleaseResources-56:/values-night-v8/values-night-v8.xml",
             "map": [
                 {
                     "source": "/Users/nikhil/location_checker/android/app/src/main/res/values-night/styles.xml",
@@ -23,7 +23,7 @@
                     }
                 },
                 {
-                    "source": "/Users/nikhil/.gradle/caches/transforms-3/e8f081b825f6c06f4374711076507e7b/transformed/appcompat-1.1.0/res/values-night-v8/values-night-v8.xml",
+                    "source": "/Users/nikhil/.gradle/caches/transforms-4/496696192637638c388a31e7a0bfe7c6/transformed/appcompat-1.1.0/res/values-night-v8/values-night-v8.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",

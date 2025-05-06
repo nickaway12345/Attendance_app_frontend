@@ -6,7 +6,6 @@ import 'package:location_checker/services/fetchAndSetTime.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:location_checker/screens/location_checker_screen.dart'; // Import your home screen
 
 class ServiceHistoryScreen extends StatefulWidget {
   final String empId;
@@ -17,11 +16,11 @@ class ServiceHistoryScreen extends StatefulWidget {
 }
 
 class _ServiceHistoryScreenState extends State<ServiceHistoryScreen> {
-  Map<int, Map<DateTime, double>> _shiftAttendanceData = {}; // Shift-wise attendance data
-  Map<int, List<DateTime>> _shiftDays = {}; // Shift-wise days with shifts
-  List<Map<String, dynamic>> _shiftTimings = []; // Shift timings data
+  final Map<int, Map<DateTime, double>> _shiftAttendanceData = {};
+  final Map<int, List<DateTime>> _shiftDays = {};
+  List<Map<String, dynamic>> _shiftTimings = [];
   bool _isLoading = true;
-  int _selectedIndex = 1; // Default to History tab
+  int _selectedIndex = 1;
 
   @override
   void initState() {
@@ -33,12 +32,10 @@ class _ServiceHistoryScreenState extends State<ServiceHistoryScreen> {
     try {
       String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
 
-      // Fetch attendance_service data
       final attendanceResponse = await http.get(
         Uri.parse('$baseUrl/api/attendance/service/attendancedata?empId=${widget.empId}'),
       );
 
-      // Fetch shift_timings data
       final shiftResponse = await http.get(
         Uri.parse('$baseUrl/api/shifts/shift_timings?empId=${widget.empId}'),
       );
@@ -47,34 +44,22 @@ class _ServiceHistoryScreenState extends State<ServiceHistoryScreen> {
         final attendanceData = json.decode(attendanceResponse.body) as List;
         final shiftData = json.decode(shiftResponse.body) as List;
 
-        // Print raw attendance and shift data
-        print('Raw Attendance Data: $attendanceData');
-        print('Raw Shift Data: $shiftData');
-
-        // Process shift data
         for (var shift in shiftData) {
           final shiftNumber = shift['shiftNumber'] as int;
           final startDate = DateTime.parse(shift['startTime']).toLocal();
           final endDate = DateTime.parse(shift['endTime']).toLocal();
 
-          // Initialize shift data if not already initialized
           _shiftAttendanceData[shiftNumber] ??= {};
           _shiftDays[shiftNumber] ??= [];
 
-          // Add only the start date of the shift
           final startDateOnly = DateTime(startDate.year, startDate.month, startDate.day);
           if (!_shiftDays[shiftNumber]!.contains(startDateOnly)) {
             _shiftDays[shiftNumber]!.add(startDateOnly);
           }
         }
 
-        // Store shift timings
-        _shiftTimings = shiftData.cast<Map<String, dynamic>>(); // Explicitly cast to List<Map<String, dynamic>>
+        _shiftTimings = shiftData.cast<Map<String, dynamic>>();
 
-        // Print shift days after mapping
-        print('Shift Days After Mapping: $_shiftDays');
-
-        // Process attendance data
         for (var entry in attendanceData) {
           final date = DateTime.parse(entry['id']['date']).toLocal();
           final shiftNumber = entry['id']['shift_number'] as int;
@@ -84,9 +69,6 @@ class _ServiceHistoryScreenState extends State<ServiceHistoryScreen> {
             _shiftAttendanceData[shiftNumber]![date] = totalHours;
           }
         }
-
-        // Print attendance data after mapping
-        print('Shift Attendance Data After Mapping: $_shiftAttendanceData');
 
         setState(() {
           _isLoading = false;
@@ -117,26 +99,38 @@ class _ServiceHistoryScreenState extends State<ServiceHistoryScreen> {
     });
 
     if (index == 0) {
-      // Navigate to Home Screen
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => ServiceHomePage(empId: widget.empId),
         ),
       );
-    } else if (index == 1) {
-      // Stay on History Screen
+    }
+  }
+
+  String _getShiftLetter(int shiftNumber) {
+    switch (shiftNumber) {
+      case 1: return 'Morning';
+      case 2: return 'Afternoon';
+      case 3: return 'Night';
+      case 4: return 'General';
+      default: return shiftNumber.toString();
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
     double barHeight = 60.0;
     double tabWidth = MediaQuery.of(context).size.width / 2;
 
     return Scaffold(
+      backgroundColor: Colors.black, // Set scaffold background to black
       body: Stack(
         children: [
+          // Black background layer
+          Container(color: Colors.black),
+          
           // Background Image
           Container(
             decoration: BoxDecoration(
@@ -146,6 +140,7 @@ class _ServiceHistoryScreenState extends State<ServiceHistoryScreen> {
               ),
             ),
           ),
+          
           // Main Content
           _isLoading
               ? Center(child: CircularProgressIndicator())
@@ -153,9 +148,8 @@ class _ServiceHistoryScreenState extends State<ServiceHistoryScreen> {
                   children: _shiftDays.entries.map((entry) {
                     final shiftNumber = entry.key;
                     final daysWithShifts = entry.value;
-
-                    // Ensure focusedDay is within the range of firstDay and lastDay
                     DateTime focusedDay = TimeService.appTime;
+                    
                     if (focusedDay.isBefore(daysWithShifts.first)) {
                       focusedDay = daysWithShifts.first;
                     } else if (focusedDay.isAfter(daysWithShifts.last)) {
@@ -168,7 +162,7 @@ class _ServiceHistoryScreenState extends State<ServiceHistoryScreen> {
                         Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Text(
-                            'Shift $shiftNumber',
+                            'Shift ${_getShiftLetter(shiftNumber)}',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -183,6 +177,10 @@ class _ServiceHistoryScreenState extends State<ServiceHistoryScreen> {
                           calendarFormat: CalendarFormat.month,
                           headerStyle: HeaderStyle(
                             titleTextStyle: TextStyle(color: Colors.blue),
+                            formatButtonTextStyle: TextStyle(  // This controls the "2 weeks" text
+      color: Colors.blue,      // Set to same color as arrows
+      fontSize: 14,
+    ),
                             leftChevronIcon: Icon(Icons.chevron_left, color: Colors.blue),
                             rightChevronIcon: Icon(Icons.chevron_right, color: Colors.blue),
                           ),
@@ -209,25 +207,17 @@ class _ServiceHistoryScreenState extends State<ServiceHistoryScreen> {
                               final date = DateTime(day.year, day.month, day.day);
                               final totalHours = _shiftAttendanceData[shiftNumber]?[date] ?? 0;
 
-                              // Print debugging information for each day
-                              print('Shift: $shiftNumber, Date: $date, Total Hours: $totalHours');
-
-                              // Check if the date is in the shift days
                               if (daysWithShifts.any((shiftDay) =>
                                   shiftDay.year == date.year &&
                                   shiftDay.month == date.month &&
                                   shiftDay.day == date.day)) {
-                                // Fetch the shift timing for this shift number
                                 final shift = _shiftTimings.firstWhere(
                                   (s) => s['shiftNumber'] == shiftNumber,
-                                  orElse: () => {}, // Return an empty map if no match is found
+                                  orElse: () => {},
                                 );
 
                                 if (shift.isNotEmpty) {
-                                  // Calculate the shift duration
                                   final shiftDuration = _calculateShiftDuration(shift);
-
-                                  // Determine the color based on total hours compared to shift duration
                                   final color = totalHours >= shiftDuration ? Colors.green : Colors.red;
 
                                   if (color == Colors.red) {
@@ -279,8 +269,6 @@ class _ServiceHistoryScreenState extends State<ServiceHistoryScreen> {
                                   );
                                 }
                               }
-
-                              // If the date is not in the shift days, return null (no marking)
                               return null;
                             },
                           ),
@@ -292,92 +280,91 @@ class _ServiceHistoryScreenState extends State<ServiceHistoryScreen> {
                 ),
         ],
       ),
-      bottomNavigationBar: Container(
-        color: Colors.black, // Outer container with black margin effect
-        margin: EdgeInsets.only(bottom: 10), // This creates the margin
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.only(bottom: bottomPadding), // Add safe area padding
         child: Container(
-          height: barHeight,
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
-          decoration: BoxDecoration(
-            color: Color(0xFFFF7043), // Actual bottom bar color
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 10,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: Stack(
-            children: [
-              // Sliding box (darker shade)
-              AnimatedPositioned(
-                duration: Duration(milliseconds: 300),
-                left: _selectedIndex == 0 ? 0 : tabWidth,
-                top: 0,
-                bottom: 0,
-                child: Container(
-                  width: tabWidth,
-                  height: barHeight,
-                  decoration: BoxDecoration(
-                    color: Color(0xFFB84542).withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(20),
+          color: Colors.black,
+          margin: EdgeInsets.only(bottom: 10),
+          child: Container(
+            height: barHeight,
+            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+            decoration: BoxDecoration(
+              color: Color(0xFFFF7043),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                AnimatedPositioned(
+                  duration: Duration(milliseconds: 300),
+                  left: _selectedIndex == 0 ? 0 : tabWidth,
+                  top: 0,
+                  bottom: 0,
+                  child: Container(
+                    width: tabWidth,
+                    height: barHeight,
+                    decoration: BoxDecoration(
+                      color: Color(0xFFB84542).withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                   ),
                 ),
-              ),
-              // Tab items (Home and History)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Home Tab
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => _onItemTapped(0),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.home, color: Colors.white),
-                            SizedBox(width: 8),
-                            Text(
-                              'HOME',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _onItemTapped(0),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.home, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text(
+                                'HOME',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  // History Tab
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => _onItemTapped(1),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.history, color: Colors.white),
-                            SizedBox(width: 8),
-                            Text(
-                              'HISTORY',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _onItemTapped(1),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.history, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text(
+                                'HISTORY',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -393,11 +380,11 @@ class RegularizeScreen extends StatefulWidget {
   final int shiftNumber;
 
   const RegularizeScreen({
-    Key? key,
+    super.key,
     required this.date,
     required this.empId,
     required this.shiftNumber,
-  }) : super(key: key);
+  });
 
   @override
   _RegularizeScreenState createState() => _RegularizeScreenState();
@@ -419,7 +406,6 @@ class _RegularizeScreenState extends State<RegularizeScreen> {
     _fetchShiftTimings();
   }
 
-  // Fetch attendance data for the selected shift and date
   Future<void> _fetchAttendanceData() async {
     try {
       String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
@@ -442,49 +428,44 @@ class _RegularizeScreenState extends State<RegularizeScreen> {
     }
   }
 
-  // Fetch shift timings for the selected shift and date
   Future<void> _fetchShiftTimings() async {
-  try {
-    String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
-    final response = await http.get(
-      Uri.parse('$baseUrl/api/shifts/shift_timings?empId=${widget.empId}&date=${DateFormat('yyyy-MM-dd').format(widget.date)}'),
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> shiftData = json.decode(response.body);
-
-      // Filter shifts for the selected date and shift number
-      final shift = shiftData.firstWhere(
-        (shift) =>
-            shift['shiftNumber'] == widget.shiftNumber &&
-            DateTime.parse(shift['startTime']).toLocal().day == widget.date.day,
-        orElse: () => null,
+    try {
+      String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/shifts/shift_timings?empId=${widget.empId}&date=${DateFormat('yyyy-MM-dd').format(widget.date)}'),
       );
 
-      if (shift != null) {
-        setState(() {
-          // Extract HH:mm from the startTime and endTime
-          _newInTime = DateFormat('HH:mm').format(DateTime.parse(shift['startTime']).toLocal());
-          _newOutTime = DateFormat('HH:mm').format(DateTime.parse(shift['endTime']).toLocal());
-          _isLoading = false;
-        });
-      } else {
-        print('No shift found for the selected date and shift number.');
-      }
-    } else {
-      print('Failed to fetch shift timings. Status Code: ${response.statusCode}');
-    }
-  } catch (e) {
-    print('Error fetching shift timings: $e');
-  }
-}
+      if (response.statusCode == 200) {
+        final List<dynamic> shiftData = json.decode(response.body);
 
-  // Submit regularization data to the backend
+        final shift = shiftData.firstWhere(
+          (shift) =>
+              shift['shiftNumber'] == widget.shiftNumber &&
+              DateTime.parse(shift['startTime']).toLocal().day == widget.date.day,
+          orElse: () => null,
+        );
+
+        if (shift != null) {
+          setState(() {
+            _newInTime = DateFormat('HH:mm').format(DateTime.parse(shift['startTime']).toLocal());
+            _newOutTime = DateFormat('HH:mm').format(DateTime.parse(shift['endTime']).toLocal());
+            _isLoading = false;
+          });
+        } else {
+          print('No shift found for the selected date and shift number.');
+        }
+      } else {
+        print('Failed to fetch shift timings. Status Code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching shift timings: $e');
+    }
+  }
+
   Future<void> _submitRegularization() async {
     try {
       String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://default-url.com';
 
-      // Validate reason input
       if (_reasonController.text.trim().isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Please enter a reason.')),
@@ -492,7 +473,6 @@ class _RegularizeScreenState extends State<RegularizeScreen> {
         return;
       }
 
-      // Prepare regularization data
       final Map<String, dynamic> data = {
         'id': {
           'empId': widget.empId,
@@ -508,7 +488,6 @@ class _RegularizeScreenState extends State<RegularizeScreen> {
         'status': 'Pending',
       };
 
-      // Send the data to the backend
       final response = await http.post(
         Uri.parse('$baseUrl/api/regularization/service'),
         headers: {'Content-Type': 'application/json'},
@@ -519,7 +498,7 @@ class _RegularizeScreenState extends State<RegularizeScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Regularization submitted successfully!')),
         );
-        Navigator.pop(context); // Go back to the previous screen
+        Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to submit regularization.')),
@@ -534,139 +513,166 @@ class _RegularizeScreenState extends State<RegularizeScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Regularize Attendance'),
-      ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Old Timings Card
-                  Card(
-                    color: Color(0xFFFDEEEE),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Old Timings',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFFB84542),
-                            ),
-                          ),
-                          SizedBox(height: 16),
-                          Text(
-                            'Date: ${DateFormat('yyyy-MM-dd').format(widget.date)}',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Color(0xFFB84542),
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Punch In: $_oldInTime',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Color(0xFFB84542),
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Punch Out: $_oldOutTime',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Color(0xFFB84542),
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Total Hours: ${_oldTotalHours.toStringAsFixed(2)}',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Color(0xFFB84542),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
+Widget build(BuildContext context) {
+  final cardWidth = MediaQuery.of(context).size.width - 40; // Subtracting horizontal padding
 
-                  // Regularization Form
-                  Card(
-                    color: Color(0xFFFDEEEE),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Regularization',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFFB84542),
-                            ),
-                          ),
-                          SizedBox(height: 16),
-                          Text(
-                            'New Punch In: $_newInTime',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Color(0xFFB84542),
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'New Punch Out: $_newOutTime',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Color(0xFFB84542),
-                            ),
-                          ),
-                          SizedBox(height: 16),
-                          TextFormField(
-                            decoration: InputDecoration(
-                              labelText: 'Reason',
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(),
-                            ),
-                            controller: _reasonController,
-                            maxLines: 3,
-                          ),
-                          SizedBox(height: 20),
-                          Center(
-                            child: ElevatedButton(
-                              onPressed: _submitRegularization,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFFB84542),
-                                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                              ),
-                              child: Text(
-                                'Submit',
+  return Scaffold(
+    appBar: AppBar(
+      title: Text('Regularize Attendance'),
+      backgroundColor: Color(0xFFB84542),
+      foregroundColor: Colors.white,
+    ),
+    body: Stack(
+      children: [
+        // Background Image
+        Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/background.png'),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        
+        // Content
+        _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Old Timings Card - now using the calculated cardWidth
+                    SizedBox(
+                      width: cardWidth,
+                      child: Card(
+                        color: Color(0xFFFDEEEE).withOpacity(0.9),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Old Timings',
                                 style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFB84542),
                                 ),
                               ),
-                            ),
+                              SizedBox(height: 16),
+                              Text(
+                                'Date: ${DateFormat('yyyy-MM-dd').format(widget.date)}',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Color(0xFFB84542),
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Punch In: $_oldInTime',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Color(0xFFB84542),
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Punch Out: $_oldOutTime',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Color(0xFFB84542),
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Total Hours: ${_oldTotalHours.toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Color(0xFFB84542),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                    SizedBox(height: 20),
+
+                    // Regularization Form - now using the same calculated cardWidth
+                    SizedBox(
+                      width: cardWidth,
+                      child: Card(
+                        color: Color(0xFFFDEEEE).withOpacity(0.9),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Regularization',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFB84542),
+                                ),
+                              ),
+                              SizedBox(height: 16),
+                              Text(
+                                'New Punch In: $_newInTime',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Color(0xFFB84542),
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'New Punch Out: $_newOutTime',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Color(0xFFB84542),
+                                ),
+                              ),
+                              SizedBox(height: 16),
+                              TextFormField(
+                                decoration: InputDecoration(
+                                  labelText: 'Reason',
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(),
+                                  labelStyle: TextStyle(color: Color(0xFFB84542)),
+                                ),
+                                controller: _reasonController,
+                                maxLines: 3,
+                                style: TextStyle(color: Colors.black),
+                              ),
+                              SizedBox(height: 20),
+                              Center(
+                                child: ElevatedButton(
+                                  onPressed: _submitRegularization,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xFFB84542),
+                                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                                  ),
+                                  child: Text(
+                                    'Submit',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-    );
-  }
+      ],
+    ),
+  );
+}
 }
